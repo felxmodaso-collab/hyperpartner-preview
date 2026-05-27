@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HyperPartner / Acts — Цифровые сотрудники</title>
+<meta name="description" content="Семь актов о том, как рутина превращается в точность. Платформа цифровых сотрудников HyperPartner.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;400;500;700&family=Inter+Tight:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:#06070C;color:#F2F4F8;scroll-behavior:smooth}
+html{overflow-x:clip}
+body{overflow-x:clip}
+
+:root{
+  --bg:#06070C;
+  --bg-deep:#02030A;
+  --ink:#F2F4F8;
+  --ink-mid:rgba(242,244,248,.6);
+  --ink-dim:rgba(242,244,248,.32);
+  --accent:#3B7BFF;          /* cobalt — single palette in concept-c */
+  --accent-bright:#5A8FFF;
+  --accent-deep:#1E3A8A;
+  --grad-accent:linear-gradient(135deg,#F2D5B1 0%,#E8C6A8 55%,#D9B493 100%);
+  --brand-peach:#E8C6A8;
+  --brand-peach-bright:#F2D5B1;
+  --grid:rgba(242,244,248,.08);
+  --grid2:rgba(242,244,248,.14);
+  --silk:cubic-bezier(.16,1,.3,1);
+  --snap:cubic-bezier(.83,0,.17,1);
+  --f:'JetBrains Mono','Cascadia Code',ui-monospace,monospace;
+  --fd:'Inter Tight','IBM Plex Sans','Segoe UI Variable Display',sans-serif;
+}
+
+body{font-family:var(--fd);font-weight:400;-webkit-font-smoothing:antialiased;cursor:none}
+@media(max-width:900px){body{cursor:auto}}
+
+/* CURSOR — single dot, becomes ring on hover */
+#cur{position:fixed;top:0;left:0;width:10px;height:10px;background:var(--accent);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);will-change:transform;transition:width .25s var(--silk),height .25s var(--silk),background .2s,border .2s,opacity .2s}
+#cur.ring{width:40px;height:40px;background:transparent;border:1.5px solid var(--accent-bright)}
+@media(max-width:900px){#cur{display:none}}
+
+/* PROGRESS — top bar */
+#progress{position:fixed;top:0;left:0;height:2px;background:var(--accent);z-index:99;width:0;box-shadow:0 0 12px var(--accent)}
+
+/* PARTICLES — persistent cobalt data dust */
+#particles{position:fixed;inset:0;width:100vw;height:100vh;z-index:3;pointer-events:none;mix-blend-mode:screen;opacity:0}
+
+/* CROSS-ACT BRIDGE — SMS bubble → particles → workers */
+.bridge{position:fixed;top:50%;left:50%;width:240px;height:240px;transform:translate(-50%,-50%);z-index:4;pointer-events:none;opacity:0;filter:blur(0px) drop-shadow(0 0 28px rgba(98,224,242,.6))}
+.bridge circle{transform-origin:center;transition:none}
+
+/* SIGNAL LINE — vertical data path connecting all acts (right edge) */
+.signal-line{position:fixed;top:0;right:18px;width:1px;height:100vh;z-index:6;pointer-events:none;opacity:.55}
+@media(max-width:900px){.signal-line{display:none}}
+
+/* SIDEBAR — chapter nav like sidewave */
+.chapter-nav{position:fixed;top:50%;left:24px;transform:translateY(-50%);z-index:50;display:flex;flex-direction:column;gap:6px;font-family:var(--f);font-size:10px;letter-spacing:.16em;text-transform:uppercase;text-shadow:0 1px 8px rgba(0,0,0,.85),0 0 2px rgba(0,0,0,.6)}
+@media(max-width:900px){.chapter-nav{display:none}}
+.chapter-nav a{display:flex;align-items:center;gap:10px;padding:8px 10px;color:rgba(255,255,255,.32);text-decoration:none;transition:color .3s var(--silk),padding-left .3s var(--silk)}
+.chapter-nav a .num{font-weight:700;color:rgba(255,255,255,.5)}
+.chapter-nav a .lbl{font-weight:500}
+.chapter-nav a::before{content:'';width:24px;height:1px;background:rgba(255,255,255,.18);transition:width .3s var(--silk),background .3s var(--silk)}
+.chapter-nav a.active{color:#FFFFFF;padding-left:14px}
+.chapter-nav a.active::before{width:42px;background:var(--accent-bright)}
+.chapter-nav a.past{color:rgba(255,255,255,.55)}
+
+/* BRAND */
+.brand{position:fixed;top:24px;left:24px;z-index:55;font-family:var(--fd);font-size:13px;font-weight:800;letter-spacing:.06em;color:#FFFFFF;text-decoration:none;display:flex;align-items:baseline;gap:6px;text-shadow:0 1px 10px rgba(0,0,0,.85),0 0 2px rgba(0,0,0,.6)}
+.brand .chev{color:var(--brand-peach);font-weight:900;letter-spacing:-.06em}
+
+/* MENU + CTA (top right) */
+.top-right{position:fixed;top:20px;right:24px;z-index:55;display:flex;align-items:center;gap:14px;mix-blend-mode:difference}
+.menu-btn{font-family:var(--f);font-size:10px;font-weight:700;letter-spacing:.18em;color:#FFFFFF;text-decoration:none;padding:8px 14px;border:1px solid rgba(255,255,255,.28);cursor:none;background:transparent;transition:background .2s,border-color .2s}
+.menu-btn:hover{border-color:var(--accent-bright);background:rgba(255,255,255,.05)}
+.cta-mini{font-family:var(--f);font-size:10px;font-weight:700;letter-spacing:.16em;color:#06070C;text-decoration:none;padding:9px 16px;background:var(--accent);transition:background .2s}
+.cta-mini:hover{background:var(--accent-bright)}
+
+/* ─── ACT (chapter) — pinned scroll-driven scene ─── */
+.act{position:relative;width:100%;height:200vh;background:var(--bg)}
+.act-stage{position:sticky;top:0;height:100vh;width:100%;overflow:hidden;display:flex;align-items:flex-end;justify-content:flex-start;padding:0}
+.act-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
+.act-bg.image{background-size:cover;background-position:center}
+.act-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,7,12,.05) 0%,rgba(6,7,12,.18) 38%,rgba(6,7,12,.75) 70%,rgba(6,7,12,.96) 100%);z-index:1;pointer-events:none}
+.act-inner{position:relative;z-index:2;padding:0 64px 100px;max-width:1320px;width:100%}
+@media(max-width:900px){.act-inner{padding:0 24px 80px}}
+.act-eyebrow{font-family:var(--f);font-size:11px;letter-spacing:.32em;color:var(--accent-bright);text-transform:uppercase;font-weight:700;display:inline-flex;align-items:center;gap:12px;margin-bottom:18px}
+.act-eyebrow::before{content:'';width:28px;height:1px;background:var(--accent-bright)}
+.act-title{font-family:var(--fd);font-size:clamp(56px,8.5vw,142px);font-weight:900;line-height:.86;letter-spacing:-.035em;text-transform:uppercase;color:#FFFFFF;text-shadow:0 4px 32px rgba(6,7,12,.85),0 0 1px rgba(0,0,0,.4);margin-bottom:22px}
+.act-title .acc{background:var(--grad-accent);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.act-sub{font-family:var(--fd);font-size:clamp(14px,1.2vw,17px);font-weight:400;line-height:1.5;color:rgba(255,255,255,.78);max-width:560px;text-shadow:0 0 10px rgba(0,0,0,.6)}
+.act-sub strong{color:#FFFFFF;font-weight:600}
+
+/* ACT-SIDE — right column for stats/labels per act */
+.act-side{position:absolute;top:48%;right:64px;transform:translateY(-50%);z-index:2;display:flex;flex-direction:column;gap:16px;font-family:var(--f);font-size:11px;color:rgba(255,255,255,.65);letter-spacing:.04em;text-align:right;max-width:280px}
+@media(max-width:1100px){.act-side{display:none}}
+.act-side .row{display:flex;justify-content:space-between;gap:14px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.act-side .row .k{color:rgba(255,255,255,.45);text-transform:uppercase;font-size:9.5px;letter-spacing:.18em;font-weight:600}
+.act-side .row .v{color:var(--accent-bright);font-weight:700}
+
+/* ACT-1 specific */
+.act-1 .act-bg.image{background-image:url('assets/C-01-chaos.png')}
+.act-1 .act-sub{text-shadow:0 0 18px rgba(0,0,0,.85)}
+
+/* ACT-2 → ACT-7 use NB stills as bg (Veo videos override via <video> when loaded) */
+.act-2 .act-bg.image{background-image:url('assets/C-02-signal.png');background-size:cover;background-position:center}
+.act-3 .act-bg.image{background-image:url('assets/C-03-robots.png');background-size:cover;background-position:center}
+.act-4 .act-bg.image{background-image:url('assets/C-04-build.png');background-size:cover;background-position:center}
+.act-5 .act-bg.image{background-image:url('assets/C-05-precision.png');background-size:cover;background-position:center}
+.act-6 .act-bg.image{background-image:url('assets/C-06-scale.png');background-size:cover;background-position:center}
+.act-7 .act-bg.image{background-image:url('assets/C-07-invite.png');background-size:cover;background-position:center}
+
+/* FINAL CTA */
+.act-7 .cta-magnet{display:inline-flex;align-items:center;gap:14px;background:var(--accent);color:#06070C;padding:18px 32px;font-family:var(--f);font-size:11px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;text-decoration:none;margin-top:28px;border:none;cursor:none;transition:background .25s var(--silk),transform .25s var(--silk),box-shadow .25s var(--silk);position:relative;overflow:hidden;box-shadow:0 0 0 0 rgba(59,123,255,0)}
+.act-7 .cta-magnet:hover{background:var(--accent-bright);transform:translateY(-2px);box-shadow:0 10px 32px rgba(59,123,255,.4)}
+.act-7 .cta-magnet .arr{font-size:14px;letter-spacing:0}
+
+/* Bridge between acts — small horizontal scroll-hint */
+.scroll-hint{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);z-index:3;font-family:var(--f);font-size:10px;color:rgba(255,255,255,.45);letter-spacing:.28em;text-transform:uppercase;display:inline-flex;align-items:center;gap:10px;pointer-events:none;animation:scroll-pulse 2.4s ease-in-out infinite}
+@keyframes scroll-pulse{0%,100%{opacity:.5}50%{opacity:1}}
+.scroll-hint::after{content:'';width:1px;height:18px;background:var(--accent-bright);transform-origin:top;animation:scroll-line 2.4s ease-in-out infinite}
+@keyframes scroll-line{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* Footer — minimal */
+.foot{position:relative;background:var(--bg);padding:60px 32px 24px;border-top:1px solid var(--grid);font-family:var(--f);font-size:10px;color:var(--ink-dim);z-index:2}
+.foot-row{max-width:1320px;margin:0 auto;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;letter-spacing:.04em}
+.foot-row .compliance{display:inline-flex;gap:8px}
+.foot-row .compliance .chip{font-family:var(--f);font-size:9px;font-weight:700;letter-spacing:.16em;color:var(--accent-bright);border:1px solid var(--accent);padding:3px 8px;text-transform:uppercase}
+.foot a{color:var(--ink-dim);text-decoration:none;transition:color .25s}
+.foot a:hover{color:var(--accent-bright)}
+
+/* ───── CONTENT BLOCKS (TZ-compliant sections after the 7-act story) ───── */
+.block{position:relative;padding:140px 64px;background:var(--bg);border-top:1px solid rgba(242,244,248,.06)}
+@media(max-width:900px){.block{padding:80px 24px}}
+.block-inner{max-width:1320px;margin:0 auto}
+.block-eyebrow{display:inline-flex;align-items:center;gap:12px;font-family:var(--f);font-size:11px;letter-spacing:.32em;color:var(--brand-peach);text-transform:uppercase;font-weight:700;margin-bottom:24px}
+.block-eyebrow::before{content:'';width:32px;height:1px;background:var(--brand-peach)}
+.block-h{font-family:var(--fd);font-size:clamp(40px,5vw,82px);font-weight:900;line-height:.92;letter-spacing:-.025em;color:#FFFFFF;margin-bottom:64px;text-transform:uppercase}
+.block-h .acc{background:var(--grad-accent);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.block-foot{display:flex;justify-content:space-between;align-items:center;margin-top:48px;padding-top:24px;border-top:1px solid rgba(242,244,248,.08);color:rgba(242,244,248,.55);font-family:var(--f);font-size:12px}
+
+/* ROI */
+.roi-grid{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:48px}
+@media(max-width:980px){.roi-grid{grid-template-columns:1fr;gap:32px}}
+.roi-input{display:flex;flex-direction:column;gap:10px}
+.roi-input label{font-family:var(--f);font-size:10.5px;letter-spacing:.18em;color:rgba(242,244,248,.55);text-transform:uppercase;font-weight:600}
+.roi-input input[type=range]{appearance:none;width:100%;height:2px;background:rgba(242,244,248,.16);outline:none;cursor:none}
+.roi-input input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;background:var(--brand-peach);border-radius:50%;cursor:none;box-shadow:0 0 12px rgba(232,198,168,.6)}
+.roi-input input[type=range]::-moz-range-thumb{width:18px;height:18px;background:var(--brand-peach);border-radius:50%;cursor:none;border:none;box-shadow:0 0 12px rgba(232,198,168,.6)}
+.roi-input output{font-family:var(--fd);font-size:32px;font-weight:800;color:#FFFFFF;letter-spacing:-.02em}
+.roi-out{display:flex;flex-direction:column;gap:14px;padding:24px;background:linear-gradient(135deg,rgba(59,123,255,.08) 0%,rgba(232,198,168,.04) 100%);border:1px solid rgba(232,198,168,.18)}
+.roi-out-row{display:flex;justify-content:space-between;align-items:baseline;padding-bottom:10px;border-bottom:1px dashed rgba(242,244,248,.1)}
+.roi-out-row:last-child{border-bottom:none;padding-bottom:0}
+.roi-out-row > span:first-child{font-family:var(--f);font-size:11px;color:rgba(242,244,248,.55);letter-spacing:.12em;text-transform:uppercase}
+.roi-out-row .big{font-family:var(--fd);font-size:28px;font-weight:900;color:var(--brand-peach);letter-spacing:-.02em}
+
+/* FUNCTIONS */
+.fn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:rgba(242,244,248,.06)}
+@media(max-width:1100px){.fn-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.fn-grid{grid-template-columns:1fr}}
+.fn{background:var(--bg);padding:36px 28px;display:flex;flex-direction:column;gap:14px;transition:background .3s var(--silk);min-height:200px}
+.fn:hover{background:rgba(59,123,255,.05)}
+.fn-n{font-family:var(--f);font-size:11px;color:var(--brand-peach);font-weight:700;letter-spacing:.22em}
+.fn h3{font-family:var(--fd);font-size:20px;font-weight:700;color:#FFFFFF;letter-spacing:-.01em}
+.fn p{font-family:var(--fd);font-size:14px;color:rgba(242,244,248,.6);line-height:1.55}
+
+/* PERSONALIZATION */
+.personal-grid{display:grid;grid-template-columns:340px 1fr;gap:64px;align-items:center}
+@media(max-width:900px){.personal-grid{grid-template-columns:1fr;gap:32px}}
+.phone-mock{width:320px;background:#0E1525;border:1px solid rgba(232,198,168,.16);border-radius:24px;padding:18px 16px;display:flex;flex-direction:column;gap:12px;box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 0 8px rgba(232,198,168,.06)}
+.phone-status{font-family:var(--f);font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.12em;padding:0 4px}
+.phone-notif{background:rgba(59,123,255,.12);border:1px solid rgba(98,224,242,.2);padding:12px 14px;border-radius:14px;display:flex;flex-direction:column;gap:6px}
+.phone-app{font-family:var(--f);font-size:10px;color:var(--brand-peach);letter-spacing:.16em;font-weight:700}
+.phone-msg{font-family:var(--fd);font-size:14px;color:#FFFFFF;line-height:1.4}
+.personal-copy p{font-family:var(--fd);font-size:17px;color:rgba(242,244,248,.85);line-height:1.55;margin-bottom:14px}
+.personal-copy ul{list-style:none;padding:0;margin-top:18px}
+.personal-copy li{font-family:var(--fd);font-size:15px;color:rgba(242,244,248,.7);padding:10px 0 10px 22px;position:relative;border-bottom:1px solid rgba(242,244,248,.06)}
+.personal-copy li::before{content:'→';position:absolute;left:0;color:var(--brand-peach);font-weight:700}
+
+/* INDUSTRY */
+.industry-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid rgba(242,244,248,.1)}
+@media(max-width:900px){.industry-grid{grid-template-columns:1fr}}
+.ind-col{padding:48px 36px;border-right:1px solid rgba(242,244,248,.1)}
+@media(max-width:900px){.ind-col{border-right:none;border-bottom:1px solid rgba(242,244,248,.1)}}
+.ind-col:last-child{border-right:none}
+.ind-tag{display:inline-block;font-family:var(--f);font-size:11px;letter-spacing:.22em;text-transform:uppercase;font-weight:700;padding:6px 12px;margin-bottom:18px}
+.ind-tag.ind-old{color:rgba(242,244,248,.45);border:1px solid rgba(242,244,248,.2)}
+.ind-tag.ind-new{color:var(--brand-peach);border:1px solid var(--brand-peach);background:rgba(232,198,168,.08)}
+.ind-col p{font-family:var(--fd);font-size:17px;color:rgba(242,244,248,.78);line-height:1.55}
+
+/* ARCH LAYERS */
+.arch-layers{display:flex;flex-direction:column;gap:1px;background:rgba(242,244,248,.06);margin-bottom:48px}
+.layer{background:var(--bg);padding:32px 28px;display:grid;grid-template-columns:80px 1fr 2.2fr;gap:32px;align-items:start}
+@media(max-width:900px){.layer{grid-template-columns:1fr;gap:14px}}
+.layer-n{font-family:var(--fd);font-size:48px;font-weight:900;color:var(--brand-peach);line-height:1}
+.layer h3{font-family:var(--fd);font-size:22px;font-weight:700;color:#FFFFFF;letter-spacing:-.01em}
+.layer p{font-family:var(--fd);font-size:15px;color:rgba(242,244,248,.6);line-height:1.55}
+.sec-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(242,244,248,.06)}
+@media(max-width:900px){.sec-tabs{grid-template-columns:1fr}}
+.sec-tab{background:var(--bg);padding:24px;display:flex;flex-direction:column;gap:8px}
+.sec-tab strong{font-family:var(--fd);font-size:16px;color:#FFFFFF}
+.sec-tab span{font-family:var(--f);font-size:12px;color:rgba(242,244,248,.55);letter-spacing:.04em}
+
+/* TIMELINE */
+.t-steps{list-style:none;padding:0;display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(242,244,248,.06)}
+@media(max-width:980px){.t-steps{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.t-steps{grid-template-columns:1fr}}
+.t-steps li{background:var(--bg);padding:28px 24px;display:flex;flex-direction:column;gap:8px;min-height:200px}
+.t-n{font-family:var(--f);font-size:11px;color:var(--brand-peach);letter-spacing:.22em;font-weight:700}
+.t-steps h3{font-family:var(--fd);font-size:20px;font-weight:700;color:#FFFFFF;letter-spacing:-.01em;margin-bottom:0}
+.t-dur{font-family:var(--f);font-size:11px;color:rgba(98,224,242,.7);letter-spacing:.12em;text-transform:uppercase}
+.t-steps p{font-family:var(--fd);font-size:14px;color:rgba(242,244,248,.6);line-height:1.5}
+
+/* CASES */
+.case-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(242,244,248,.06)}
+@media(max-width:900px){.case-grid{grid-template-columns:1fr}}
+.case{background:var(--bg);padding:36px 28px;display:flex;flex-direction:column;gap:18px}
+.case-tag{font-family:var(--f);font-size:10.5px;letter-spacing:.22em;color:var(--brand-peach);text-transform:uppercase;font-weight:700}
+.case h3{font-family:var(--fd);font-size:22px;font-weight:700;color:#FFFFFF;letter-spacing:-.01em;line-height:1.2}
+.case h3 .big{font-family:var(--fd);font-weight:900;font-size:34px;color:var(--brand-peach);display:block;margin-top:6px;letter-spacing:-.025em}
+.case p{font-family:var(--fd);font-size:14px;color:rgba(242,244,248,.6);line-height:1.55}
+
+/* TEAM */
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px}
+@media(max-width:900px){.team-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.team-grid{grid-template-columns:1fr}}
+.t-card{display:flex;flex-direction:column;gap:10px;padding:24px;background:rgba(242,244,248,.025);border:1px solid rgba(242,244,248,.06)}
+.t-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,rgba(59,123,255,.4) 0%,rgba(232,198,168,.3) 100%);margin-bottom:8px}
+.t-card h3{font-family:var(--fd);font-size:18px;font-weight:700;color:#FFFFFF;letter-spacing:-.01em}
+.t-card span{font-family:var(--f);font-size:12px;color:rgba(242,244,248,.55);letter-spacing:.04em}
+
+/* DEMO FORM */
+.demo-form{display:grid;grid-template-columns:1fr 1fr;gap:24px;max-width:760px}
+@media(max-width:680px){.demo-form{grid-template-columns:1fr}}
+.ff{display:flex;flex-direction:column;gap:8px}
+.ff-full{grid-column:1/-1}
+.ff label{font-family:var(--f);font-size:11px;color:rgba(242,244,248,.55);letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+.ff input,.ff textarea{background:transparent;border:none;border-bottom:1px solid rgba(242,244,248,.2);color:#FFFFFF;font-family:var(--fd);font-size:18px;padding:10px 0;outline:none;cursor:none}
+.ff input:focus,.ff textarea:focus{border-bottom-color:var(--brand-peach)}
+.demo-form .cta-magnet{justify-self:start;margin-top:14px}
+.form-msg{font-family:var(--f);font-size:13px;color:var(--brand-peach);min-height:20px}
+
+/* Reveal helpers */
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}.act{height:auto}.act-stage{position:relative}}
+
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="progress"></div>
+
+<!-- Persistent particle layer — cobalt data dust travels across the scroll -->
+<canvas id="particles" aria-hidden="true"></canvas>
+
+<!-- Signal line — the data path that connects all 7 acts (right edge of viewport) -->
+<svg id="signal-line" class="signal-line" aria-hidden="true" viewBox="0 0 100 100" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="sigGrad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3B7BFF" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#62E0F2" stop-opacity="1"/>
+      <stop offset="100%" stop-color="#A78BFA" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <line x1="50" y1="0" x2="50" y2="100" stroke="url(#sigGrad)" stroke-width="0.5" vector-effect="non-scaling-stroke"/>
+  <circle id="sig-dot" cx="50" cy="0" r="1.2" fill="#62E0F2"/>
+</svg>
+
+<!-- Cross-act bridge: SMS bubble traverses from Act II → Act III as particles -->
+<svg id="bridge-2to3" class="bridge" aria-hidden="true" viewBox="0 0 200 200" preserveAspectRatio="none">
+  <defs>
+    <radialGradient id="bridgeGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#62E0F2" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#3B7BFF" stop-opacity=".4"/>
+      <stop offset="100%" stop-color="#3B7BFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle id="bridge-bubble" cx="100" cy="100" r="32" fill="url(#bridgeGlow)"/>
+</svg>
+
+<!-- Cross-act bridge: data condenses into PDF between Act III → Act IV -->
+<svg id="bridge-3to4" class="bridge" aria-hidden="true" viewBox="0 0 200 200" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="bridgeRect" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#62E0F2" stop-opacity=".8"/>
+      <stop offset="100%" stop-color="#3B7BFF" stop-opacity=".2"/>
+    </linearGradient>
+  </defs>
+  <rect id="bridge-doc" x="70" y="30" width="60" height="140" rx="2" fill="rgba(98,224,242,.15)" stroke="url(#bridgeRect)" stroke-width="0.4"/>
+  <g id="bridge-doc-lines" stroke="rgba(232,198,168,.9)" stroke-width="0.6" stroke-dasharray="2 1.5">
+    <line x1="76" y1="50" x2="124" y2="50"/>
+    <line x1="76" y1="60" x2="118" y2="60"/>
+    <line x1="76" y1="75" x2="120" y2="75"/>
+    <line x1="76" y1="85" x2="110" y2="85"/>
+    <line x1="76" y1="100" x2="124" y2="100"/>
+    <line x1="76" y1="115" x2="118" y2="115"/>
+    <line x1="76" y1="130" x2="122" y2="130"/>
+  </g>
+</svg>
+
+<a href="#" class="brand"><span class="chev">&gt;&gt;</span>Hyperpartner</a>
+
+<div class="top-right">
+  <button class="menu-btn" type="button">Меню</button>
+  <a href="#act-7" class="cta-mini">Демо · 25 мин</a>
+</div>
+
+<!-- SIDEBAR NAV (like sidewave's chapter indicator) -->
+<nav class="chapter-nav" id="chapter-nav" aria-label="Главы">
+  <a href="#act-1" data-i="1" class="active"><span class="num">01</span><span class="lbl">Хаос</span></a>
+  <a href="#act-2" data-i="2"><span class="num">02</span><span class="lbl">Сигнал</span></a>
+  <a href="#act-3" data-i="3"><span class="num">03</span><span class="lbl">Сотрудники</span></a>
+  <a href="#act-4" data-i="4"><span class="num">04</span><span class="lbl">Сборка</span></a>
+  <a href="#act-5" data-i="5"><span class="num">05</span><span class="lbl">Точность</span></a>
+  <a href="#act-6" data-i="6"><span class="num">06</span><span class="lbl">Масштаб</span></a>
+  <a href="#act-7" data-i="7"><span class="num">07</span><span class="lbl">Вы</span></a>
+</nav>
+
+<!-- ACT 1 — ХАОС -->
+<section class="act act-1" id="act-1">
+  <div class="act-stage">
+    <div class="act-bg image" aria-hidden="true"></div>
+    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" poster="assets/C-01-chaos.png" aria-hidden="true" style="display:none">
+      <source src="assets/C-01-chaos.mp4" type="video/mp4">
+    </video>
+    <div class="act-overlay"></div>
+    <div class="act-inner">
+      <span class="act-eyebrow">Акт I · Хаос</span>
+      <h1 class="act-title">Рутинный<br><span class="acc">хаос.</span></h1>
+      <p class="act-sub">Бумаги, табличные ошибки, потерянные лиды. Менеджер перегружен — а ответ клиенту нужен <strong>здесь и сейчас</strong>. Каждая минута — это процент конверсии.</p>
+    </div>
+    <aside class="act-side">
+      <div class="row"><span class="k">Время</span><span class="v">03:42</span></div>
+      <div class="row"><span class="k">Документов</span><span class="v">137</span></div>
+      <div class="row"><span class="k">Не обработано</span><span class="v" style="color:#FF6B47">42 %</span></div>
+    </aside>
+    <div class="scroll-hint">Скролл — продолжить</div>
+  </div>
+</section>
+
+<!-- ACT 2 — СИГНАЛ -->
+<section class="act act-2" id="act-2">
+  <div class="act-stage">
+    <div class="act-bg image" aria-hidden="true"></div>
+    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+      <source src="assets/C-02-signal.mp4" type="video/mp4">
+    </video>
+    <div class="act-overlay"></div>
+    <div class="act-inner">
+      <span class="act-eyebrow">Акт II · Сигнал</span>
+      <h2 class="act-title">SMS<br><span class="acc">принят.</span></h2>
+      <p class="act-sub">«Geely Cityray. Срочно. Корпоративный парк, 3 машины.» Цифровой сотрудник перехватывает сообщение за <strong>120 мс</strong>.</p>
+    </div>
+    <aside class="act-side">
+      <div class="row"><span class="k">Отклик</span><span class="v">120 ms</span></div>
+      <div class="row"><span class="k">Тип</span><span class="v">B2B · парк</span></div>
+      <div class="row"><span class="k">Маркер</span><span class="v">срочно</span></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ACT 3 — РОБОТЫ -->
+<section class="act act-3" id="act-3">
+  <div class="act-stage">
+    <div class="act-bg image" aria-hidden="true"></div>
+    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+      <source src="assets/C-03-robots.mp4" type="video/mp4">
+    </video>
+    <div class="act-overlay"></div>
+    <div class="act-inner">
+      <span class="act-eyebrow">Акт III · Цифровые сотрудники</span>
+      <h2 class="act-title">Команда<br><span class="acc">подключается.</span></h2>
+      <p class="act-sub">Восемь ролей. Один периметр. <strong>Документы · Чат · Аналитика · IT · Финансы · HR · Логистика · Продажи.</strong> Каждый — отдельный цикл, работают одновременно.</p>
+    </div>
+    <aside class="act-side">
+      <div class="row"><span class="k">W-01 Документы</span><span class="v">live</span></div>
+      <div class="row"><span class="k">W-02 Чат</span><span class="v">live</span></div>
+      <div class="row"><span class="k">W-03 Аналитика</span><span class="v">live</span></div>
+      <div class="row"><span class="k">W-04 IT</span><span class="v">live</span></div>
+      <div class="row"><span class="k">W-05 Финансы</span><span class="v">live</span></div>
+      <div class="row"><span class="k">W-06 HR</span><span class="v">live</span></div>
+      <div class="row"><span class="k">W-07 Логистика</span><span class="v">live</span></div>
+      <div class="row"><span class="k">W-08 Продажи</span><span class="v">live</span></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ACT 4 — СБОРКА -->
+<section class="act act-4" id="act-4">
+  <div class="act-stage">
+    <div class="act-bg image" aria-hidden="true"></div>
+    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+      <source src="assets/C-04-build.mp4" type="video/mp4">
+    </video>
+    <div class="act-overlay"></div>
+    <div class="act-inner">
+      <span class="act-eyebrow">Акт IV · Сборка · 12 секунд</span>
+      <h2 class="act-title">PDF<br><span class="acc">собирается.</span></h2>
+      <p class="act-sub">Поле за полем. Маскирование PII на L3. Поиск менеджера в смене. Расчёт КАСКО. Цена. Подпись. <strong>12 секунд от SMS до записи на тест-драйв.</strong></p>
+    </div>
+    <aside class="act-side">
+      <div class="row"><span class="k">T+</span><span class="v" id="act4-t">09.1 sec</span></div>
+      <div class="row"><span class="k">Шаг</span><span class="v" id="act4-step">PDF собран</span></div>
+      <div class="row"><span class="k">Прогресс</span><span class="v" id="act4-pct">76 %</span></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ACT 5 — ТОЧНОСТЬ -->
+<section class="act act-5" id="act-5">
+  <div class="act-stage">
+    <div class="act-bg image" aria-hidden="true"></div>
+    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+      <source src="assets/C-05-precision.mp4" type="video/mp4">
+    </video>
+    <div class="act-overlay"></div>
+    <div class="act-inner">
+      <span class="act-eyebrow">Акт V · Точность</span>
+      <h2 class="act-title">99,9 %.<br><span class="acc">5–20× быстрее.</span></h2>
+      <p class="act-sub">Live-дашборд: <strong>1 247 833</strong> операций сегодня. Конверсия лидов <strong>+22–44 %</strong>. <strong>Замкнутый периметр</strong>: шифрование, контроль доступа, маскирование PII.</p>
+    </div>
+    <aside class="act-side">
+      <div class="row"><span class="k">Точность · 30д</span><span class="v">99,2 %</span></div>
+      <div class="row"><span class="k">Скорость</span><span class="v">5–20×</span></div>
+      <div class="row"><span class="k">ROI · после</span><span class="v">+412 %</span></div>
+      <div class="row"><span class="k">Активных</span><span class="v">8 / 8</span></div>
+      <div class="row"><span class="k">Периметр</span><span class="v">L3 → L5</span></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ACT 6 — МАСШТАБ -->
+<section class="act act-6" id="act-6">
+  <div class="act-stage">
+    <div class="act-bg image" aria-hidden="true"></div>
+    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+      <source src="assets/C-06-scale.mp4" type="video/mp4">
+    </video>
+    <div class="act-overlay"></div>
+    <div class="act-inner">
+      <span class="act-eyebrow">Акт VI · Масштаб</span>
+      <h2 class="act-title">От пилота<br><span class="acc">к платформе.</span></h2>
+      <p class="act-sub">Аудит → пилот → контракт → развёртывание → запуск → масштабирование. <strong>SAP · Oracle · 1С</strong> — интеграция в ваш периметр за <strong>4–8 недель</strong>.</p>
+    </div>
+    <aside class="act-side">
+      <div class="row"><span class="k">В production</span><span class="v">24 компании</span></div>
+      <div class="row"><span class="k">Пилотов сейчас</span><span class="v">14</span></div>
+      <div class="row"><span class="k">SLA-инциденты</span><span class="v">0</span></div>
+      <div class="row"><span class="k">Compliance</span><span class="v">152-ФЗ · ФСБ КС3</span></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ACT 7 — ВЫ -->
+<section class="act act-7" id="act-7">
+  <div class="act-stage">
+    <div class="act-bg image" aria-hidden="true"></div>
+    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+      <source src="assets/C-07-invite.mp4" type="video/mp4">
+    </video>
+    <div class="act-overlay"></div>
+    <div class="act-inner">
+      <span class="act-eyebrow">Акт VII · Приглашение</span>
+      <h2 class="act-title">Ваш процесс<br><span class="acc">— следующий.</span></h2>
+      <p class="act-sub"><strong>Демо — 25 минут.</strong> Бесплатный пилот — 2–4 недели на одном вашем реальном процессе. Цифровой сотрудник заменяет рутину точностью.</p>
+      <a class="cta-magnet" href="#contact"><span>Записаться на демо</span><span class="arr">→</span></a>
+    </div>
+    <aside class="act-side">
+      <div class="row"><span class="k">Демо</span><span class="v">25 минут</span></div>
+      <div class="row"><span class="k">Пилот</span><span class="v">2–4 недели</span></div>
+      <div class="row"><span class="k">Контракт</span><span class="v">после метрики</span></div>
+    </aside>
+  </div>
+</section>
+
+<!-- ─────────────  TZ-COMPLIANT CONTENT BLOCKS — appended after the 7-act story ───────────── -->
+
+<!-- ROI CALCULATOR (TZ Hero) -->
+<section class="block roi" id="roi">
+  <div class="block-inner">
+    <span class="block-eyebrow">01 · Калькулятор экономии</span>
+    <h2 class="block-h">Сколько освободится<br>в вашем фонде?</h2>
+    <div class="roi-grid">
+      <div class="roi-input">
+        <label>Сотрудников на рутине</label>
+        <input type="range" min="10" max="500" value="50" id="roi-emp" step="5">
+        <output id="roi-emp-v">50</output>
+      </div>
+      <div class="roi-input">
+        <label>Средняя зарплата, ₽/мес</label>
+        <input type="range" min="80000" max="400000" value="150000" id="roi-sal" step="5000">
+        <output id="roi-sal-v">150 000 ₽</output>
+      </div>
+      <div class="roi-out">
+        <div class="roi-out-row"><span>Освобождается в год</span><span class="big" id="roi-year">16 200 000 ₽</span></div>
+        <div class="roi-out-row"><span>ROI пилота · 6 мес</span><span class="big" id="roi-pilot">×2,7</span></div>
+        <div class="roi-out-row"><span>Окупаемость</span><span class="big">≤ 90 дн.</span></div>
+      </div>
+    </div>
+    <div class="block-foot">
+      <span>Расчёт — модель; финальные цифры по результатам аудита.</span>
+      <a class="cta-mini" href="#contact">Рассчитать под вас →</a>
+    </div>
+  </div>
+</section>
+
+<!-- 8 ФУНКЦИЙ (TZ Stitch 06) -->
+<section class="block functions" id="functions">
+  <div class="block-inner">
+    <span class="block-eyebrow">02 · Восемь функций</span>
+    <h2 class="block-h">Восемь ролей.<br><span class="acc">Один периметр.</span></h2>
+    <div class="fn-grid">
+      <article class="fn"><span class="fn-n">01</span><h3>Обработка документов</h3><p>Контракты, акты, КП, счета. OCR + извлечение полей + маскирование PII.</p></article>
+      <article class="fn"><span class="fn-n">02</span><h3>Чат-боты</h3><p>Telegram, WhatsApp, виджеты. Контекст + CRM + escalation на человека.</p></article>
+      <article class="fn"><span class="fn-n">03</span><h3>Анализ данных</h3><p>Бизнес-метрики, аномалии, отчёты. Подключение к 1С/SAP/Oracle.</p></article>
+      <article class="fn"><span class="fn-n">04</span><h3>IT-поддержка</h3><p>L1 заявки, ресет паролей, инвентаризация активов. Снижение нагрузки L1 в 3-4×.</p></article>
+      <article class="fn"><span class="fn-n">05</span><h3>Финансы</h3><p>Сверки, начисления, реестры. Подготовка к отчётности.</p></article>
+      <article class="fn"><span class="fn-n">06</span><h3>HR-автоматизация</h3><p>Скрининг резюме, онбординг, кадровые приказы. Снижение time-to-hire.</p></article>
+      <article class="fn"><span class="fn-n">07</span><h3>Логистика</h3><p>Маршрутизация, ETA, мониторинг доставок. Сокращение топлива −10 %.</p></article>
+      <article class="fn"><span class="fn-n">08</span><h3>Продажи</h3><p>Квалификация лидов, авто-предложения, оффер за минуты. Конверсия +22–44 %.</p></article>
+    </div>
+  </div>
+</section>
+
+<!-- ГИПЕРПЕРСОНАЛИЗАЦИЯ (TZ Stitch 06/09) -->
+<section class="block personal" id="personal">
+  <div class="block-inner">
+    <span class="block-eyebrow">03 · Гиперперсонализация</span>
+    <h2 class="block-h">Один клиент.<br>Один сценарий.</h2>
+    <div class="personal-grid">
+      <div class="phone-mock">
+        <div class="phone-status">9:41 · 5G</div>
+        <div class="phone-notif">
+          <span class="phone-app">HYPERPARTNER</span>
+          <span class="phone-msg">Ваш BMW X5 готов к настройке. Открыть оффер →</span>
+        </div>
+        <div class="phone-notif">
+          <span class="phone-app">HYPERPARTNER</span>
+          <span class="phone-msg">Подобрана конфигурация под ваш бюджет. Скачать PDF →</span>
+        </div>
+      </div>
+      <div class="personal-copy">
+        <p><strong>Алексей</strong>, корпоративный клиент. Уже владеет BMW X3.</p>
+        <p>Платформа собирает поведенческий профиль из CRM + истории заявок + данных сегмента — и за 8 секунд формирует индивидуальное предложение.</p>
+        <ul>
+          <li>Точное соответствие профилю — без массовых рассылок</li>
+          <li>Динамическая цена + конфигурация</li>
+          <li>Канал доставки выбирается по предыдущей активности</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ИНДУСТРИЯ 5.0 -->
+<section class="block industry" id="industry">
+  <div class="block-inner">
+    <span class="block-eyebrow">04 · Индустрия 5.0</span>
+    <h2 class="block-h">Не Индустрия 4.0.<br><span class="acc">5.0.</span></h2>
+    <div class="industry-grid">
+      <div class="ind-col">
+        <span class="ind-tag ind-old">4.0 · Машины</span>
+        <p>Промышленные роботы. ЧПУ-станки. Складские конвейеры. Автоматизация физического труда.</p>
+      </div>
+      <div class="ind-col">
+        <span class="ind-tag ind-new">5.0 · Цифровые сотрудники</span>
+        <p>Программные агенты внутри ИТ-периметра. Автоматизация умственного труда: обработка, решение, ответ. Каждый сотрудник — отдельный цикл.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- L3/L4/L5 АРХИТЕКТУРА + БЕЗОПАСНОСТЬ -->
+<section class="block arch" id="arch">
+  <div class="block-inner">
+    <span class="block-eyebrow">05 · Архитектура HyperPlatform</span>
+    <h2 class="block-h">Замкнутый периметр.<br><span class="acc">Три слоя.</span></h2>
+    <div class="arch-layers">
+      <div class="layer"><span class="layer-n">L5</span><h3>Аналитика и ИИ</h3><p>Дашборды, метрики, обучение моделей. Замкнуто в вашем контуре.</p></div>
+      <div class="layer"><span class="layer-n">L4</span><h3>Интеллектуальная обработка</h3><p>Цифровые сотрудники, маршрутизация задач, escalation. Audit-trail на каждое действие.</p></div>
+      <div class="layer"><span class="layer-n">L3</span><h3>Интеграция данных</h3><p>SAP · Oracle · 1С · CRM · ERP. Маскирование PII перед выходом за L3.</p></div>
+    </div>
+    <div class="sec-tabs">
+      <div class="sec-tab"><strong>Data Masking</strong><span>PII не покидает L3.</span></div>
+      <div class="sec-tab"><strong>Cloud Permission</strong><span>RBAC + audit-log по каждому шагу.</span></div>
+      <div class="sec-tab"><strong>Backup</strong><span>Снапшоты + DR-репликация в вашем контуре.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6-STEP TIMELINE -->
+<section class="block timeline" id="timeline">
+  <div class="block-inner">
+    <span class="block-eyebrow">06 · Внедрение</span>
+    <h2 class="block-h">От аудита<br><span class="acc">до масштабирования.</span></h2>
+    <ol class="t-steps">
+      <li><span class="t-n">01</span><h3>Аудит</h3><span class="t-dur">1 неделя</span><p>Картирование процессов. Кандидаты на пилот.</p></li>
+      <li><span class="t-n">02</span><h3>Бесплатный пилот</h3><span class="t-dur">2–4 недели</span><p>Один цифровой сотрудник на одном реальном процессе.</p></li>
+      <li><span class="t-n">03</span><h3>Контракт</h3><span class="t-dur">1 неделя</span><p>Метрики подтверждены → подписание.</p></li>
+      <li><span class="t-n">04</span><h3>Развёртывание</h3><span class="t-dur">4–8 недель</span><p>Интеграция SAP/Oracle/1С. Замкнутый периметр.</p></li>
+      <li><span class="t-n">05</span><h3>Обучение и запуск</h3><span class="t-dur">2 недели</span><p>Передача владельцам процесса.</p></li>
+      <li><span class="t-n">06</span><h3>Поддержка и масштаб</h3><span class="t-dur">постоянно</span><p>SLA + рост модели по новым процессам.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- 3 КЕЙСА (TZ Stitch 07) -->
+<section class="block cases" id="cases">
+  <div class="block-inner">
+    <span class="block-eyebrow">07 · Кейсы</span>
+    <h2 class="block-h">Доказано<br><span class="acc">на ваших соседях.</span></h2>
+    <div class="case-grid">
+      <article class="case">
+        <span class="case-tag">Автодилеры</span>
+        <h3>Конверсия лидов<br><span class="big">+22–44 %</span></h3>
+        <p>SMS-обработка, авто-оффер за 12 сек, маршрутизация на менеджера в смене.</p>
+      </article>
+      <article class="case">
+        <span class="case-tag">Документооборот</span>
+        <h3>Обработка документов<br><span class="big">5–20× быстрее</span></h3>
+        <p>OCR + маскирование PII + извлечение полей. Ошибки до <strong>0,1 %</strong>.</p>
+      </article>
+      <article class="case">
+        <span class="case-tag">Логистика</span>
+        <h3>Маршруты + ETA<br><span class="big">−10 % топливо</span></h3>
+        <p>Оптимизация маршрутов в реальном времени. Время в пути <strong>−25 %</strong>.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- КОМАНДА -->
+<section class="block team" id="team">
+  <div class="block-inner">
+    <span class="block-eyebrow">08 · Команда</span>
+    <h2 class="block-h">Люди за периметром.</h2>
+    <div class="team-grid">
+      <article class="t-card"><div class="t-avatar"></div><h3>CEO</h3><span>Архитектура продукта · оператор пилотов</span></article>
+      <article class="t-card"><div class="t-avatar"></div><h3>CTO</h3><span>Платформа · интеграции · L3-L5</span></article>
+      <article class="t-card"><div class="t-avatar"></div><h3>Head of AI</h3><span>Модели · обучение · качество цифровых сотрудников</span></article>
+      <article class="t-card"><div class="t-avatar"></div><h3>Head of Implementation</h3><span>Пилоты · onboarding · приёмка</span></article>
+      <article class="t-card"><div class="t-avatar"></div><h3>Head of Sales</h3><span>Аудит запросов · контракт</span></article>
+      <article class="t-card"><div class="t-avatar"></div><h3>Head of Customer Success</h3><span>SLA · масштабирование</span></article>
+    </div>
+  </div>
+</section>
+
+<!-- DEMO FORM (TZ Stitch 11) -->
+<section class="block demo" id="contact">
+  <div class="block-inner">
+    <span class="block-eyebrow">09 · Демо за 25 минут</span>
+    <h2 class="block-h">Бесплатно.<br><span class="acc">Без обязательств.</span></h2>
+    <form class="demo-form" onsubmit="event.preventDefault();this.querySelector('.form-msg').textContent='Заявка получена. Ответим в течение рабочего дня.';this.reset();">
+      <div class="ff"><label>Имя</label><input type="text" required name="name" autocomplete="name"></div>
+      <div class="ff"><label>Email</label><input type="email" required name="email" autocomplete="email"></div>
+      <div class="ff ff-full"><label>Расскажите о вашем процессе</label><textarea name="msg" rows="3"></textarea></div>
+      <button type="submit" class="cta-magnet"><span>Записаться</span><span class="arr">→</span></button>
+      <div class="form-msg" aria-live="polite"></div>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="foot">
+  <div class="foot-row">
+    <span>© 2026 HyperPartner · Цифровые сотрудники для производственного B2B</span>
+    <div class="compliance">
+      <span class="chip">152-ФЗ</span>
+      <span class="chip">ФСБ КС3</span>
+      <span class="chip">ФСТЭК</span>
+      <span class="chip">ISO 27001</span>
+    </div>
+    <span>+7 (495) 234-56-78 · Moscow</span>
+  </div>
+</footer>
+
+<script>
+const reduced = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+const isMobile = window.innerWidth < 900;
+gsap.registerPlugin(ScrollTrigger);
+
+/* CURSOR */
+if(!isMobile){
+  const cur = document.getElementById('cur');
+  let mx=innerWidth/2,my=innerHeight/2,cx=mx,cy=my;
+  addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+  gsap.ticker.add(()=>{cx+=(mx-cx)*.18;cy+=(my-cy)*.18;gsap.set(cur,{x:cx,y:cy})});
+  document.querySelectorAll('a,button,.cta-magnet,.menu-btn,.chapter-nav a').forEach(el=>{
+    el.addEventListener('mouseenter',()=>cur.classList.add('ring'));
+    el.addEventListener('mouseleave',()=>cur.classList.remove('ring'));
+  });
+}
+
+/* PROGRESS BAR */
+ScrollTrigger.create({ start:0, end:99999, onUpdate:s=>document.getElementById('progress').style.width=(s.progress*100)+'%' });
+
+/* CHAPTER NAV — active state on scroll */
+document.querySelectorAll('.act').forEach((act,idx)=>{
+  ScrollTrigger.create({
+    trigger: act,
+    start: 'top 40%',
+    end: 'bottom 40%',
+    onToggle: self => {
+      document.querySelectorAll('.chapter-nav a').forEach(a=>a.classList.remove('active','past'));
+      if(self.isActive){
+        document.querySelectorAll('.chapter-nav a').forEach((a,i)=>{
+          if(i < idx) a.classList.add('past');
+          else if(i === idx) a.classList.add('active');
+        });
+      }
+    }
+  });
+});
+
+/* ACT-LEVEL ANIMATIONS — pinned scroll-driven story-beats */
+document.querySelectorAll('.act').forEach((act,idx)=>{
+  const stage = act.querySelector('.act-stage');
+  const bg = act.querySelector('.act-bg.image');
+  const video = act.querySelector('.act-bg.video');
+  const title = act.querySelector('.act-title');
+  const sub = act.querySelector('.act-sub');
+  const eyebrow = act.querySelector('.act-eyebrow');
+  const aside = act.querySelector('.act-side');
+
+  /* Entry animation: IntersectionObserver-driven (works on deep links / scroll-jump) */
+  const entryEls = [eyebrow, title, sub, aside].filter(Boolean);
+  gsap.set(entryEls, { opacity:0, y:30 });
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(en => {
+      if(en.isIntersecting){
+        gsap.timeline()
+          .to(eyebrow, { opacity:1, y:0, duration:.6, ease:'expo.out' })
+          .to(title,   { opacity:1, y:0, duration:.8, ease:'expo.out' }, '-=0.35')
+          .to(sub,     { opacity:1, y:0, duration:.6, ease:'expo.out' }, '-=0.4')
+          .to(aside,   { opacity:1, y:0, duration:.6, ease:'expo.out' }, '-=0.4');
+        obs.unobserve(en.target);
+      }
+    });
+  }, { rootMargin: '0px 0px -25% 0px', threshold: 0.01 });
+  io.observe(act);
+
+  /* Scrub-controlled bg zoom (parallax depth) */
+  gsap.fromTo(bg, { scale:1.06, y:0 }, {
+    scale:1, y:-40,
+    scrollTrigger: {
+      trigger: act,
+      start: 'top top',
+      end: 'bottom top',
+      scrub: 0.5
+    }
+  });
+
+  /* Video version preferred — only swap in after a non-black frame is on screen.
+     Audit iter-14 P0: loadeddata fires on intro fade-in (often pure black).
+     Use timeupdate to wait until currentTime > 0.4s OR play 1 cycle. */
+  if(video){
+    let swapped = false;
+    const swap = () => {
+      if(swapped) return;
+      swapped = true;
+      gsap.to(bg, { opacity: 0, duration: .5, ease: 'power2.out', onComplete: () => { bg.style.display = 'none'; } });
+      video.style.display = 'block';
+      gsap.fromTo(video, { opacity: 0 }, { opacity: 1, duration: .6, ease: 'power2.out' });
+    };
+    video.addEventListener('loadeddata', () => {
+      try { if(video.duration > 1) video.currentTime = Math.min(0.6, video.duration * 0.08); } catch(e){}
+    });
+    video.addEventListener('timeupdate', () => {
+      if(video.currentTime > 0.45) swap();
+    });
+    // Safety fallback after 4s of attempt
+    setTimeout(() => { if(!swapped && video.readyState >= 2) swap(); }, 4000);
+  }
+});
+
+/* ACT-4 timeline progress (PDF assembly stats) */
+{
+  const tEl = document.getElementById('act4-t');
+  const stepEl = document.getElementById('act4-step');
+  const pctEl = document.getElementById('act4-pct');
+  if(tEl){
+    ScrollTrigger.create({
+      trigger: '#act-4',
+      start: 'top top',
+      end: 'bottom top',
+      scrub: 0.4,
+      onUpdate: s => {
+        const p = s.progress;
+        const t = (p*12).toFixed(1);
+        const steps = ['SMS получен','PII маскирован','Модель определена','CRM подняты','Менеджер найден','Доп. опции','PDF собран','Offer отправлен'];
+        const stepIdx = Math.min(7, Math.floor(p*8));
+        tEl.textContent = String(t).padStart(4,'0') + ' sec';
+        stepEl.textContent = steps[stepIdx];
+        pctEl.textContent = Math.round(p*100) + ' %';
+      }
+    });
+  }
+}
+
+/* SMOOTH-SCROLL anchors (chapter nav + CTA) */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const id=a.getAttribute('href');
+    if(id.length<2) return;
+    e.preventDefault();
+    const el=document.querySelector(id);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+
+/* MAGNETIC CTA (act 7) */
+function magnetic(sel){
+  document.querySelectorAll(sel).forEach(el=>{
+    el.addEventListener('mousemove',e=>{
+      const r=el.getBoundingClientRect();
+      gsap.to(el,{ x:(e.clientX-r.left-r.width/2)*.22, y:(e.clientY-r.top-r.height/2)*.22, duration:.4, ease:'power2.out' });
+    });
+    el.addEventListener('mouseleave',()=>gsap.to(el,{x:0,y:0,duration:.7,ease:'elastic.out(1,.6)'}));
+  });
+}
+magnetic('.cta-magnet');magnetic('.cta-mini');
+
+/* ROI CALCULATOR — live update */
+(function roi(){
+  const emp = document.getElementById('roi-emp');
+  const sal = document.getElementById('roi-sal');
+  const empV = document.getElementById('roi-emp-v');
+  const salV = document.getElementById('roi-sal-v');
+  const outYr = document.getElementById('roi-year');
+  const outPilot = document.getElementById('roi-pilot');
+  if(!emp || !sal) return;
+  const fmt = n => n.toLocaleString('ru-RU').replace(/ /g,' ');
+  function update(){
+    const n = +emp.value;
+    const s = +sal.value;
+    empV.textContent = n;
+    salV.textContent = fmt(s) + ' ₽';
+    // Освобождается в год: ~18% общего фонда (реалистично — рутины 30-40%, автоматизация снимает половину)
+    const year = Math.round(n * s * 12 * 0.18);
+    outYr.textContent = fmt(year) + ' ₽';
+    // ROI пилота за 6 мес: освобождение полугодия / типовая стоимость пилота 3M
+    const pilotCost = 3_000_000;
+    const pilot6m = year / 2;
+    const roi = pilot6m / pilotCost;
+    outPilot.textContent = '×' + roi.toFixed(1).replace('.', ',');
+  }
+  emp.addEventListener('input', update);
+  sal.addEventListener('input', update);
+  update();
+})();
+
+/* ─── SIGNAL DOT — travels down the right-edge signal line ─── */
+(function signalDot(){
+  const dot = document.getElementById('sig-dot');
+  if(!dot) return;
+  ScrollTrigger.create({
+    start: 0, end: 99999, scrub: 0.4,
+    onUpdate: s => {
+      dot.setAttribute('cy', (s.progress * 100).toFixed(2));
+      // bigger pulse near each act boundary
+      const boundaries = [0, 1, 2, 3, 4, 5, 6, 7].map(i => i/7);
+      const dist = Math.min(...boundaries.map(b => Math.abs(s.progress - b)));
+      const pulse = Math.max(0, 1 - dist * 14);
+      dot.setAttribute('r', (1.2 + pulse * 2.4).toFixed(2));
+      dot.style.filter = `drop-shadow(0 0 ${(2 + pulse*8).toFixed(0)}px #62E0F2)`;
+    }
+  });
+})();
+
+/* ─── PERSISTENT PARTICLE FIELD ─── */
+(function particles(){
+  const canvas = document.getElementById('particles');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W=0, H=0, dpr=Math.min(2, window.devicePixelRatio||1);
+  function resize(){
+    W = window.innerWidth; H = window.innerHeight;
+    canvas.width = W*dpr; canvas.height = H*dpr;
+    canvas.style.width = W+'px'; canvas.style.height = H+'px';
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  resize(); window.addEventListener('resize', resize);
+
+  const N = 90;
+  const parts = Array.from({length:N}, ()=>({
+    x: Math.random()*W,
+    y: Math.random()*H,
+    vx:(Math.random()-0.5)*0.18,
+    vy:(Math.random()-0.5)*0.22,
+    r: Math.random()*1.6 + 0.4,
+    a: Math.random()*0.6 + 0.2,
+    hue: Math.random() < 0.5 ? '195,210,255' : '120,200,255'
+  }));
+
+  let densityFactor = 0.3; // base
+  let driftBoost = 0;       // 0..1, boosted near act boundaries
+
+  function tick(){
+    ctx.clearRect(0,0,W,H);
+    parts.forEach(p=>{
+      p.x += p.vx + (driftBoost * 0.5);
+      p.y += p.vy * (1 + driftBoost*2);
+      if(p.x > W+10) p.x = -10;
+      if(p.x < -10) p.x = W+10;
+      if(p.y > H+10) p.y = -10;
+      if(p.y < -10) p.y = H+10;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba('+p.hue+','+(p.a*densityFactor).toFixed(2)+')';
+      ctx.fill();
+    });
+    requestAnimationFrame(tick);
+  }
+  tick();
+
+  // Fade in particles globally
+  gsap.to('#particles', { opacity: 1, duration: 1.2, delay: 0.4 });
+
+  // Particle density / drift driven by scroll progress
+  ScrollTrigger.create({
+    start:0, end:99999, scrub:0.6,
+    onUpdate: s => {
+      const p = s.progress;
+      // mid-scroll = densest, edges = sparse
+      densityFactor = 0.4 + Math.sin(p * Math.PI) * 0.85;
+      // boost drift near act-2 → act-3 boundary (signal → workers)
+      const boundary = 2160*2 / document.body.scrollHeight; // between act-2 and act-3
+      const dist = Math.abs(p - boundary);
+      driftBoost = Math.max(0, 1 - dist * 8);
+    }
+  });
+})();
+
+/* ─── CROSS-ACT BRIDGE 3→4: data condenses into PDF document ─── */
+(function bridge34(){
+  const svg = document.getElementById('bridge-3to4');
+  if(!svg) return;
+  ScrollTrigger.create({
+    trigger: '#act-3',
+    start: 'center center',
+    endTrigger: '#act-4',
+    end: 'center center',
+    scrub: 0.5,
+    onUpdate: s => {
+      const p = s.progress;
+      const vis = Math.sin(p * Math.PI);
+      svg.style.opacity = vis.toFixed(3);
+      const x = (1 - p) * -16 + 8;   // travels from left (workers) to right (PDF)
+      const y = (p - 0.5) * -10;
+      svg.style.transform = `translate(calc(-50% + ${x}vw), calc(-50% + ${y}vh)) scale(${0.7 + p*0.6})`;
+      const lines = document.getElementById('bridge-doc-lines');
+      if(lines) lines.style.opacity = Math.max(0, (p - 0.3) * 1.6).toFixed(2);
+    }
+  });
+})();
+
+/* ─── CROSS-ACT BRIDGE: SMS bubble travels from Act II to Act III as particles ─── */
+(function bridge(){
+  const svg = document.getElementById('bridge-2to3');
+  const bubble = document.getElementById('bridge-bubble');
+  if(!svg || !bubble) return;
+
+  // The bridge appears during the second half of Act-2 and the first half of Act-3
+  ScrollTrigger.create({
+    trigger: '#act-2',
+    start: 'center center',
+    endTrigger: '#act-3',
+    end: 'center center',
+    scrub: 0.5,
+    onUpdate: s => {
+      const p = s.progress; // 0..1 across the act-2 mid → act-3 mid range
+      // Visibility curve: rises to 1 at p=0.5 then fades
+      const vis = Math.sin(p * Math.PI);
+      svg.style.opacity = vis.toFixed(3);
+      // Position: bubble flies from right (act-2 SMS) to left (act-3 workers)
+      const x = (1 - p) * 18 - 8; // from +10vw to -8vw
+      const y = (p - 0.5) * 12;   // gentle arc
+      svg.style.transform = `translate(calc(-50% + ${x}vw), calc(-50% + ${y}vh)) scale(${1 + p*0.4})`;
+      // Bubble dissolves to particles past midpoint
+      bubble.setAttribute('r', (32 - p * 28).toFixed(1));
+      svg.style.filter = `blur(${p*8}px) drop-shadow(0 0 ${28 + p*40}px rgba(98,224,242,${(0.6 - p*0.4)}))`;
+    }
+  });
+})();
+</script>
+</body>
+</html>

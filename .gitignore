@@ -1,0 +1,16 @@
+_assets/
+_plan/
+_v1_archive/
+stitch/
+website/
+*.txt
+*.webp
+*.jpg
+*.OLD.*
+*OLD-*
+README.md
+shot.js
+.DS_Store
+.playwright-mcp/
+.vscode/
+node_modules/

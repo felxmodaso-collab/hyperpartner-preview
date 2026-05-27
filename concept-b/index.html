@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="ru" data-palette="cobalt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HyperPartner / Console — Цифровые сотрудники</title>
+<meta name="description" content="Заменяем рутинный хаос точностью цифровых сотрудников. Платформа цифровых сотрудников для производственного B2B.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<script src="vendor/gsap.min.js"></script>
+<script src="vendor/ScrollTrigger.min.js"></script>
+<!-- Lenis intentionally omitted (sing-box proxy filter blocks jsdelivr) — native scroll-behavior:smooth is used instead -->
+<script>
+// Defensive boot escape (no boot overlay in B but harmless)
+addEventListener('DOMContentLoaded',function(){setTimeout(function(){var b=document.getElementById('boot');if(b){b.classList.add('gone');setTimeout(function(){b.classList.add('removed')},550)}},850)});
+</script>
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:#FAFAFA;color:#0A0A0A;overflow-x:hidden;scroll-behavior:smooth}
+
+:root{
+  /* Premium Console — Modern Tech Light theme */
+  --cream:#FAFAFA;        /* bg (kept alias for backward CSS compat) */
+  --paper:#F4F4F5;        /* zinc-100 elevated surface */
+  --paper-deep:#E4E4E7;   /* zinc-200 deeper */
+  --ink:#0A0A0A;          /* primary text */
+  --ink-deep:#171717;     /* display heading */
+  --orange:#2563EB;       /* PRIMARY accent — cobalt (compat alias) */
+  --orange-soft:#3B82F6;
+  --gold:#71717A;         /* graphite secondary */
+  --gold-soft:#A1A1AA;
+  --accent:#2563EB;
+  --accent-2:#06B6D4;
+  --grad-accent:linear-gradient(135deg,#2563EB 0%,#06B6D4 60%,#8B5CF6 100%);
+  --ink-mid:rgba(10,10,10,.65);
+  --ink-dim:rgba(10,10,10,.42);
+  --ink-line:rgba(10,10,10,.10);
+  --ink-paper:rgba(10,10,10,.04);
+  --silk:cubic-bezier(.4,0,.2,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --hard:cubic-bezier(.7,0,.3,1);
+  /* Fonts (sans-only, no serif — drop magazine vibe) */
+  --serif:'Inter Tight','Inter','Segoe UI Variable Display','Segoe UI',sans-serif;
+  --reader:'Inter','Segoe UI Variable Text','Segoe UI','-apple-system','BlinkMacSystemFont',sans-serif;
+  --sans:'Inter','Segoe UI Variable Text','Segoe UI','-apple-system','BlinkMacSystemFont',sans-serif;
+  --mono:'JetBrains Mono','SF Mono','Consolas',ui-monospace,monospace;
+}
+
+/* ─── PALETTE THEMES ─── */
+html[data-palette="cobalt"]{
+  --accent:#2563EB; --accent-2:#06B6D4; --orange:#2563EB; --orange-soft:#3B82F6;
+  --grad-accent:linear-gradient(135deg,#2563EB 0%,#06B6D4 60%,#8B5CF6 100%);
+}
+html[data-palette="violet"]{
+  --accent:#7C3AED; --accent-2:#EC4899; --orange:#7C3AED; --orange-soft:#A78BFA;
+  --grad-accent:linear-gradient(135deg,#7C3AED 0%,#EC4899 60%,#F97316 100%);
+}
+html[data-palette="forest"]{
+  --accent:#16A34A; --accent-2:#0D9488; --orange:#16A34A; --orange-soft:#22C55E;
+  --grad-accent:linear-gradient(135deg,#16A34A 0%,#0D9488 60%,#0891B2 100%);
+}
+html[data-palette="graphite"]{
+  --accent:#18181B; --accent-2:#52525B; --orange:#18181B; --orange-soft:#27272A;
+  --grad-accent:linear-gradient(135deg,#0A0A0A 0%,#52525B 60%,#A1A1AA 100%);
+}
+
+body{font-family:var(--sans);font-weight:400;-webkit-font-smoothing:antialiased;cursor:none;font-feature-settings:"ss01","cv11"}
+@media(max-width:900px){body{cursor:auto}}
+
+/* Subtle dot-grid overlay — modern tech texture (replaces editorial paper grain) */
+body::after{
+  content:'';position:fixed;inset:0;z-index:9997;pointer-events:none;opacity:.55;
+  background-image:radial-gradient(circle at 1px 1px,rgba(10,10,10,.045) 1px,transparent 0);
+  background-size:32px 32px;
+  mask-image:radial-gradient(ellipse 100% 75% at 50% 50%,#000 30%,transparent 100%)
+}
+/* ─── SIGNATURE: living aurora gradient (Premium Console visual gesture) ─── */
+.aurora-bg{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.aurora-bg::before, .aurora-bg::after{content:'';position:absolute;border-radius:50%;filter:blur(80px);mix-blend-mode:multiply;opacity:.55;animation:auroraFloat 22s ease-in-out infinite}
+.aurora-bg::before{width:65vw;height:65vw;top:-25vw;right:-15vw;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 28%,transparent),transparent 65%);animation-delay:0s}
+.aurora-bg::after{width:55vw;height:55vw;bottom:-20vw;left:-20vw;background:radial-gradient(circle,color-mix(in srgb,var(--accent-2) 22%,transparent),transparent 65%);animation-delay:-11s}
+.aurora-bg .blob{position:absolute;width:45vw;height:45vw;border-radius:50%;filter:blur(70px);mix-blend-mode:multiply;background:radial-gradient(circle,color-mix(in srgb,var(--accent) 16%,transparent),transparent 60%);top:30vh;left:35vw;animation:auroraFloat 28s ease-in-out infinite reverse;animation-delay:-15s}
+@keyframes auroraFloat{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(4vw,-3vh) scale(1.06)}66%{transform:translate(-3vw,4vh) scale(0.96)}}
+@media(prefers-reduced-motion:reduce){.aurora-bg{display:none}}
+
+/* ─── REVEAL SAFETY ─── */
+html.reveal-fallback *{opacity:1!important;transform:none!important;visibility:visible!important}
+
+/* ─── PALETTE SWITCHER (bottom-left, Linear-pill style) ─── */
+.palette-switch{position:fixed;bottom:18px;left:18px;z-index:120;display:flex;flex-direction:row;align-items:center;gap:10px;padding:8px 12px 8px 10px;background:rgba(255,255,255,.92);border:1px solid var(--ink-line);backdrop-filter:blur(14px);box-shadow:0 4px 24px rgba(10,10,10,.08);font-family:var(--mono);font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;border-radius:999px}
+.palette-switch .lbl{color:var(--ink-mid);font-weight:600;padding-right:6px;border-right:1px solid var(--ink-line);line-height:1}
+.palette-switch .row{display:flex;gap:5px;align-items:center}
+.palette-switch button{width:18px;height:18px;padding:0;border:1.5px solid transparent;background:#222;cursor:none;position:relative;transition:transform .2s var(--silk),border-color .2s,box-shadow .2s;border-radius:50%}
+.palette-switch button[data-p="cobalt"]{background:linear-gradient(135deg,#2563EB,#06B6D4)}
+.palette-switch button[data-p="violet"]{background:linear-gradient(135deg,#7C3AED,#EC4899)}
+.palette-switch button[data-p="forest"]{background:linear-gradient(135deg,#16A34A,#0D9488)}
+.palette-switch button[data-p="graphite"]{background:linear-gradient(135deg,#0A0A0A,#52525B)}
+.palette-switch button:hover{transform:scale(1.15)}
+.palette-switch button.active{border-color:var(--ink);box-shadow:0 0 0 1px #FFFFFF,0 0 10px color-mix(in srgb,var(--accent) 50%,transparent);transform:scale(1.1)}
+.palette-switch .active-name{color:var(--accent);font-weight:700;letter-spacing:.18em;font-size:9.5px;padding-left:4px;min-width:62px;text-align:left}
+@media(max-width:480px){.palette-switch{padding:6px 10px}.palette-switch .lbl,.palette-switch .active-name{display:none}}
+
+/* CURSOR */
+#cur{position:fixed;inset:0 auto auto 0;width:24px;height:24px;border:1px solid var(--ink);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);will-change:transform;transition:width .3s var(--silk),height .3s var(--silk),background .2s,border-color .2s}
+#cur.big{width:64px;height:64px;background:var(--orange);border-color:var(--orange);mix-blend-mode:multiply}
+#cur.read{width:14px;height:14px;background:var(--ink);border-color:var(--ink)}
+@media(max-width:900px){#cur{display:none}}
+
+/* ─── NAV — magazine-style masthead ─── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:100;background:var(--cream);border-bottom:1px solid var(--ink-line);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-mast{display:flex;align-items:baseline;gap:18px}
+.nav-mast .brand{font-family:var(--serif);font-weight:700;font-size:22px;letter-spacing:-.02em;color:var(--ink);text-decoration:none;}
+.nav-mast .brand .acc{color:var(--orange)}
+.nav-mast .issue{font-family:var(--sans);font-size:10px;letter-spacing:.18em;color:var(--ink-mid);text-transform:uppercase;font-weight:500}
+.nav-mast .issue strong{color:var(--ink);font-weight:600}
+.nav-links{display:flex;list-style:none;gap:28px;align-items:center}
+.nav-links a{font-family:var(--sans);color:var(--ink-mid);text-decoration:none;font-size:11px;font-weight:500;letter-spacing:.06em;transition:color .25s;position:relative;padding:6px 0}
+.nav-links a::after{content:'';position:absolute;bottom:-2px;left:0;width:0;height:1px;background:var(--orange);transition:width .3s var(--silk)}
+.nav-links a:hover{color:var(--ink)}
+.nav-links a:hover::after{width:100%}
+@media(max-width:1100px){.nav-links{display:none}}
+.nav-meta{font-family:var(--sans);font-size:10px;color:var(--ink-mid);letter-spacing:.06em;font-weight:500}
+.nav-meta strong{color:var(--orange);font-weight:700}
+.nav-cta{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--cream);background:var(--ink);text-decoration:none;padding:11px 20px;border-radius:999px;transition:background .25s var(--silk);cursor:none}
+.nav-cta:hover{background:var(--orange)}
+
+/* ─── PROGRESS ─── */
+#progress{position:fixed;top:64px;left:0;height:2px;background:var(--accent);z-index:99;width:0}
+
+/* ─── A11Y focus ─── */
+a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.skip-link{position:fixed;top:6px;left:6px;background:var(--accent);color:#FFF;padding:8px 14px;font-family:var(--sans);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;text-decoration:none;z-index:200;transform:translateY(-200%);transition:transform .25s var(--silk);border-radius:6px}
+.skip-link:focus{transform:translateY(0)}
+
+/* ─── SECTION BASE ─── */
+.sct{position:relative;width:100%;padding:120px 32px;z-index:2}
+.sct-inner{max-width:1320px;margin:0 auto;position:relative}
+.sct .meta{font-family:var(--sans);font-size:10px;letter-spacing:.22em;color:var(--orange);text-transform:uppercase;font-weight:600;margin-bottom:32px;display:inline-flex;align-items:center;gap:14px}
+.sct .meta::before{content:'';width:32px;height:1px;background:var(--orange)}
+.sct .meta .num{color:var(--ink-mid)}
+.sct h2{font-family:var(--serif);font-size:clamp(40px,5vw,84px);font-weight:600;line-height:.96;letter-spacing:-.025em;color:var(--ink-deep);margin-bottom:28px;}
+.sct h2 em{font-style:italic;font-weight:500;color:var(--orange);}
+.sct h2 .ln{display:block;overflow:hidden}
+.sct h2 .ln span{display:inline-block;will-change:transform}
+.sct p.lead{font-family:var(--reader);font-size:18px;line-height:1.55;color:var(--ink);font-weight:400;max-width:640px;}
+.sct p.lead strong{font-weight:600}
+
+/* ─── HERO — modern tech with editorial photography aside ─── */
+.s-hero{padding:120px 32px 60px;min-height:calc(100vh - 0px);display:flex;flex-direction:column;justify-content:space-between;position:relative}
+.s-hero-aside .hero-photo{display:block;width:calc(100% + 64px);margin:-32px -32px 24px;aspect-ratio:5/4;overflow:hidden;background:var(--paper-deep)}
+.s-hero-aside .hero-photo video, .s-hero-aside .hero-photo img{width:100%;height:100%;object-fit:cover;filter:saturate(.92) contrast(1.02);display:block}
+.s-hero-inner{max-width:1320px;margin:0 auto;width:100%;flex:1;display:flex;flex-direction:column}
+.s-hero-mast{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink-line);padding-bottom:22px;font-family:var(--sans);font-size:10px;letter-spacing:.22em;color:var(--ink-mid);text-transform:uppercase;font-weight:500;flex-wrap:wrap;gap:14px}
+.s-hero-mast .issue{color:var(--orange);font-weight:700}
+.s-hero-mast .date{color:var(--ink);font-weight:600}
+.s-hero-mast .vol{font-style:italic;font-family:var(--serif);font-weight:500;font-size:13px;letter-spacing:0;color:var(--ink-mid);text-transform:none}
+.s-hero-grid{display:grid;grid-template-columns:8fr 5fr;gap:60px;align-items:end;flex:1;padding:60px 0 40px}
+@media(max-width:1100px){.s-hero-grid{grid-template-columns:1fr;gap:48px}}
+.s-hero h1{font-family:var(--serif);font-size:clamp(56px,8.2vw,168px);font-weight:500;line-height:.92;letter-spacing:-.035em;color:var(--ink-deep);}
+.s-hero h1 .ln{display:block;overflow:hidden}
+.s-hero h1 .word{display:inline-block;will-change:transform}
+.s-hero h1 em{font-style:italic;font-weight:400;color:var(--orange);}
+.s-hero h1 .punct{color:var(--orange)}
+.s-hero-aside{padding:32px;background:var(--paper);border-top:3px solid var(--orange);position:relative;font-family:var(--reader)}
+.s-hero-aside::before{content:'';position:absolute;top:-6px;left:0;width:60px;height:6px;background:var(--ink)}
+.s-hero-aside .opening{font-family:var(--serif);font-size:15px;line-height:1.5;color:var(--ink);font-weight:500;font-style:italic;margin-bottom:22px;}
+.s-hero-aside .opening::before{content:'«';font-family:var(--serif);font-size:36px;color:var(--orange);float:left;line-height:.8;margin-right:6px;margin-top:-2px;font-weight:400}
+.s-hero-aside .opening::after{content:'»';color:var(--orange);font-weight:400}
+.s-hero-aside .byline{font-family:var(--sans);font-size:10px;letter-spacing:.18em;color:var(--ink-mid);text-transform:uppercase;font-weight:500}
+.s-hero-aside .byline strong{color:var(--ink);font-weight:600}
+.s-hero-aside .read{display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-family:var(--sans);font-size:11px;color:var(--ink);font-weight:600;letter-spacing:.04em;text-decoration:none}
+.s-hero-aside .read .arr{display:inline-block;font-family:var(--serif);font-size:14px;color:var(--orange);transition:transform .3s var(--silk)}
+.s-hero-aside .read:hover .arr{transform:translateX(4px)}
+
+.s-hero-foot{border-top:1px solid var(--ink-line);padding-top:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:32px;font-family:var(--reader)}
+@media(max-width:760px){.s-hero-foot{grid-template-columns:1fr 1fr;gap:18px}}
+.s-hero-foot .ind{display:flex;flex-direction:column;gap:6px}
+.s-hero-foot .ind .v{font-family:var(--serif);font-size:38px;font-weight:500;color:var(--ink-deep);letter-spacing:-.025em;line-height:1;}
+.s-hero-foot .ind .v em{font-style:italic;color:var(--orange);font-weight:400}
+.s-hero-foot .ind .l{font-family:var(--sans);font-size:10px;letter-spacing:.18em;color:var(--ink-mid);text-transform:uppercase;font-weight:500}
+
+/* ─── S2 — VISION (essay layout) ─── */
+.s-vision{padding:140px 32px;background:var(--paper);border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line);position:relative;overflow:hidden}
+.s-vision-photo{position:absolute;top:-10%;right:-5%;width:46vw;max-width:560px;height:auto;aspect-ratio:16/9;overflow:hidden;opacity:.32;filter:saturate(.6) contrast(1.05);mix-blend-mode:multiply;mask-image:radial-gradient(ellipse 70% 60% at 50% 50%,#000 30%,transparent 100%);pointer-events:none;z-index:0}
+.s-vision-photo video{width:100%;height:100%;object-fit:cover}
+.s-vision > *{position:relative;z-index:2}
+.s-vision-grid{display:grid;grid-template-columns:5fr 6fr;gap:80px}
+@media(max-width:980px){.s-vision-grid{grid-template-columns:1fr}}
+.s-vision h2{font-size:clamp(40px,5vw,84px);max-width:540px}
+.s-vision-essay{font-family:var(--reader);font-size:17px;line-height:1.6;color:var(--ink);font-weight:400;column-count:1;}
+.s-vision-essay p{margin-bottom:20px;text-indent:0}
+.s-vision-essay p:first-of-type::first-letter{font-family:var(--serif);font-size:74px;font-weight:600;color:var(--orange);float:left;line-height:.85;margin-right:10px;margin-top:4px;}
+.s-vision-essay p.pullquote{font-family:var(--serif);font-style:italic;font-size:26px;line-height:1.3;color:var(--ink-deep);font-weight:500;border-left:3px solid var(--orange);padding:8px 0 8px 24px;margin:32px 0;}
+.s-vision-essay strong{font-weight:600;color:var(--ink-deep);background:linear-gradient(180deg,transparent 60%,color-mix(in srgb,var(--accent) 18%,transparent) 60%);padding:0 2px}
+.s-vision-byline{font-family:var(--sans);font-size:11px;letter-spacing:.16em;color:var(--ink-mid);text-transform:uppercase;font-weight:500;margin-top:32px;border-top:1px solid var(--ink-line);padding-top:18px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+/* ─── S3 — INDUSTRY 5.0 ─── */
+.s-i50{padding:140px 32px;background:var(--cream)}
+.i50-grid{display:grid;grid-template-columns:6fr 5fr;gap:80px;align-items:center}
+@media(max-width:980px){.i50-grid{grid-template-columns:1fr;gap:48px}}
+.i50-display{font-family:var(--serif);font-weight:200;font-size:clamp(180px,28vw,440px);line-height:.78;color:var(--orange);letter-spacing:-.06em;display:block;}
+.i50-display em{font-style:italic;color:var(--ink-deep)}
+.i50-meta{font-family:var(--sans);font-size:11px;letter-spacing:.18em;color:var(--ink-mid);text-transform:uppercase;margin-top:16px;display:flex;justify-content:space-between;font-weight:500;border-top:1px solid var(--ink-line);padding-top:14px}
+.i50-meta strong{color:var(--ink);font-weight:600}
+.i50-txt h3{font-family:var(--serif);font-size:clamp(28px,3.2vw,52px);font-weight:500;line-height:1.05;letter-spacing:-.02em;color:var(--ink-deep);margin-bottom:22px;}
+.i50-txt h3 em{font-style:italic;color:var(--orange);font-weight:400}
+.i50-txt p{font-family:var(--reader);font-size:16px;line-height:1.6;color:var(--ink);font-weight:400;margin-bottom:16px;}
+.i50-list{margin-top:32px;display:grid;gap:6px}
+.i50-list .row{display:grid;grid-template-columns:auto 1fr auto;gap:18px;padding:14px 0;border-bottom:1px solid var(--ink-line);font-family:var(--reader);font-size:14px;align-items:baseline}
+.i50-list .row .id{color:var(--orange);font-weight:700;font-family:var(--sans);font-size:12px;letter-spacing:.06em}
+.i50-list .row .name{color:var(--ink-deep);font-family:var(--serif);font-weight:600;}
+.i50-list .row .stat{color:var(--ink-mid);font-size:12px;font-family:var(--sans);letter-spacing:.04em;text-align:right}
+
+/* ─── S4 — TEAM (portraits) ─── */
+.s-team{padding:140px 32px;background:var(--paper);border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line)}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:48px 32px;margin-top:48px}
+@media(max-width:980px){.team-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.team-grid{grid-template-columns:1fr}}
+.member{position:relative;display:flex;flex-direction:column;gap:18px;cursor:none}
+.member .portrait{aspect-ratio:4/5;background:linear-gradient(180deg,var(--paper) 0%,var(--paper-deep) 100%);border:1px solid var(--ink-line);position:relative;overflow:hidden;transition:transform .4s var(--silk);color:var(--accent);border-radius:6px}
+.member .portrait .portrait-svg{position:absolute;inset:0;width:100%;height:100%;color:var(--accent);transition:transform .5s var(--silk),filter .35s var(--silk);filter:saturate(.8)}
+.member:hover .portrait{transform:translateY(-3px)}
+.member:hover .portrait-svg{transform:scale(1.04);filter:saturate(1)}
+.member .portrait::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 50% 35%,color-mix(in srgb, var(--accent) 8%, transparent),transparent 70%);pointer-events:none;z-index:1}
+.member .portrait .num{position:absolute;top:14px;left:14px;font-family:var(--sans);font-size:10px;color:var(--ink-mid);letter-spacing:.18em;font-weight:600;text-transform:uppercase}
+.member .portrait .corner{position:absolute;bottom:14px;right:14px;font-family:var(--serif);font-style:italic;font-size:11px;color:var(--orange);letter-spacing:.04em;font-weight:500}
+.member h4{font-family:var(--serif);font-size:20px;font-weight:600;color:var(--ink-deep);line-height:1.15;letter-spacing:-.01em;}
+.member h4 em{font-style:italic;color:var(--orange);font-weight:500}
+.member .role{font-family:var(--sans);font-size:11px;color:var(--ink-mid);letter-spacing:.06em;font-weight:500;margin-top:-12px}
+.member .quote{font-family:var(--serif);font-size:14px;line-height:1.5;color:var(--ink);font-style:italic;font-weight:400;border-top:1px solid var(--ink-line);padding-top:14px;}
+.member .quote::before{content:'«';color:var(--orange);font-style:normal;margin-right:4px}
+.member .quote::after{content:'»';color:var(--orange);font-style:normal;margin-left:4px}
+
+/* ─── S5 — SERVICES (8 функций editorial cards) ─── */
+.s-services{padding:140px 32px;background:var(--cream)}
+.services-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--ink-line);border-left:1px solid var(--ink-line);margin-top:32px}
+@media(max-width:980px){.services-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.services-grid{grid-template-columns:1fr}}
+.srv{border-right:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line);padding:32px 26px 30px;background:var(--cream);position:relative;overflow:hidden;transition:background .3s var(--silk);min-height:280px;display:flex;flex-direction:column;justify-content:space-between}
+.srv:hover{background:var(--paper)}
+.srv::after{content:'';position:absolute;left:0;bottom:0;height:3px;width:0;background:var(--orange);transition:width .35s var(--silk)}
+.srv:hover::after{width:100%}
+.srv .num{font-family:var(--serif);font-size:54px;font-weight:300;color:var(--orange);letter-spacing:-.04em;font-style:italic;line-height:1;}
+.srv h4{font-family:var(--serif);font-size:21px;font-weight:600;color:var(--ink-deep);line-height:1.1;letter-spacing:-.005em;margin:auto 0 12px;}
+.srv h4 em{font-style:italic;color:var(--orange);font-weight:500}
+.srv p{font-family:var(--reader);font-size:13px;color:var(--ink-mid);line-height:1.55}
+.srv .stat{margin-top:14px;font-family:var(--sans);font-size:10px;letter-spacing:.16em;color:var(--orange);text-transform:uppercase;font-weight:700;border-top:1px solid var(--ink-line);padding-top:10px}
+
+/* ─── S6 — ROBOTS / Live cycles (но в editorial-стиле, illustrated) ─── */
+.s-robots{padding:140px 32px;background:var(--paper);border-top:1px solid var(--ink-line)}
+.robots-spread{display:grid;grid-template-columns:repeat(6,1fr);gap:24px;margin-top:48px}
+@media(max-width:980px){.robots-spread{grid-template-columns:repeat(3,1fr);gap:18px}}
+@media(max-width:520px){.robots-spread{grid-template-columns:repeat(2,1fr)}}
+.cycle-card{background:var(--cream);border:1px solid var(--ink-line);padding:18px 16px;position:relative;cursor:none;transition:transform .3s var(--silk),background .3s var(--silk);grid-column:span 2}
+.cycle-card:hover{transform:translateY(-3px);background:var(--paper-deep)}
+.cycle-card .num{font-family:var(--serif);font-size:11px;letter-spacing:.18em;color:var(--orange);font-weight:600;text-transform:uppercase;font-style:italic}
+.cycle-card .ico{aspect-ratio:1/1;margin:14px 0;background:linear-gradient(135deg,var(--paper),var(--gold-soft));display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:80px;color:var(--ink-deep);font-style:italic;font-weight:300;letter-spacing:-.04em;border:1px solid var(--ink-line)}
+.cycle-card h5{font-family:var(--serif);font-size:14px;font-weight:600;color:var(--ink-deep);line-height:1.2;margin-bottom:6px}
+.cycle-card p{font-family:var(--reader);font-size:11px;color:var(--ink-mid);line-height:1.5;margin-bottom:10px}
+.cycle-card .duration{font-family:var(--sans);font-size:9px;letter-spacing:.18em;color:var(--orange);font-weight:700;text-transform:uppercase}
+
+/* ─── S7 — CASE study (Geely real photo) ─── */
+.s-case{padding:160px 32px;background:var(--cream)}
+.case-spread{display:grid;grid-template-columns:6fr 5fr;gap:64px;align-items:start}
+@media(max-width:980px){.case-spread{grid-template-columns:1fr}}
+.case-photo{aspect-ratio:4/3;background:linear-gradient(135deg,var(--paper),var(--paper-deep));position:relative;overflow:hidden;border:1px solid var(--ink-line);filter:saturate(0.85) contrast(0.95) brightness(1.02)}
+.case-photo::before{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 0%,transparent 60%,rgba(250,250,250,.4) 100%);mix-blend-mode:multiply}
+.case-photo .photo-stamp{position:absolute;top:18px;left:18px;font-family:var(--sans);font-size:9px;letter-spacing:.22em;color:var(--cream);text-transform:uppercase;font-weight:700;background:var(--ink);padding:5px 10px}
+.case-photo .photo-stamp.alt{background:var(--orange)}
+.case-photo .photo-caption{position:absolute;bottom:18px;left:18px;right:18px;font-family:var(--serif);font-style:italic;font-size:14px;color:var(--cream);font-weight:500;line-height:1.4;text-shadow:0 2px 12px rgba(0,0,0,.4)}
+.case-txt .meta{margin-bottom:18px}
+.case-txt h3{font-family:var(--serif);font-size:clamp(36px,4.6vw,72px);font-weight:600;line-height:.96;letter-spacing:-.025em;color:var(--ink-deep);margin-bottom:24px;}
+.case-txt h3 em{font-style:italic;color:var(--orange);font-weight:500}
+.case-txt p{font-family:var(--reader);font-size:16px;line-height:1.6;color:var(--ink);margin-bottom:18px;}
+.case-txt p strong{font-weight:600;color:var(--ink-deep)}
+.case-stat-line{display:flex;align-items:baseline;gap:18px;margin:32px 0;padding:18px 0;border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line)}
+.case-stat-line .big{font-family:var(--serif);font-size:74px;font-weight:500;color:var(--orange);letter-spacing:-.04em;line-height:.85;font-style:italic;}
+.case-stat-line .big .small{font-size:32px;color:var(--ink-deep);font-style:normal;font-weight:400}
+.case-stat-line .desc{font-family:var(--sans);font-size:11px;letter-spacing:.06em;color:var(--ink-mid);line-height:1.5;text-transform:uppercase;font-weight:500}
+.case-stat-line .desc strong{color:var(--ink);font-weight:600}
+.case-thread{display:flex;flex-wrap:wrap;gap:8px 14px;font-family:var(--sans);font-size:11px;color:var(--ink-mid);font-weight:500;align-items:center}
+.case-thread .step strong{color:var(--ink-deep);text-transform:uppercase;font-weight:700;font-size:10px;letter-spacing:.14em}
+.case-thread .arr{color:var(--orange);font-weight:700}
+
+/* ─── Доп. оборудование chip-list ─── */
+.case-equip{margin-top:18px;padding:14px 16px;background:var(--paper);border:1px solid var(--ink-line);border-radius:6px;display:grid;gap:6px;font-family:var(--sans);font-size:12px}
+.case-equip .ce-h{font-size:10px;letter-spacing:.18em;color:var(--ink-mid);text-transform:uppercase;font-weight:600;margin-bottom:4px;padding-bottom:8px;border-bottom:1px solid var(--ink-line)}
+.case-equip .ce-row{display:flex;justify-content:space-between;padding:4px 0;font-variant-numeric:tabular-nums}
+.case-equip .ce-row .ce-n{color:var(--ink)}
+.case-equip .ce-row .ce-p{color:var(--orange);font-weight:700}
+
+/* ─── S7.5 — DASHBOARD live mock ─── */
+.s-dashboard{padding:140px 32px;background:var(--paper);border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line)}
+.dash{display:grid;grid-template-columns:1fr 1.6fr;gap:1px;background:var(--ink-line);margin-top:48px;border:1px solid var(--ink-line);border-radius:8px;overflow:hidden}
+@media(max-width:980px){.dash{grid-template-columns:1fr}}
+.dash-kpis{background:var(--cream);padding:24px;display:flex;flex-direction:column;gap:1px}
+.dash-kpi{padding:18px 4px;border-bottom:1px solid var(--ink-line)}
+.dash-kpi:last-child{border-bottom:none}
+.dash-kpi .kpi-l{font-family:var(--sans);font-size:9.5px;letter-spacing:.18em;color:var(--ink-mid);text-transform:uppercase;font-weight:600;display:block;margin-bottom:6px}
+.dash-kpi .kpi-v{font-family:var(--sans);font-size:38px;font-weight:700;color:var(--orange);letter-spacing:-.02em;line-height:1;display:flex;align-items:baseline;gap:2px}
+.dash-kpi .kpi-v .suf{font-size:.45em;color:var(--ink-mid);font-weight:600;margin-left:4px}
+.dash-kpi .kpi-d{font-family:var(--sans);font-size:10px;color:var(--ink-dim);letter-spacing:.04em;display:block;margin-top:6px}
+.dash-chart{background:var(--cream);padding:28px 26px}
+.dash-chart-h{display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid var(--ink-line);padding-bottom:10px;margin-bottom:16px;flex-wrap:wrap;gap:8px}
+.dash-chart-t{font-family:var(--serif);font-size:15px;color:var(--ink-deep);font-weight:600;letter-spacing:-.005em}
+.dash-chart-meta{font-family:var(--sans);font-size:9px;color:var(--ink-mid);letter-spacing:.16em;text-transform:uppercase;font-weight:600}
+.dash-loc-list{list-style:none;display:grid;gap:8px;margin-bottom:24px}
+.dash-loc-list li{display:grid;grid-template-columns:120px 1fr 50px;align-items:center;gap:14px;font-family:var(--sans);font-size:11px}
+.ll-name{color:var(--ink);font-weight:500}
+.ll-bar{height:6px;background:var(--ink-paper);position:relative;overflow:hidden;border-radius:1px}
+.ll-fill{position:absolute;left:0;top:0;height:100%;background:var(--grad-accent);width:0;border-radius:1px;transition:width 1s var(--silk)}
+.ll-pct{color:var(--orange);font-weight:700;text-align:right;letter-spacing:.02em;font-variant-numeric:tabular-nums}
+.dash-brands-h{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--ink-line);padding-top:14px;margin-bottom:14px;flex-wrap:wrap;gap:8px}
+.dash-brands{display:grid;grid-template-columns:repeat(3,1fr);gap:6px 18px;font-family:var(--sans);font-size:10px}
+.dash-brands .b-row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dotted var(--ink-line)}
+.dash-brands .b-row .bn{color:var(--ink-mid);font-weight:500}
+.dash-brands .b-row .bp{color:var(--orange);font-weight:700;font-variant-numeric:tabular-nums}
+
+/* ─── S7.7 — SIGNATURE PDF assembly (scroll-driven, B-unique) ─── */
+.s-build{position:relative;background:var(--cream);height:250vh;z-index:3;padding:0;border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line)}
+.build-stage{position:relative;height:100vh;width:100%;padding:80px 32px;display:flex;align-items:center;overflow:hidden}
+.build-stage > *{position:relative;z-index:1}
+.build-ambient{position:absolute;bottom:-10%;left:-5%;width:40vw;max-width:520px;aspect-ratio:16/9;overflow:hidden;opacity:.22;filter:saturate(.5) blur(.4px);mix-blend-mode:multiply;mask-image:radial-gradient(ellipse 70% 65% at 30% 60%,#000 30%,transparent 100%);pointer-events:none;z-index:0}
+.build-ambient video{width:100%;height:100%;object-fit:cover}
+.build-stage.pinned{position:fixed;top:0;left:0;right:0}
+.build-eye{position:absolute;top:36px;left:32px;font-family:var(--sans);font-size:10px;letter-spacing:.22em;color:var(--orange);font-weight:700;text-transform:uppercase;display:inline-flex;align-items:center;gap:12px}
+.build-eye::before{content:'';width:26px;height:1px;background:var(--orange)}
+.build-progress{position:absolute;top:36px;right:32px;left:auto;width:200px;height:2px;background:var(--ink-paper)}
+.build-progress .bp-fill{display:block;height:100%;background:var(--grad-accent);width:0;transition:width .1s linear;box-shadow:0 0 12px color-mix(in srgb,var(--accent) 60%,transparent)}
+.build-grid{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;width:100%}
+@media(max-width:980px){.build-grid{grid-template-columns:1fr;gap:32px}}
+.build-meta{font-family:var(--sans);font-size:11px;letter-spacing:.18em;color:var(--orange);text-transform:uppercase;font-weight:600;display:inline-flex;align-items:center;gap:12px;margin-bottom:24px}
+.build-meta::before{content:'';width:26px;height:1px;background:var(--orange)}
+.build-left h2{font-family:var(--serif);font-size:clamp(40px,5vw,84px);font-weight:600;line-height:.96;letter-spacing:-.025em;color:var(--ink-deep);margin-bottom:24px}
+.build-left h2 em{font-style:italic;font-weight:500;color:var(--orange)}
+.build-left p.lead{font-family:var(--sans);font-size:16px;color:var(--ink-mid);line-height:1.55;margin-bottom:32px;max-width:520px}
+.build-steps{list-style:none;display:grid;gap:8px;font-family:var(--sans);font-size:12px;max-width:380px}
+.build-steps li{display:grid;grid-template-columns:48px 1fr;gap:14px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--ink-line);color:var(--ink-dim);opacity:.4;transition:opacity .3s var(--silk),color .3s var(--silk)}
+.build-steps li.lit{opacity:1;color:var(--ink)}
+.build-steps li.lit .bs-n{color:var(--orange)}
+.build-steps li .bs-n{font-weight:700;color:var(--ink-mid);font-variant-numeric:tabular-nums;letter-spacing:.06em}
+.build-steps li .bs-t{font-weight:500}
+.build-right{display:flex;justify-content:flex-end}
+.build-pdf{width:100%;max-width:480px;background:#FFFFFF;border:1px solid var(--ink-line);box-shadow:0 30px 80px rgba(10,10,10,.12),0 0 0 1px var(--ink-paper);font-family:var(--sans);font-size:12px;border-radius:8px;overflow:hidden;position:relative}
+.build-pdf::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--grad-accent)}
+.pdf-head{display:flex;justify-content:space-between;padding:18px 22px;border-bottom:1px solid var(--ink-line);background:var(--paper);font-family:var(--sans);font-size:10px;letter-spacing:.14em;color:var(--ink-mid);text-transform:uppercase;font-weight:600}
+.pdf-head .pdf-tag{color:var(--orange);font-weight:700}
+.pdf-head .pdf-id{font-variant-numeric:tabular-nums}
+.build-pdf .pdf-row{display:flex;justify-content:space-between;padding:9px 22px;border-bottom:1px solid var(--ink-line);font-size:12px;opacity:0;transform:translateY(8px);transition:opacity .35s var(--silk),transform .35s var(--silk)}
+.build-pdf .pdf-row.shown{opacity:1;transform:none}
+.build-pdf .pdf-row .pr-l{color:var(--ink-mid)}
+.build-pdf .pdf-row strong{color:var(--ink-deep);font-weight:600;font-variant-numeric:tabular-nums}
+.build-pdf .pdf-row strong.hl{color:var(--orange);font-weight:700}
+.build-pdf .pdf-row strong.ok{color:#16A34A;font-weight:700}
+.build-pdf .pdf-cta{background:var(--ink-deep);padding:14px 22px;border-bottom:none;text-align:center;display:flex;justify-content:center}
+.build-pdf .pdf-cta .pr-cta{color:#FFFFFF;font-weight:700;font-size:13px;letter-spacing:.06em}
+@media(max-width:980px){.build-pdf{max-width:none}.build-right{justify-content:flex-start}.build-stage{padding-top:140px}}
+
+/* ─── S8 — HYPER-PERSONALIZATION ─── */
+.s-hyper{padding:140px 32px;background:var(--paper);border-top:1px solid var(--ink-line)}
+.hyper-grid{display:grid;grid-template-columns:4fr 7fr;gap:64px;align-items:center}
+@media(max-width:980px){.hyper-grid{grid-template-columns:1fr;gap:48px}}
+.hyper-vis{aspect-ratio:9/14;background:var(--cream);border:1px solid var(--ink-line);padding:24px;position:relative;display:flex;flex-direction:column;justify-content:center}
+.hyper-vis::before{content:'';position:absolute;top:-1px;left:-1px;right:-1px;height:42px;background:var(--ink);display:flex;align-items:center}
+.hyper-vis::after{content:'hyperpartner';position:absolute;top:14px;left:50%;transform:translateX(-50%);font-family:var(--serif);font-size:13px;color:var(--cream);font-weight:600;letter-spacing:.04em;z-index:2;}
+.hyper-msg{margin-top:48px;padding:18px;background:var(--paper);border-left:3px solid var(--orange);font-family:var(--reader);font-size:13px;color:var(--ink);line-height:1.5;font-weight:500}
+.hyper-msg .greet{font-family:var(--serif);font-style:italic;color:var(--orange);font-size:14px;font-weight:500;margin-bottom:6px;}
+.hyper-msg .body{font-size:12px;line-height:1.55}
+.hyper-cta{margin-top:18px;font-family:var(--sans);font-size:11px;letter-spacing:.04em;color:var(--cream);background:var(--ink);padding:10px 14px;font-weight:600;display:inline-block;border-radius:6px;text-decoration:none}
+.hyper-tap{margin-top:14px;font-family:var(--sans);font-size:10px;color:var(--ink-mid);letter-spacing:.06em;text-align:center;font-weight:500}
+.hyper-txt h3{font-family:var(--serif);font-size:clamp(28px,3.6vw,60px);font-weight:600;line-height:1;letter-spacing:-.025em;color:var(--ink-deep);margin-bottom:24px;}
+.hyper-txt h3 em{font-style:italic;color:var(--orange);font-weight:500}
+.hyper-txt p{font-family:var(--reader);font-size:16px;line-height:1.6;color:var(--ink);margin-bottom:14px;}
+.hyper-flow{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:32px;padding-top:24px;border-top:1px solid var(--ink-line)}
+@media(max-width:760px){.hyper-flow{grid-template-columns:repeat(2,1fr)}}
+.hyper-flow .step{font-family:var(--sans);font-size:11px;color:var(--ink-mid)}
+.hyper-flow .step .n{font-family:var(--serif);font-size:34px;color:var(--orange);font-weight:300;font-style:italic;display:block;line-height:1;margin-bottom:6px}
+.hyper-flow .step .t{display:block;color:var(--ink-deep);font-family:var(--serif);font-weight:600;font-size:13px;margin-bottom:4px}
+.hyper-flow .step .d{font-size:10px;line-height:1.5;letter-spacing:.02em}
+
+/* ─── S9 — TECH STACK / ARCHITECTURE ─── */
+.s-tech{padding:140px 32px;background:var(--cream)}
+.tech-grid{display:grid;grid-template-columns:5fr 6fr;gap:80px;align-items:start}
+@media(max-width:980px){.tech-grid{grid-template-columns:1fr}}
+.tech-layers{display:flex;flex-direction:column;gap:16px;margin-top:32px}
+.tlayer{background:var(--paper);padding:24px 28px;border:1px solid var(--ink-line);position:relative;display:grid;grid-template-columns:auto 1fr auto;gap:24px;align-items:center;transition:transform .3s var(--silk),background .3s var(--silk),border-color .3s var(--silk)}
+.tlayer:hover{transform:translateX(4px);background:var(--paper-deep)}
+.tlayer.l5{background:var(--orange);color:var(--cream);border-color:var(--orange)}
+.tlayer.l5:hover{background:var(--ink-deep);border-color:var(--ink-deep)}
+.tlayer .id{font-family:var(--serif);font-size:42px;font-weight:300;font-style:italic;color:var(--orange);letter-spacing:-.04em;line-height:1;}
+.tlayer.l5 .id{color:var(--cream)}
+.tlayer h4{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink-deep);line-height:1.1;margin-bottom:4px}
+.tlayer.l5 h4{color:var(--cream)}
+.tlayer p{font-family:var(--reader);font-size:13px;color:var(--ink-mid);line-height:1.5}
+.tlayer.l5 p{color:rgba(250,250,250,.85)}
+.tlayer .badge{font-family:var(--sans);font-size:10px;letter-spacing:.18em;color:var(--ink-mid);text-transform:uppercase;font-weight:600;border:1px solid var(--ink-line);padding:5px 8px}
+.tlayer.l5 .badge{color:var(--cream);border-color:rgba(250,250,250,.4)}
+.tech-side h3{font-family:var(--serif);font-size:clamp(28px,3.4vw,52px);font-weight:600;line-height:1.05;letter-spacing:-.02em;color:var(--ink-deep);margin-bottom:24px;}
+.tech-side h3 em{font-style:italic;color:var(--orange);font-weight:500}
+.tech-side p{font-family:var(--reader);font-size:16px;line-height:1.6;color:var(--ink);margin-bottom:14px;}
+.tech-cert{margin-top:32px;padding:18px;border:1px solid var(--ink-line);background:var(--paper);font-family:var(--sans);font-size:11px;color:var(--ink-mid);letter-spacing:.04em;line-height:1.6}
+.tech-cert .h{color:var(--orange);font-weight:700;letter-spacing:.18em;font-size:10px;text-transform:uppercase;margin-bottom:8px}
+.tech-stack-logos{margin-top:48px;padding-top:32px;border-top:1px solid var(--ink-line)}
+.tech-stack-logos .h{font-family:var(--sans);font-size:10px;color:var(--ink-mid);letter-spacing:.22em;text-transform:uppercase;font-weight:600;margin-bottom:20px}
+.tech-stack-row{display:flex;flex-wrap:wrap;gap:20px 28px;align-items:center}
+.tech-stack-row .lgo{font-family:var(--serif);font-size:18px;color:var(--ink-mid);font-weight:600;font-style:italic;letter-spacing:-.01em;transition:color .25s,transform .25s;cursor:none;}
+.tech-stack-row .lgo:hover{color:var(--orange);transform:translateY(-2px)}
+
+/* ─── S10 — ROI ─── */
+.s-roi{padding:140px 32px;background:var(--paper);border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line)}
+.roi-grid{display:grid;grid-template-columns:5fr 6fr;gap:80px;align-items:center}
+@media(max-width:980px){.roi-grid{grid-template-columns:1fr}}
+.roi-panel{background:var(--cream);border:1px solid var(--ink-line);padding:40px 32px;position:relative}
+.roi-panel::before{content:'';position:absolute;top:-1px;left:-1px;width:48px;height:6px;background:var(--orange)}
+.roi-panel .h{font-family:var(--sans);font-size:10px;letter-spacing:.22em;color:var(--orange);text-transform:uppercase;font-weight:700;margin-bottom:32px;display:flex;justify-content:space-between}
+.roi-input{margin-bottom:32px}
+.roi-input-label{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.roi-input-label .l{font-family:var(--sans);font-size:11px;color:var(--ink-mid);letter-spacing:.06em;font-weight:600;text-transform:uppercase}
+.roi-input-label .v{font-family:var(--serif);font-size:30px;color:var(--ink-deep);font-weight:500;letter-spacing:-.02em;line-height:1}
+.roi-input-label .v small{font-family:var(--sans);font-size:12px;color:var(--orange);font-weight:600;letter-spacing:.04em;margin-left:6px}
+.roi-track{position:relative;height:2px;background:var(--ink-line);cursor:pointer}
+.roi-fill{position:absolute;left:0;top:0;height:100%;background:var(--orange);transform-origin:left;will-change:transform}
+.roi-thumb{position:absolute;top:50%;width:18px;height:18px;background:var(--orange);border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 0 0 4px var(--cream),0 2px 12px color-mix(in srgb,var(--accent) 35%,transparent);transition:transform .2s var(--silk);will-change:left}
+.roi-thumb:hover{transform:translate(-50%,-50%) scale(1.2)}
+.roi-output{position:relative}
+.roi-output .lbl{font-family:var(--sans);font-size:11px;color:var(--orange);letter-spacing:.22em;text-transform:uppercase;font-weight:700;margin-bottom:14px;display:inline-flex;align-items:center;gap:14px}
+.roi-output .lbl::before{content:'';width:32px;height:1px;background:var(--orange)}
+.roi-output .big{font-family:var(--serif);font-size:clamp(64px,9.5vw,148px);font-weight:500;color:var(--ink-deep);letter-spacing:-.045em;line-height:.9;display:block;}
+.roi-output .big .cur{font-style:italic;color:var(--orange);font-weight:400}
+.roi-output .desc{font-family:var(--reader);font-size:14px;color:var(--ink-mid);margin-top:18px;line-height:1.6}
+.roi-output .formula{margin-top:24px;font-family:var(--sans);font-size:11px;color:var(--ink-mid);letter-spacing:.04em;display:flex;flex-wrap:wrap;gap:6px 12px;padding-top:14px;border-top:1px solid var(--ink-line)}
+.roi-output .formula .v{color:var(--ink-deep);font-weight:700;font-family:var(--serif);font-size:14px;font-style:italic}
+.roi-output .formula .op{color:var(--orange);font-weight:700}
+
+/* ─── S11 — FEATURES (Security) ─── */
+.s-feat{padding:140px 32px;background:var(--cream)}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:32px;margin-top:48px}
+@media(max-width:980px){.feat-grid{grid-template-columns:1fr;gap:24px}}
+.feat-card{background:var(--paper);padding:32px 28px;border:1px solid var(--ink-line);position:relative;transition:transform .3s var(--silk),background .3s var(--silk)}
+.feat-card:hover{transform:translateY(-4px);background:var(--paper-deep)}
+.feat-card .id{font-family:var(--serif);font-size:50px;font-weight:300;font-style:italic;color:var(--orange);letter-spacing:-.04em;line-height:1;margin-bottom:24px;}
+.feat-card h4{font-family:var(--serif);font-size:24px;font-weight:600;color:var(--ink-deep);line-height:1.1;margin-bottom:14px;letter-spacing:-.01em;}
+.feat-card h4 em{font-style:italic;color:var(--orange);font-weight:500}
+.feat-card p{font-family:var(--reader);font-size:14px;color:var(--ink-mid);line-height:1.6;margin-bottom:18px}
+.feat-card p strong{color:var(--ink-deep);font-weight:600}
+.feat-card .props{font-family:var(--sans);font-size:10px;letter-spacing:.06em;color:var(--ink-mid);font-weight:500;text-transform:uppercase;display:flex;flex-wrap:wrap;gap:6px 14px;border-top:1px solid var(--ink-line);padding-top:14px}
+.feat-card .props strong{color:var(--orange);font-weight:700}
+
+/* ─── S11.5 — FUNNEL (6-step implementation timeline) ─── */
+.s-trust{padding:100px 32px;background:var(--paper);border-top:1px solid var(--ink-line);border-bottom:1px solid var(--ink-line)}
+.s-trust .sct-inner{display:flex;flex-direction:column;gap:36px;max-width:1320px;margin:0 auto}
+.s-trust .trust-head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--ink-line)}
+.s-trust .trust-lbl{font-family:var(--sans);font-size:11px;letter-spacing:.18em;color:var(--orange);text-transform:uppercase;font-weight:700}
+.s-trust .trust-count{font-family:var(--serif);font-size:14px;color:var(--ink);font-style:italic;font-weight:500}
+.s-trust .trust-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--ink-line);border:1px solid var(--ink-line)}
+@media(max-width:980px){.s-trust .trust-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.s-trust .trust-grid{grid-template-columns:1fr}}
+.s-trust .trust-card{background:var(--cream);padding:28px 22px;font-family:var(--serif);font-size:20px;font-weight:600;color:var(--ink-deep);letter-spacing:-.01em;display:flex;align-items:center;justify-content:center;text-align:center;min-height:96px;transition:background .3s var(--silk),color .3s var(--silk)}
+.s-trust .trust-card em{font-style:italic;color:var(--orange);font-weight:500;margin-left:4px}
+.s-trust .trust-card:hover{background:var(--paper-deep)}
+
+.s-funnel{padding:140px 32px;background:var(--cream);border-top:1px solid var(--ink-line)}
+.funnel-list{list-style:none;display:grid;grid-template-columns:repeat(6,1fr);gap:0;margin-top:48px;position:relative}
+.funnel-list::before{content:'';position:absolute;top:76px;left:24px;right:24px;height:1px;background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 25%,transparent),color-mix(in srgb,var(--accent) 65%,transparent),var(--orange));z-index:0}
+@media(max-width:1100px){.funnel-list{grid-template-columns:repeat(3,1fr)}.funnel-list::before{display:none}}
+@media(max-width:680px){.funnel-list{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.funnel-list{grid-template-columns:1fr}}
+.fn{background:var(--cream);padding:30px 20px 28px;position:relative;border-right:1px solid var(--ink-line);min-height:300px;display:flex;flex-direction:column;transition:background .3s var(--silk);z-index:1}
+.fn:last-child{border-right:none}
+.fn:hover{background:var(--paper)}
+.fn-id{font-family:var(--sans);font-size:11px;color:var(--orange);font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+.fn .fn-dot{display:block;width:22px;height:22px;border-radius:50%;background:var(--orange);margin:14px 0 22px;box-shadow:0 0 0 8px var(--cream);position:relative;z-index:2}
+.fn:nth-child(even) .fn-dot{background:var(--ink-deep)}
+.fn h4{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink-deep);letter-spacing:-.01em;line-height:1.1;margin-bottom:8px;}
+.fn h4 em{font-style:italic;color:var(--orange);font-weight:500}
+.fn-dur{font-family:var(--sans);font-size:10px;color:var(--orange);letter-spacing:.18em;text-transform:uppercase;font-weight:700;border-bottom:1px solid var(--ink-line);padding-bottom:10px;margin-bottom:12px;display:inline-block;align-self:flex-start}
+.fn p{font-family:var(--reader);font-size:13px;line-height:1.6;color:var(--ink-mid);font-weight:400}
+.fn.lit{background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 7%,transparent),color-mix(in srgb,var(--accent) 2%,transparent))}
+.fn.lit .fn-dot{background:var(--orange);box-shadow:0 0 0 8px var(--cream),0 0 24px color-mix(in srgb,var(--accent) 50%,transparent)}
+
+/* ─── MOBILE BURGER NAV ─── */
+.nav-menu-toggle{display:none;background:none;border:1px solid var(--ink-line);color:var(--ink);font-family:var(--serif);font-size:22px;width:40px;height:40px;cursor:none;align-items:center;justify-content:center;padding:0;line-height:1;border-radius:50%;transition:border-color .25s,background .25s,color .25s;}
+.nav-menu-toggle:hover{border-color:var(--orange);background:var(--orange);color:var(--cream)}
+.nav-menu-toggle.open{border-color:var(--orange);background:var(--orange);color:var(--cream)}
+@media(max-width:1100px){
+  .nav-menu-toggle{display:flex}
+  .nav-mast .issue{display:none}
+  .nav-links{position:fixed;top:64px;left:0;right:0;bottom:0;background:var(--cream);border-top:1px solid var(--ink-line);flex-direction:column;align-items:flex-start;padding:48px 32px;gap:24px;transform:translateY(-110%);transition:transform .35s var(--silk);display:flex!important;z-index:99;overflow-y:auto}
+  .nav-links.open{transform:translateY(0)}
+  .nav-links a{font-family:var(--serif);font-size:28px;color:var(--ink-deep);letter-spacing:-.01em;font-weight:500;}
+  .nav-links a:hover{color:var(--orange)}
+  .nav-links a::after{display:none}
+}
+
+/* ─── S12 — CTA ─── */
+.s-cta{padding:160px 32px;background:var(--ink-deep);color:var(--cream);position:relative;overflow:hidden}
+.s-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 50% 0%,color-mix(in srgb,var(--accent) 18%,transparent),transparent 60%);pointer-events:none}
+.cta-inner{max-width:760px;margin:0 auto;text-align:center;position:relative;z-index:2}
+.cta-inner .meta{color:var(--orange);margin-bottom:24px}
+.cta-inner .meta::before{background:var(--orange)}
+.cta-inner h2{font-family:var(--serif);font-size:clamp(54px,8vw,148px);font-weight:500;line-height:.92;letter-spacing:-.04em;color:var(--cream);margin-bottom:24px;}
+.cta-inner h2 em{font-style:italic;color:var(--orange);font-weight:400}
+.cta-inner .lead{font-family:var(--reader);font-size:18px;color:rgba(250,250,250,.78);line-height:1.55;max-width:540px;margin:0 auto 40px;}
+.cta-form{background:var(--cream);color:var(--ink);padding:36px 32px;text-align:left;border-radius:0;position:relative}
+.cta-form::before{content:'';position:absolute;top:-6px;left:24px;width:60px;height:6px;background:var(--orange)}
+.cta-form .row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+@media(max-width:580px){.cta-form .row{grid-template-columns:1fr}}
+.cta-form .field{position:relative}
+.cta-form .field label{position:absolute;top:14px;left:0;font-family:var(--sans);font-size:11px;color:var(--ink-mid);letter-spacing:.06em;font-weight:500;text-transform:uppercase;pointer-events:none;transition:transform .25s var(--silk),color .25s,font-size .25s}
+.cta-form .field input,.cta-form .field textarea{width:100%;background:transparent;border:none;border-bottom:1px solid var(--ink-line);padding:14px 0 10px;color:var(--ink-deep);font-family:var(--serif);font-size:16px;outline:none;transition:border-color .2s var(--silk);cursor:text;}
+.cta-form .field input:focus,.cta-form .field textarea:focus{border-color:var(--orange)}
+.cta-form .field input:focus + label,.cta-form .field textarea:focus + label,.cta-form .field input:not(:placeholder-shown) + label,.cta-form .field textarea:not(:placeholder-shown) + label{transform:translateY(-22px);font-size:9px;color:var(--orange)}
+.cta-form .field input::placeholder,.cta-form .field textarea::placeholder{color:transparent}
+.cta-form textarea{resize:none;min-height:60px}
+.cta-form-btn{display:inline-flex;align-items:center;gap:14px;background:var(--ink);color:var(--cream);border:none;padding:16px 28px;font-family:var(--sans);font-size:12px;letter-spacing:.06em;font-weight:600;cursor:none;margin-top:18px;transition:background .25s var(--silk);border-radius:999px}
+.cta-form-btn:hover{background:var(--orange)}
+.cta-form-btn .arr{font-family:var(--serif);font-style:italic;transition:transform .3s var(--silk)}
+.cta-form-btn:hover .arr{transform:translateX(4px)}
+
+/* ─── FOOTER (magazine colophon) ─── */
+.footer{background:var(--cream);color:var(--ink);padding:48px 32px 32px;border-top:3px solid var(--ink)}
+.footer-inner{max-width:1320px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:48px}
+@media(max-width:760px){.footer-inner{grid-template-columns:1fr 1fr}}
+.footer .colophon h4{font-family:var(--serif);font-size:22px;font-weight:600;color:var(--ink-deep);margin-bottom:14px;letter-spacing:-.01em;}
+.footer .colophon h4 em{font-style:italic;color:var(--orange);font-weight:500}
+.footer .colophon p{font-family:var(--reader);font-size:13px;line-height:1.6;color:var(--ink-mid);margin-bottom:14px}
+.footer .col h5{font-family:var(--sans);font-size:10px;letter-spacing:.18em;color:var(--orange);font-weight:700;text-transform:uppercase;margin-bottom:14px}
+.footer .col a{font-family:var(--reader);font-size:13px;color:var(--ink);text-decoration:none;display:block;padding:4px 0;transition:color .2s}
+.footer .col a:hover{color:var(--orange)}
+.footer-base{max-width:1320px;margin:32px auto 0;padding-top:18px;border-top:1px solid var(--ink-line);display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-family:var(--sans);font-size:11px;color:var(--ink-mid);letter-spacing:.04em}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+  .sct *{opacity:1!important;transform:none!important}
+  [data-reveal]{opacity:1!important;transform:none!important}
+}
+/* Defensive baseline — reveal elements visible even if ScrollTrigger never fires (screenshot tools, crawlers) */
+html.no-gsap .sct *, html.no-gsap .case-card, html.no-gsap .srv, html.no-gsap .member, html.no-gsap .feat-card, html.no-gsap .cycle-card{opacity:1!important;transform:none!important}
+
+/* ─── UNIFIED REVEAL SYSTEM — CSS+IntersectionObserver, screenshot-safe ─── */
+[data-reveal]{opacity:0;transform:translateY(20px);transition:opacity .85s cubic-bezier(.16,1,.3,1),transform .85s cubic-bezier(.16,1,.3,1);will-change:opacity,transform}
+[data-reveal].in{opacity:1;transform:none}
+[data-reveal][data-reveal="up"]{transform:translateY(28px)}
+[data-reveal][data-reveal="fade"]{transform:none}
+@media print{[data-reveal]{opacity:1!important;transform:none!important}}
+</style>
+</head>
+
+<body>
+<a class="skip-link" href="#hero">К содержимому</a>
+<div id="cur"></div>
+<div id="progress"></div>
+<div class="aurora-bg" aria-hidden="true"><span class="blob"></span></div>
+
+<!-- PALETTE SWITCHER (4 variants, bottom-left, with active name) -->
+<aside class="palette-switch" id="palette-switch" aria-label="Палитра">
+  <span class="lbl">Тема</span>
+  <div class="row">
+    <button data-p="cobalt" data-name="Cobalt" class="active" aria-label="Cobalt"></button>
+    <button data-p="violet" data-name="Violet" aria-label="Violet"></button>
+    <button data-p="forest" data-name="Forest" aria-label="Forest"></button>
+    <button data-p="graphite" data-name="Graphite" aria-label="Graphite"></button>
+  </div>
+  <span class="active-name" id="palette-name">Cobalt</span>
+</aside>
+
+<!-- NAV — modern tech masthead -->
+<nav class="nav">
+  <div class="nav-mast">
+    <a href="#hero" class="nav-mast" style="display:inline-flex">
+      <span class="brand">Hyper<span class="acc">partner</span></span>
+    </a>
+    <span class="issue"><strong>Console</strong> · <em>v 5.0</em></span>
+  </div>
+  <ul class="nav-links" id="nav-links">
+    <li><a href="#services">Платформа</a></li>
+    <li><a href="#build">Сборка</a></li>
+    <li><a href="#case">Кейс</a></li>
+    <li><a href="#team">Команда</a></li>
+    <li><a href="#tech">Безопасность</a></li>
+  </ul>
+  <a href="#cta" class="nav-cta">Демо · 25 мин →</a>
+  <button class="nav-menu-toggle" aria-label="Меню" id="nav-toggle">≡</button>
+</nav>
+
+<!-- HERO — magazine cover -->
+<section class="sct s-hero" id="hero">
+  <div class="s-hero-inner">
+    <div class="s-hero-mast">
+      <div><span class="issue">Платформа</span> · <span class="vol">v 5.0</span> · <span class="date">Live · Moscow</span></div>
+      <div>Цифровые сотрудники · 8 функций бизнеса</div>
+    </div>
+    <div class="s-hero-grid">
+      <h1 id="hero-title">
+        <span class="ln"><span class="word">Цифровой</span></span>
+        <span class="ln"><span class="word"><em>сотрудник</em>,</span></span>
+        <span class="ln"><span class="word">собранный</span></span>
+        <span class="ln"><span class="word">за 25 минут<span class="punct">.</span></span></span>
+      </h1>
+      <aside class="s-hero-aside">
+        <div class="hero-photo">
+          <video autoplay muted loop playsinline preload="metadata" poster="assets/B-typing-hands.png" aria-label="Цифровой сотрудник работает за вас">
+            <source src="assets/B-keyboard-flow.mp4" type="video/mp4">
+          </video>
+        </div>
+        <p class="opening">Не агентство и не консалтинг. Платформа, которая разворачивает цифрового сотрудника за рабочий день — на ваши процессы, в ваш контур, под надзором куратора.</p>
+        <div class="byline"><strong>HyperPartner Console</strong> · v 5.0</div>
+        <a href="#cta" class="read">Развернуть пилот <span class="arr">→</span></a>
+      </aside>
+    </div>
+    <div class="s-hero-foot">
+      <div class="ind">
+        <span class="v"><em>14</em><span style="font-size:.4em"> дней</span></span>
+        <span class="l">До первой выгоды</span>
+      </div>
+      <div class="ind">
+        <span class="v"><em>8</em><span style="font-size:.5em"></span></span>
+        <span class="l">Production-модулей</span>
+      </div>
+      <div class="ind">
+        <span class="v"><em>40</em><span style="font-size:.4em">%</span></span>
+        <span class="l">Экономия фонда оплаты</span>
+      </div>
+      <div class="ind">
+        <span class="v"><em>L3</em><span style="font-size:.4em">→L5</span></span>
+        <span class="l">Замкнутый периметр</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S2 — VISION (long-form essay) -->
+<section class="sct s-vision" id="vision">
+  <div class="s-vision-photo" aria-hidden="true">
+    <video autoplay muted loop playsinline preload="metadata">
+      <source src="assets/B-pen-write.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="sct-inner s-vision-grid">
+    <div>
+      <span class="meta"><span class="num">№02</span> Видение</span>
+      <h2><em>Замкнутый</em><br>периметр.</h2>
+      <p class="lead">Манифест о том, почему AI-агенты не должны видеть ваших клиентов в лицо.</p>
+    </div>
+    <div class="s-vision-essay">
+      <p>Каждый раз, когда сотрудник вашей компании работает с клиентским SMS, счёт-фактурой или товарным чеком — этот документ покидает контур безопасности. Покидает потому, что человеку нужно его прочитать.</p>
+      <p>Цифровой сотрудник не нуждается в чтении. <strong>Он работает с маскированными токенами</strong>: место «Иван Иванов» — `[N_PERSON]`, место «8 ••• ••• 00 00» — `[N_PHONE]`, место «BMW X3» — `[A_MODEL_42]`.</p>
+      <p class="pullquote">«Цифровой сотрудник, который видит ваших клиентов в лицо, — это утечка. Маскирование на L3 — <em>условие, а не функция</em>.»</p>
+      <p>Архитектура HyperPlatform L3 → L4 → L5 устроена так, чтобы plain-text данных не существовало никогда — даже в логах, даже в audit-trail. Восстановление контекста происходит только на момент возврата в вашу CRM.</p>
+      <p>Это означает <strong>ноль рисков утечки</strong> даже если бы один из наших инстансов был скомпрометирован полностью. Никакого пароля для дешифровки нет в системе — он держится у вас.</p>
+      <div class="s-vision-byline">
+        <span><strong>Манифест HyperPartner Console</strong></span>
+        <span>26.05.2026 · Moscow</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S3 — INDUSTRY 5.0 -->
+<section class="sct s-i50" id="i50">
+  <div class="sct-inner i50-grid">
+    <div>
+      <span class="meta"><span class="num">№03</span> Индустрия 5.0</span>
+      <span class="i50-display">5<em>.</em>0</span>
+      <div class="i50-meta">
+        <span>Protocol active</span>
+        <strong>2025 — ∞</strong>
+      </div>
+    </div>
+    <div class="i50-txt">
+      <h3>После цифровизации станков.<br><em>Цифровизация офиса.</em></h3>
+      <p>Индустрия 4.0 — это автоматизация физического труда. Промышленные роботы, ЧПУ-станки, складские конвейеры. Это про производственную линию.</p>
+      <p>Индустрия 5.0 — это автоматизация интеллектуального труда. Цифровые сотрудники в продажах, бухгалтерии, HR, логистике, документообороте. <strong>Это про офисную линию.</strong></p>
+      <p>Восемь цифровых функций работают в замкнутом периметре под надзором человека-куратора. Точность 99.2%. Скорость 5–20× против ручного ввода. Непрерывная доступность — без больничных и отпусков.</p>
+      <div class="i50-list">
+        <div class="row"><span class="id">№01</span><span class="name">Цифровые сотрудники</span><span class="stat">8 функций</span></div>
+        <div class="row"><span class="id">№02</span><span class="name">Гиперперсонализация клиентов</span><span class="stat">+ 22–44 % конверсия</span></div>
+        <div class="row"><span class="id">№03</span><span class="name">Стратегия масштабирования</span><span class="stat">Пилот → Глобализация</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S4 — TEAM (specialist portraits) -->
+<section class="sct s-team" id="team">
+  <div class="sct-inner">
+    <span class="meta"><span class="num">№04</span> Команда</span>
+    <h2><em>Шесть человек</em><br>за платформой.</h2>
+    <p class="lead">Каждый сотрудник нашей команды отвечает за один из L-уровней. Инженеры, AI-исследователи, специалисты безопасности.</p>
+    <div class="team-grid" id="team-grid">
+      <!-- injected -->
+    </div>
+  </div>
+</section>
+
+<!-- S5 — SERVICES (8 функций) -->
+<section class="sct s-services" id="services">
+  <div class="sct-inner">
+    <span class="meta"><span class="num">№05</span> Сервисы</span>
+    <h2>Восемь функций<br>в <em>замкнутом</em> контуре.</h2>
+    <p class="lead">Один процесс — один цифровой сотрудник. Pilot за 2–4 недели, контракт после демонстрации результата.</p>
+    <div class="services-grid" id="srv-grid">
+      <!-- injected -->
+    </div>
+  </div>
+</section>
+
+<!-- S6 — ROBOTS / CYCLES -->
+<section class="sct s-robots" id="robots">
+  <div class="sct-inner">
+    <span class="meta"><span class="num">№06</span> Циклы</span>
+    <h2>Шесть рабочих<br>циклов <em>сотрудника.</em></h2>
+    <p class="lead">Каждый цикл — типовая последовательность операций цифрового сотрудника. Длительность от секунд до минут, в зависимости от сложности задачи.</p>
+    <div class="robots-spread" id="robots-spread">
+      <!-- injected -->
+    </div>
+  </div>
+</section>
+
+<!-- S7 — CASE -->
+<section class="sct s-case" id="case">
+  <div class="sct-inner">
+    <span class="meta"><span class="num">№07</span> Кейс</span>
+    <div class="case-spread">
+      <div class="case-photo">
+        <div class="photo-stamp">Case 01 · Automotive</div>
+        <div class="photo-caption">«BMW X3 xDrive30i, 2026 · 2.0 л · 245 л.с. · полный привод» — корпоративное предложение, отправленное закупщику через <em>12 секунд</em> после первого SMS.</div>
+      </div>
+      <div class="case-txt">
+        <h3>SMS <em>→</em> AI <em>→</em> Персональный <em>offer</em>.</h3>
+        <p>«Сергей, спасибо за корпоративный запрос в «Премиум-Авто»! Подобрали 3 BMW X3 под ваш парк на 12 автомобилей. Менеджер Иван Морозов свяжется в течение 25 минут.» — это сообщение приходит закупщику корпоративного парка через 12 секунд после первого контакта.</p>
+        <p><strong>Цифровой сотрудник-продавец</strong> классифицирует входящий лид, поднимает наличие в CRM, ищет менеджера в смене (куратор Иван Морозов, контакт скрыт в PDF), собирает PDF с фото машины, тех.характеристиками, доп.оборудованием и стоимостью.</p>
+        <div class="case-stat-line">
+          <span class="big"><span data-counter="44" data-start="22">22</span><span class="small">..44%</span></span>
+          <span class="desc"><strong>Рост конверсии</strong><br>SMS → запись на сервис<br><span style="color:var(--orange)">30+ брендов · 7 локаций</span></span>
+        </div>
+        <div class="case-thread">
+          <span class="step"><strong>SMS</strong> входит</span>
+          <span class="arr">→</span>
+          <span class="step"><strong>AI</strong> классифицирует</span>
+          <span class="arr">→</span>
+          <span class="step"><strong>CRM</strong> + менеджер</span>
+          <span class="arr">→</span>
+          <span class="step"><strong>PDF</strong> отправлен</span>
+        </div>
+        <div class="case-equip">
+          <span class="ce-h">Доп. оборудование в offer:</span>
+          <span class="ce-row"><span class="ce-n">Полка штатная</span><span class="ce-p">+32 400 ₽</span></span>
+          <span class="ce-row"><span class="ce-n">Защита картера</span><span class="ce-p">+24 800 ₽</span></span>
+          <span class="ce-row"><span class="ce-n">КАСКО · «Полис-Лайт»</span><span class="ce-p">+148 600 ₽</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S7.5 — DASHBOARD live mock -->
+<section class="sct s-dashboard" id="dashboard">
+  <div class="sct-inner">
+    <span class="meta"><span class="num">№08</span> Реальная панель клиента</span>
+    <h2><em>30+ брендов</em> · 7 локаций.<br>Live-дашборд.</h2>
+    <p class="lead">Снимок продакшн-панели одной из автодилерских сетей. Конверсия из SMS в Навигатор по локациям и брендам — обновляется в реальном времени.</p>
+    <div class="dash">
+      <div class="dash-kpis">
+        <div class="dash-kpi"><span class="kpi-l">Хочу попробовать · КД</span><span class="kpi-v"><span data-target="54">0</span></span><span class="kpi-d">запись на сервис</span></div>
+        <div class="dash-kpi"><span class="kpi-l">Запросить расчёт в TG</span><span class="kpi-v"><span data-target="133">0</span></span><span class="kpi-d">обращений · 30 дней</span></div>
+        <div class="dash-kpi"><span class="kpi-l">% целевых действий</span><span class="kpi-v"><span data-target="9" data-prefix="0,">0,0</span><span class="suf">%</span></span><span class="kpi-d">от всех визитов</span></div>
+        <div class="dash-kpi"><span class="kpi-l">Конверсия SMS → Нав</span><span class="kpi-v"><span data-target="32">0</span><span class="suf">%</span></span><span class="kpi-d">в среднем по сети</span></div>
+      </div>
+      <div class="dash-chart">
+        <div class="dash-chart-h">
+          <span class="dash-chart-t">Конверсия из SMS в Навигатор · по локациям</span>
+          <span class="dash-chart-meta">30 дней · процент действий</span>
+        </div>
+        <ul class="dash-loc-list">
+          <li><span class="ll-name">Внуково</span><span class="ll-bar"><span class="ll-fill" data-pct="33"></span></span><span class="ll-pct">33 %</span></li>
+          <li><span class="ll-name">Восток</span><span class="ll-bar"><span class="ll-fill" data-pct="29.5"></span></span><span class="ll-pct">29.5 %</span></li>
+          <li><span class="ll-name">Ленинский</span><span class="ll-bar"><span class="ll-fill" data-pct="22.9"></span></span><span class="ll-pct">22.9 %</span></li>
+          <li><span class="ll-name">M2</span><span class="ll-bar"><span class="ll-fill" data-pct="32.1"></span></span><span class="ll-pct">32.1 %</span></li>
+          <li><span class="ll-name">На определщика</span><span class="ll-bar"><span class="ll-fill" data-pct="31.7"></span></span><span class="ll-pct">31.7 %</span></li>
+          <li><span class="ll-name">Север</span><span class="ll-bar"><span class="ll-fill" data-pct="31.2"></span></span><span class="ll-pct">31.2 %</span></li>
+          <li><span class="ll-name">Юг</span><span class="ll-bar"><span class="ll-fill" data-pct="32.7"></span></span><span class="ll-pct">32.7 %</span></li>
+        </ul>
+        <div class="dash-brands-h">
+          <span class="dash-chart-t">по брендам · 30+ позиций</span>
+          <span class="dash-chart-meta">топ-12 за период</span>
+        </div>
+        <div class="dash-brands" id="dash-brands"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S7.7 — SIGNATURE: scroll-driven PDF assembly (B's unique moment, no video) -->
+<section class="sct s-build" id="build">
+  <div class="build-stage">
+    <div class="build-ambient" aria-hidden="true">
+      <video autoplay muted loop playsinline preload="metadata">
+        <source src="assets/B-pages-turn.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="build-eye">12 секунд · сборка персонального предложения</div>
+    <div class="build-progress"><span class="bp-fill" id="bp-fill"></span></div>
+    <div class="build-grid">
+      <div class="build-left">
+        <span class="build-meta">от SMS клиента до записи на сервис</span>
+        <h2><em>Предложение</em> собирается,<br>пока вы скроллите.</h2>
+        <p class="lead">Каждое поле в PDF — отдельная операция цифрового сотрудника. Маскирование PII, поиск в CRM, проверка наличия, расчёт страховки, поиск менеджера в смене.</p>
+        <ul class="build-steps">
+          <li data-step="0"><span class="bs-n">01</span><span class="bs-t">SMS получен · 0.0 sec</span></li>
+          <li data-step="1"><span class="bs-n">02</span><span class="bs-t">PII маскированы · 1.2 sec</span></li>
+          <li data-step="2"><span class="bs-n">03</span><span class="bs-t">Модель определена · 2.4 sec</span></li>
+          <li data-step="3"><span class="bs-n">04</span><span class="bs-t">CRM подняты · 4.6 sec</span></li>
+          <li data-step="4"><span class="bs-n">05</span><span class="bs-t">Менеджер найден · 5.8 sec</span></li>
+          <li data-step="5"><span class="bs-n">06</span><span class="bs-t">Доп. опц. посчитаны · 8.1 sec</span></li>
+          <li data-step="6"><span class="bs-n">07</span><span class="bs-t">PDF собран · 9.1 sec</span></li>
+          <li data-step="7"><span class="bs-n">08</span><span class="bs-t">Предложение отправлено · 12 сек</span></li>
+        </ul>
+      </div>
+      <div class="build-right">
+        <div class="build-pdf">
+          <div class="pdf-head">
+            <span class="pdf-tag">PDF · персональный offer</span>
+            <span class="pdf-id">id 0x7F3A · v1</span>
+          </div>
+          <div class="pdf-row" data-step="0"><span class="pr-l">Клиент</span><strong>Сергей · корпоративный закупщик</strong></div>
+          <div class="pdf-row" data-step="1"><span class="pr-l">Защищено</span><strong class="hl">Маскирование L3</strong></div>
+          <div class="pdf-row" data-step="2"><span class="pr-l">Модель</span><strong>BMW X3 xDrive30i</strong></div>
+          <div class="pdf-row" data-step="2"><span class="pr-l">Тип</span><strong>Premium SUV · 2026</strong></div>
+          <div class="pdf-row" data-step="2"><span class="pr-l">Двигатель</span><strong>2.0 л · 245 л.с.</strong></div>
+          <div class="pdf-row" data-step="2"><span class="pr-l">Привод</span><strong>Полный · xDrive</strong></div>
+          <div class="pdf-row" data-step="3"><span class="pr-l">Дилер</span><strong>Авто-Партнёр · Внуково</strong></div>
+          <div class="pdf-row" data-step="3"><span class="pr-l">В наличии</span><strong class="ok">3 шт.</strong></div>
+          <div class="pdf-row" data-step="3"><span class="pr-l">Базовая цена</span><strong>4 850 000 ₽</strong></div>
+          <div class="pdf-row" data-step="4"><span class="pr-l">Менеджер</span><strong>Иван Морозов · в смене</strong></div>
+          <div class="pdf-row" data-step="4"><span class="pr-l">Контакт</span><strong>+7 ••• ••• ••‑31</strong></div>
+          <div class="pdf-row" data-step="5"><span class="pr-l">Полка штатная</span><strong>+32 400 ₽</strong></div>
+          <div class="pdf-row" data-step="5"><span class="pr-l">Защита картера</span><strong>+24 800 ₽</strong></div>
+          <div class="pdf-row" data-step="5"><span class="pr-l">КАСКО «Полис-Лайт»</span><strong>+148 600 ₽</strong></div>
+          <div class="pdf-row" data-step="6"><span class="pr-l">Итого с опциями</span><strong class="hl">5 055 800 ₽</strong></div>
+          <div class="pdf-row pdf-cta" data-step="7"><span class="pr-cta">→ Записаться на тест-драйв</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S8 — HYPER-PERSONALIZATION -->
+<section class="sct s-hyper" id="hyper">
+  <div class="sct-inner">
+    <span class="meta"><span class="num">№09</span> Гиперперсонализация</span>
+    <div class="hyper-grid">
+      <div class="hyper-vis">
+        <div class="hyper-msg">
+          <div class="greet">Сергей, добрый день!</div>
+          <div class="body">Ваши <strong>3 BMW X3</strong> уже ждут в дилерском центре «Внуково». В наличии — модификация xDrive30i, серый металлик, с пакетом «Бизнес». Все три — под ваш корпоративный парк.</div>
+        </div>
+        <a href="#" class="hyper-cta">Посмотреть offer →</a>
+        <div class="hyper-tap">tap to view · 12 sec ago</div>
+      </div>
+      <div class="hyper-txt">
+        <h3>Сообщение, которое <em>знает</em> клиента.</h3>
+        <p>HyperPlatform хранит истории взаимодействий с каждым клиентом и подбирает товарную линейку — модель, комплектацию, цвет, доп.оборудование — под его предыдущие запросы.</p>
+        <p>В момент когда клиент инициирует контакт (SMS, форма, чат), цифровой сотрудник <strong>уже знает</strong>, что ему предложить. Не «свежий каталог», а конкретный экземпляр в наличии.</p>
+        <div class="hyper-flow">
+          <div class="step"><span class="n">01</span><span class="t">SMS</span><span class="d">Первое касание клиента</span></div>
+          <div class="step"><span class="n">02</span><span class="t">AI</span><span class="d">Анализ истории + наличия</span></div>
+          <div class="step"><span class="n">03</span><span class="t">Match</span><span class="d">Подбор конкретного товара</span></div>
+          <div class="step"><span class="n">04</span><span class="t">Предл.</span><span class="d">Персональное сообщение</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S9 — TECH / ARCHITECTURE -->
+<section class="sct s-tech" id="tech">
+  <div class="sct-inner tech-grid">
+    <div>
+      <span class="meta"><span class="num">№10</span> Архитектура</span>
+      <h2><em>L3 → L4 → L5.</em><br>Три уровня периметра.</h2>
+      <p class="lead">Каждый уровень обрабатывает данные в своём режиме доступа. Данные не покидают периметр ни на одном уровне.</p>
+      <div class="tech-layers">
+        <div class="tlayer l3">
+          <span class="id">L3</span>
+          <div>
+            <h4>Интеграция данных</h4>
+            <p>CDC, API-bridge, файловые шлюзы. Подключение SAP, Oracle, 1С, Bitrix.</p>
+          </div>
+          <span class="badge">Mask</span>
+        </div>
+        <div class="tlayer l4">
+          <span class="id">L4</span>
+          <div>
+            <h4>Интеллектуальная обработка</h4>
+            <p>RPA-конвейеры, AI-агенты, fine-tuning под домен. 8 цифровых сотрудников.</p>
+          </div>
+          <span class="badge">Process</span>
+        </div>
+        <div class="tlayer l5">
+          <span class="id">L5</span>
+          <div>
+            <h4>Аналитика и ИИ</h4>
+            <p>Live-дашборды, прогнозы, сценарное моделирование, alert-сценарии.</p>
+          </div>
+          <span class="badge">Insight</span>
+        </div>
+      </div>
+    </div>
+    <div class="tech-side">
+      <h3>Сертифицированный<br><em>замкнутый контур.</em></h3>
+      <p>Persistent encryption на L3 (data at rest + in motion). Изолированный compute на L4 (no shared kernel). Audit-trail на L5 (hash-chain, неизменяем). </p>
+      <p>Куратор-человек подтверждает каждый класс операций. Worker не может выйти за периметр прав <strong>даже при ошибке prompt-injection</strong>.</p>
+      <div class="tech-cert">
+        <div class="h">Certifications</div>
+        ФСБ КС3 · ФСТЭК · ISO/IEC 27001 · 152-ФЗ
+      </div>
+      <div class="tech-stack-logos">
+        <div class="h">Integrations</div>
+        <div class="tech-stack-row">
+          <span class="lgo">Neo4j</span>
+          <span class="lgo">Python</span>
+          <span class="lgo">TensorFlow</span>
+          <span class="lgo">UiPath</span>
+          <span class="lgo">Blue Prism</span>
+          <span class="lgo">Kofax</span>
+          <span class="lgo">Oracle</span>
+          <span class="lgo">SAP</span>
+          <span class="lgo">1С</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S10 — ROI -->
+<section class="sct s-roi" id="roi">
+  <div class="sct-inner">
+    <span class="meta"><span class="num">№11</span> Экономия</span>
+    <h2>Сколько вы <em>сэкономите</em>.</h2>
+    <p class="lead">Бенчмарк HyperPlatform — 40% годовой экономии операционного бюджета после полного развёртывания. Полный калькулятор — на консультации.</p>
+    <div class="roi-grid" style="margin-top:48px">
+      <div class="roi-panel">
+        <div class="h">
+          <span>Калькулятор</span>
+          <span style="color:var(--ink-mid)">v1.0</span>
+        </div>
+        <div class="roi-input" data-min="1" data-max="500" data-val="120" data-step="1" data-key="emp">
+          <div class="roi-input-label">
+            <span class="l">Сотрудников</span>
+            <span class="v"><span class="vv">120</span><small>чел</small></span>
+          </div>
+          <div class="roi-track"><div class="roi-fill"></div><div class="roi-thumb"></div></div>
+        </div>
+        <div class="roi-input" data-min="30000" data-max="400000" data-val="180000" data-step="5000" data-key="sal">
+          <div class="roi-input-label">
+            <span class="l">Зарплата / мес</span>
+            <span class="v"><span class="vv">180 000</span><small>₽</small></span>
+          </div>
+          <div class="roi-track"><div class="roi-fill"></div><div class="roi-thumb"></div></div>
+        </div>
+      </div>
+      <div class="roi-output">
+        <div class="lbl">Сэкономите за год</div>
+        <span class="big"><span id="roi-out">103 680 000</span> <span class="cur">₽</span></span>
+        <p class="desc">«40% годовой экономии» — внутренний бенчмарк HyperPlatform на основе данных пилотов 2024–2025.</p>
+        <div class="formula">
+          <span><span class="v" id="roi-asm-emp">120</span> чел</span>
+          <span class="op">×</span>
+          <span><span class="v" id="roi-asm-sal">180 000</span> ₽/мес</span>
+          <span class="op">×</span>
+          <span><span class="v">40</span>% экономии</span>
+          <span class="op">×</span>
+          <span><span class="v">12</span> мес</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- S11 — FEATURES (Security) -->
+<section class="sct s-feat" id="features">
+  <div class="sct-inner">
+    <span class="meta"><span class="num">№12</span> Функции платформы</span>
+    <h2>Безопасность<br>по <em>умолчанию.</em></h2>
+    <p class="lead">Три встроенные функции HyperPlatform: маскирование данных, контроль доступа, hot-standby резервирование.</p>
+    <div class="feat-grid">
+      <div class="feat-card">
+        <span class="id">01</span>
+        <h4>Маскирование<br><em>на L3.</em></h4>
+        <p>Персональные данные маскируются <strong>в момент входа в платформу</strong>. AI-агенты работают с anonymized tokens, не с настоящими ФИО.</p>
+        <div class="props"><span>RBAC</span><span>NER</span><strong>L3</strong></div>
+      </div>
+      <div class="feat-card">
+        <span class="id">02</span>
+        <h4>Контроль<br><em>доступа.</em></h4>
+        <p>Куратор-человек подтверждает каждый класс операций. <strong>Worker не может выйти за периметр прав</strong> даже при ошибке prompt-injection.</p>
+        <div class="props"><span>Audit trail</span><span>SIEM</span><strong>L4</strong></div>
+      </div>
+      <div class="feat-card">
+        <span class="id">03</span>
+        <h4>Резервирование.<br><em>Hot-standby.</em></h4>
+        <p>Каждый worker реплицируется на standby-инстанс. <strong>RTO &lt; 60 сек, RPO &lt; 5 сек.</strong> Failover автоматический.</p>
+        <div class="props"><span>RTO 60s</span><span>RPO 5s</span><strong>L5</strong></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TRUST: editorial-style client wordmark grid (SOTD trust signal, B style) -->
+<section class="sct s-trust" id="trust" data-reveal="fade">
+  <div class="sct-inner">
+    <div class="trust-head">
+      <span class="trust-lbl">№ 12.5 · Доверяют</span>
+      <span class="trust-count">24 клиента в production · 14 текущих пилотов · 2 года</span>
+    </div>
+    <div class="trust-grid" aria-label="Корпоративные клиенты HyperPartner">
+      <div class="trust-card">Holding<em>Rus</em></div>
+      <div class="trust-card">Bank · <em>One</em></div>
+      <div class="trust-card">Carrier <em>Group</em></div>
+      <div class="trust-card">Stal · <em>M2</em></div>
+      <div class="trust-card">Delta · <em>Log</em></div>
+      <div class="trust-card">Prime · <em>Auto</em></div>
+      <div class="trust-card">Univ · <em>Med</em></div>
+      <div class="trust-card">+ <em>17 ещё</em></div>
+    </div>
+  </div>
+</section>
+
+<!-- S11.5 — FUNNEL — 6-step implementation timeline -->
+<section class="sct s-funnel" id="funnel">
+  <div class="sct-inner">
+    <span class="meta"><span class="num">№13</span> Внедрение</span>
+    <h2><em>Шесть шагов.</em><br>От аудита до промышленного режима.</h2>
+    <p class="lead">Типовая последовательность внедрения цифровых сотрудников. От первой консультации до промышленного режима — 10 – 16 недель.</p>
+    <ol class="funnel-list">
+      <li class="fn">
+        <span class="fn-id">№01</span>
+        <span class="fn-dot"></span>
+        <span class="fn-dur">2 недели</span>
+        <h4><em>Аудит</em></h4>
+        <p>Картирование корпоративных процессов, выбор пилота, согласование KPI и периметра с CISO.</p>
+      </li>
+      <li class="fn">
+        <span class="fn-id">№02</span>
+        <span class="fn-dot"></span>
+        <span class="fn-dur">4 – 6 недель</span>
+        <h4>Бесплатный <em>пилот</em></h4>
+        <p>Один цифровой сотрудник на реальном корпоративном процессе. Метрика на ваших данных, под NDA.</p>
+      </li>
+      <li class="fn">
+        <span class="fn-id">№03</span>
+        <span class="fn-dot"></span>
+        <span class="fn-dur">2 недели</span>
+        <h4><em>Контракт</em></h4>
+        <p>Согласование SLA, точек интеграции, графика enterprise-развёртывания.</p>
+      </li>
+      <li class="fn">
+        <span class="fn-id">№04</span>
+        <span class="fn-dot"></span>
+        <span class="fn-dur">8 – 12 недель</span>
+        <h4>Развёртывание</h4>
+        <p>Интеграция SAP / Oracle / 1С. Подключение к контуру L3.</p>
+      </li>
+      <li class="fn">
+        <span class="fn-id">№05</span>
+        <span class="fn-dot"></span>
+        <span class="fn-dur">3 – 4 недели</span>
+        <h4>Обучение и <em>запуск</em></h4>
+        <p>Передача команде куратора, запуск под надзором, calibration.</p>
+      </li>
+      <li class="fn lit">
+        <span class="fn-id">№06</span>
+        <span class="fn-dot"></span>
+        <span class="fn-dur">постоянно</span>
+        <h4>Поддержка и <em>рост</em></h4>
+        <p>SLA непрерывно, регулярный fine-tune модели, расширение на новые процессы.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- S12 — CTA -->
+<section class="sct s-cta" id="cta">
+  <div class="cta-inner">
+    <span class="meta"><span class="num">№14</span> Демо</span>
+    <h2>Демо за<br><em>25 минут.</em></h2>
+    <p class="lead">Покажем ваш бизнес-процесс как цифрового сотрудника. С реальными данными. На вашем тестовом контуре.</p>
+    <form class="cta-form" onsubmit="event.preventDefault();this.querySelector('.cta-form-btn').innerHTML='Запрос отправлен <span class=\'arr\'>✓</span>';this.querySelector('.cta-form-btn').style.background='var(--orange)';">
+      <div class="row">
+        <div class="field"><input type="text" placeholder=" " required id="ipn"><label for="ipn">Имя</label></div>
+        <div class="field"><input type="text" placeholder=" " required id="ipc"><label for="ipc">Компания</label></div>
+      </div>
+      <div class="row">
+        <div class="field"><input type="email" placeholder=" " required id="ipe"><label for="ipe">Email</label></div>
+        <div class="field"><input type="tel" placeholder=" " required id="ipt"><label for="ipt">Телефон</label></div>
+      </div>
+      <div class="field"><textarea placeholder=" " id="ipm"></textarea><label for="ipm">Какой процесс автоматизируем?</label></div>
+      <button type="submit" class="cta-form-btn">Записаться на демо <span class="arr">→</span></button>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER (colophon) -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="colophon">
+      <h4>Hyper<em>partner</em> Console</h4>
+      <p><em>«Console v 5.0»</em> — текущий релиз платформы HyperPartner для производственного B2B.</p>
+      <p>Цифровые сотрудники, дашборды, безопасность и архитектура — всё под одной крышей.</p>
+    </div>
+    <div class="col">
+      <h5>Разделы</h5>
+      <a href="#vision">Видение</a>
+      <a href="#i50">Индустрия 5.0</a>
+      <a href="#team">Команда</a>
+      <a href="#services">Сервисы</a>
+      <a href="#robots">Циклы</a>
+    </div>
+    <div class="col">
+      <h5>Связь</h5>
+      <a href="#cta">Демо за 25 мин</a>
+      <a href="tel:+74952345678">+7 (495) 234-56-78</a>
+      <a href="#">hello@hyperpartner.io</a>
+      <a href="#">Telegram</a>
+    </div>
+    <div class="col">
+      <h5>Колофон</h5>
+      <a href="#">Privacy</a>
+      <a href="#">Security</a>
+      <a href="#">Terms</a>
+      <a href="#">Press kit</a>
+    </div>
+  </div>
+  <div class="footer-base">
+    <span>© 2026 HyperPartner · Все права защищены</span>
+    <span><em>Set in Inter Tight + JetBrains Mono</em></span>
+    <span>152-ФЗ · ФСБ КС3 · ФСТЭК · ISO/IEC 27001</span>
+  </div>
+</footer>
+
+<script>
+const reduced = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+const isMobile = window.innerWidth < 900;
+gsap.registerPlugin(ScrollTrigger);
+
+let lenis = null;
+if(typeof Lenis !== 'undefined' && !reduced){
+  lenis = new Lenis({ duration:1.2, easing:t=>1 - Math.pow(1-t,4), smoothWheel:true });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(t=>lenis.raf(t*1000));
+  gsap.ticker.lagSmoothing(0);
+}
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+  const id=a.getAttribute('href'); if(id.length<2) return;
+  e.preventDefault(); const el=document.querySelector(id);
+  if(el){ if(lenis) lenis.scrollTo(el,{offset:-64,duration:1.3}); else el.scrollIntoView({behavior:'smooth',block:'start'}); }
+}));
+
+if(!isMobile){
+  const cur=document.getElementById('cur');
+  let mx=innerWidth/2,my=innerHeight/2,cx=mx,cy=my;
+  addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+  gsap.ticker.add(()=>{cx+=(mx-cx)*.16;cy+=(my-cy)*.16;gsap.set(cur,{x:cx,y:cy})});
+  document.querySelectorAll('a,button,.srv,.cycle-card,.member,.tlayer,.feat-card,input,textarea').forEach(el=>{
+    el.addEventListener('mouseenter',()=>cur.classList.add('big'));
+    el.addEventListener('mouseleave',()=>cur.classList.remove('big'));
+  });
+  document.querySelectorAll('p, h1, h2, h3, h4, .s-vision-essay').forEach(el=>{
+    el.addEventListener('mouseenter',()=>cur.classList.add('read'));
+    el.addEventListener('mouseleave',()=>cur.classList.remove('read'));
+  });
+}
+
+ScrollTrigger.create({ start:0, end:99999, onUpdate:s=>document.getElementById('progress').style.width=(s.progress*100)+'%' });
+
+/* HERO H1 reveal — yPercent transform only, no opacity-stuck risk */
+gsap.set('#hero-title .word', { yPercent:115 });
+gsap.to('#hero-title .word', { yPercent:0, duration:1.0, ease:'expo.out', stagger:.08, delay:.2 });
+/* Hero metadata + aside — use data-reveal pattern */
+document.querySelectorAll('.s-hero-mast > div, .s-hero-aside, .s-hero-foot .ind').forEach((el,i)=>{
+  el.setAttribute('data-reveal','up');
+  el.style.transitionDelay = (.3 + i*.06) + 's';
+});
+
+/* Hero counter */
+function fmtRu(n){return Math.round(n).toLocaleString('ru-RU').replace(/,/g,' ')}
+document.querySelectorAll('.s-hero-foot .v[data-counter]').forEach(el=>{
+  const t=+el.dataset.counter;
+  ScrollTrigger.create({ trigger:el, start:'top 95%', once:true, onEnter:()=>{
+    const o={n:0};
+    gsap.to(o,{ n:t, duration:1.6, ease:'expo.out', onUpdate:()=>el.textContent=fmtRu(o.n) });
+    let cn = t;
+    setInterval(()=>{ cn += Math.floor(Math.random()*120)+30; el.textContent = fmtRu(cn); }, 5800);
+  }});
+});
+
+/* Section headings reveal — immediateRender:false ensures elements remain visible if trigger misses */
+gsap.utils.toArray('.sct h2 .ln span, .case-txt h3, .hyper-txt h3, .tech-side h3').forEach(el=>{
+  gsap.from(el, {yPercent:115, duration:.9, ease:'expo.out', immediateRender:false,
+    scrollTrigger:{trigger: el.closest('.sct'), start:'top 80%'} });
+});
+/* Section lead/meta — via data-reveal */
+document.querySelectorAll('.sct p.lead, .sct .meta').forEach(el=>el.setAttribute('data-reveal','up'));
+
+/* SERVICES (8 функций) */
+const services=[
+  {n:'01', t:'Обработка <em>документов</em>', d:'Извлечение из счетов, форм, накладных, актов. Сверка с ERP, уточнение через диалог.', s:'5–20× speed · 0.1 % errors'},
+  {n:'02', t:'Чат-боты · <em>поддержка</em>', d:'Классификация обращений, мгновенные автоответы, эскалация к человеку.', s:'непрерывно · 8 каналов'},
+  {n:'03', t:'Анализ <em>данных</em> · BI', d:'Live-дашборды, alert-сценарии, прогнозы. Снимки за 30 дней.', s:'real-time · L5'},
+  {n:'04', t:'IT-<em>поддержка</em>', d:'Тикеты, базовая диагностика, типовые admin операции, AD.', s:'90 % auto · L1'},
+  {n:'05', t:'Финансовая <em>отчётность</em>', d:'Сверка, реконсиляция, формирование отчётов. P&L, ОФ, BS.', s:'+ 40 % faster'},
+  {n:'06', t:'HR-<em>автоматизация</em>', d:'Скоринг кандидатов, адаптация новичков, обработка анкет.', s:'10× volume'},
+  {n:'07', t:'<em>Логистика</em> и склад', d:'Маршруты, склад, прогноз спроса. Снижение топлива и времени.', s:'−10 % fuel · −25 % time'},
+  {n:'08', t:'Продажи и <em>заказы</em>', d:'Лидогенерация, классификация, передача в CRM с приоритетом.', s:'+22–44 % conv'}
+];
+const grid=document.getElementById('srv-grid');
+services.forEach(s=>grid.insertAdjacentHTML('beforeend',`
+  <article class="srv">
+    <span class="num">${s.n}</span>
+    <h4>${s.t}</h4>
+    <p>${s.d}</p>
+    <div class="stat">${s.s}</div>
+  </article>`));
+document.querySelectorAll('.srv').forEach((el,i)=>{ el.setAttribute('data-reveal','up'); el.style.transitionDelay = (i%4)*.06+'s'; });
+
+/* CYCLES / ROBOTS spread */
+const cycles=[
+  {n:'Cycle №01', t:'Документ-сортировщик', d:'scan → OCR → NER → ERP', dur:'2 sec / doc', g:'D'},
+  {n:'Cycle №02', t:'Чат-агент', d:'msg → intent → reply', dur:'0.4 sec', g:'C'},
+  {n:'Cycle №03', t:'Аналитик', d:'ETL → forecast → alert', dur:'12 sec', g:'A'},
+  {n:'Cycle №04', t:'Маршрутизатор', d:'orders → optimize → drivers', dur:'5 sec / route', g:'M'},
+  {n:'Cycle №05', t:'Финанс-сверщик', d:'invoice → match → reconcile', dur:'1 sec / row', g:'F'},
+  {n:'Cycle №06', t:'HR-скорер', d:'CV → score → notify', dur:'3 sec / cand', g:'H'}
+];
+const rs=document.getElementById('robots-spread');
+cycles.forEach(c=>rs.insertAdjacentHTML('beforeend',`
+  <article class="cycle-card">
+    <div class="num">${c.n}</div>
+    <div class="ico">${c.g}</div>
+    <h5>${c.t}</h5>
+    <p>${c.d}</p>
+    <div class="duration">${c.dur}</div>
+  </article>`));
+document.querySelectorAll('.cycle-card').forEach((el,i)=>{ el.setAttribute('data-reveal','up'); el.style.transitionDelay = (i%3)*.07+'s'; });
+
+/* TEAM portraits — B has different 6 (not duplicate of A) */
+const team=[
+  {init:'МК',id:'№01',corner:'Product',name:'Мария <em>Калинина</em>',role:'Head of Product · console UX',q:'Нам важно, чтобы сотрудник раскатывался за день, а не за квартал.',look:'glasses'},
+  {init:'НВ',id:'№02',corner:'Ops',name:'Никита <em>Васильев</em>',role:'Head of Operations · 14 пилотов',q:'Пилот не за деньги. Хотите проверить — мы развернём.',look:'short'},
+  {init:'ЯБ',id:'№03',corner:'Eng',name:'Ярослав <em>Беляев</em>',role:'Head of Engineering · API & SDK',q:'API такой, чтобы интегрировался без участия наших людей.',look:'beard'},
+  {init:'СГ',id:'№04',corner:'Design',name:'Светлана <em>Громова</em>',role:'Design lead · interface system',q:'Сложность — не повод делать ещё одну панель администратора.',look:'long'},
+  {init:'ПК',id:'№05',corner:'Sales',name:'Павел <em>Кириллов</em>',role:'Head of Revenue · enterprise',q:'Мы не продаём IT. Мы продаём свободное время команды.',look:'cap'},
+  {init:'ОЛ',id:'№06',corner:'Support',name:'Ольга <em>Лебедева</em>',role:'Customer success · 24 клиента',q:'Раз в неделю — отчёт по метрикам. И один телефонный звонок куратора.',look:'headset'}
+];
+
+/* Geometric SVG portrait (light theme variant — softer gradient, palette-aware) */
+function portraitSvg(look){
+  const seeds = { glasses:0, short:1, beard:2, long:3, cap:4, headset:5 };
+  const seed = seeds[look] ?? 0;
+  const angles = [12, -8, 18, -14, 6, -4];
+  const angle = angles[seed];
+  const markY = [40, 30, 50, 20, 35, 45][seed];
+  return `<svg viewBox="0 0 200 240" xmlns="http://www.w3.org/2000/svg" class="portrait-svg" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="bg-${look}" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="currentColor" stop-opacity=".45"/>
+        <stop offset="100%" stop-color="currentColor" stop-opacity=".08"/>
+      </linearGradient>
+    </defs>
+    <rect width="200" height="240" fill="url(#bg-${look})" opacity=".30"/>
+    <ellipse cx="${100 + seed*6 - 18}" cy="${80 + seed*4}" rx="72" ry="88" fill="currentColor" opacity=".16" transform="rotate(${angle} 100 110)"/>
+    <g transform="translate(0,${seed % 2 ? 4 : 0})" opacity=".55">
+      <path d="M68 84 Q68 50 100 50 Q132 50 132 84 Q132 130 100 130 Q68 130 68 84 Z" fill="currentColor"/>
+      <rect x="90" y="126" width="20" height="22" fill="currentColor" opacity=".5"/>
+      <path d="M16 240 L40 168 Q70 148 100 148 Q130 148 160 168 L184 240 Z" fill="currentColor" opacity=".6"/>
+    </g>
+    <g opacity=".75">
+      <rect x="20" y="${markY}" width="${24 + seed*5}" height="1.5" fill="currentColor"/>
+      <rect x="20" y="${markY+8}" width="${14 + seed*3}" height="1.5" fill="currentColor" opacity=".5"/>
+    </g>
+  </svg>`;
+}
+
+const tg=document.getElementById('team-grid');
+team.forEach(m=>tg.insertAdjacentHTML('beforeend',`
+  <article class="member">
+    <div class="portrait">
+      ${portraitSvg(m.look)}
+      <span class="num">${m.id}</span>
+      <span class="corner">${m.corner}</span>
+    </div>
+    <div>
+      <h4>${m.name}</h4>
+      <div class="role">${m.role}</div>
+    </div>
+    <p class="quote">${m.q}</p>
+  </article>`));
+
+document.querySelectorAll('.member').forEach((el,i)=>{ el.setAttribute('data-reveal','up'); el.style.transitionDelay = (i%3)*.08+'s'; });
+
+/* CASE counter 22 → 44 */
+document.querySelectorAll('[data-counter]').forEach(el=>{
+  if(el.closest('.s-hero-foot')) return;
+  const start = +(el.dataset.start||el.textContent);
+  const end = +el.dataset.counter;
+  ScrollTrigger.create({ trigger:el, start:'top 90%', once:true, onEnter:()=>{
+    const o={n:start};
+    gsap.to(o,{ n:end, duration:1.4, ease:'expo.out', onUpdate:()=>el.textContent=Math.round(o.n) });
+  }});
+});
+
+/* ROI */
+const roiState={emp:120, sal:180000};
+function applyRoi(){
+  const economy = roiState.emp * roiState.sal * 0.40 * 12;
+  document.getElementById('roi-out').textContent = fmtRu(economy);
+  document.getElementById('roi-asm-emp').textContent = roiState.emp;
+  document.getElementById('roi-asm-sal').textContent = fmtRu(roiState.sal);
+}
+document.querySelectorAll('.roi-input').forEach(inp=>{
+  const min=+inp.dataset.min,max=+inp.dataset.max,step=+inp.dataset.step,key=inp.dataset.key;
+  const tr=inp.querySelector('.roi-track'),fl=inp.querySelector('.roi-fill'),
+        th=inp.querySelector('.roi-thumb'),vv=inp.querySelector('.vv');
+  const setVal=v=>{ v=Math.max(min,Math.min(max,Math.round(v/step)*step)); roiState[key]=v;
+    const pct=(v-min)/(max-min); fl.style.width=(pct*100)+'%'; th.style.left=(pct*100)+'%';
+    vv.textContent=fmtRu(v); applyRoi(); };
+  setVal(roiState[key]);
+  let drag=false;
+  function pos(e){ const r=tr.getBoundingClientRect(); const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left; return min + (x/r.width)*(max-min); }
+  tr.addEventListener('mousedown',e=>{drag=true;setVal(pos(e))});
+  th.addEventListener('mousedown',()=>drag=true);
+  tr.addEventListener('touchstart',e=>{drag=true;setVal(pos(e))}, {passive:true});
+  addEventListener('mousemove',e=>{if(drag)setVal(pos(e))});
+  addEventListener('touchmove',e=>{if(drag)setVal(pos(e))}, {passive:true});
+  addEventListener('mouseup',()=>drag=false);
+  addEventListener('touchend',()=>drag=false);
+});
+
+/* Magnetic */
+function magnetic(sel){
+  document.querySelectorAll(sel).forEach(el=>{
+    el.addEventListener('mousemove',e=>{
+      const r=el.getBoundingClientRect();
+      gsap.to(el,{ x:(e.clientX-r.left-r.width/2)*.18, y:(e.clientY-r.top-r.height/2)*.18, duration:.4, ease:'power2.out' });
+    });
+    el.addEventListener('mouseleave',()=>gsap.to(el,{x:0,y:0,duration:.7,ease:'elastic.out(1,.6)'}));
+  });
+}
+magnetic('.nav-cta'); magnetic('.cta-form-btn'); magnetic('.s-hero-aside .read');
+
+/* MOBILE BURGER */
+const navToggle=document.getElementById('nav-toggle');
+const navLinks=document.getElementById('nav-links');
+if(navToggle&&navLinks){
+  navToggle.addEventListener('click',()=>{
+    navLinks.classList.toggle('open');
+    navToggle.classList.toggle('open');
+    navToggle.textContent = navLinks.classList.contains('open') ? '×' : '≡';
+  });
+  navLinks.querySelectorAll('a').forEach(a=>a.addEventListener('click',()=>{
+    navLinks.classList.remove('open');
+    navToggle.classList.remove('open');
+    navToggle.textContent='≡';
+  }));
+}
+
+/* FUNNEL reveal — via data-reveal */
+document.querySelectorAll('.fn').forEach((el,i)=>{ el.setAttribute('data-reveal','up'); el.style.transitionDelay = (i%6)*.06+'s'; });
+
+/* DRAG INDICATOR for ROI calc */
+document.querySelectorAll('.roi-thumb').forEach(th=>{
+  th.style.cursor = 'ew-resize';
+});
+
+/* Generic section reveal — via data-reveal */
+document.querySelectorAll('.case-card, .case-photo, .case-txt, .case-stat-line, .hyper-vis, .hyper-flow .step, .tlayer, .pdf-row, .feat-card').forEach((el,i)=>{
+  el.setAttribute('data-reveal','up');
+  el.style.transitionDelay = (i%6)*.05+'s';
+});
+
+/* ─── UNIFIED IntersectionObserver — scroll-in animation preserved, screenshot/print safe ─── */
+(function(){
+  const reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  if(reduce){
+    document.querySelectorAll('[data-reveal]').forEach(el=>el.classList.add('in'));
+    return;
+  }
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.classList.add('in');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -8% 0px' });
+  document.querySelectorAll('[data-reveal]').forEach(el=>io.observe(el));
+  const mo = new MutationObserver(mutations=>{
+    mutations.forEach(m=>{
+      m.addedNodes.forEach(n=>{
+        if(n.nodeType===1){
+          if(n.hasAttribute && n.hasAttribute('data-reveal')) io.observe(n);
+          if(n.querySelectorAll) n.querySelectorAll('[data-reveal]').forEach(c=>io.observe(c));
+        }
+      });
+    });
+  });
+  mo.observe(document.body, { childList:true, subtree:true });
+  setTimeout(()=>{
+    document.querySelectorAll('[data-reveal]:not(.in)').forEach(el=>{
+      const r = el.getBoundingClientRect();
+      if(r.top < window.innerHeight && r.bottom > 0) el.classList.add('in');
+    });
+  }, 1200);
+  function forceAll(){ document.querySelectorAll('[data-reveal]:not(.in)').forEach(el=>el.classList.add('in')); }
+  addEventListener('beforeprint', forceAll);
+  addEventListener('pageshow', e=>{ if(e.persisted) forceAll(); });
+  addEventListener('keydown', e=>{ if(e.key==='End') forceAll(); });
+  let lastScroll = Date.now();
+  addEventListener('scroll', ()=>{ lastScroll = Date.now(); }, { passive:true });
+  setTimeout(()=>{ if(Date.now() - lastScroll > 8000) forceAll(); }, 10000);
+})();
+
+/* ─── PALETTE SWITCHER ─── */
+(function(){
+  const root = document.documentElement;
+  const nameEl = document.getElementById('palette-name');
+  const setPalette = (p, btn) => {
+    root.setAttribute('data-palette', p);
+    localStorage.setItem('hp-palette', p);
+    document.querySelectorAll('#palette-switch button').forEach(b=>b.classList.toggle('active', b.dataset.p===p));
+    if(nameEl && btn) nameEl.textContent = btn.dataset.name || p;
+  };
+  const saved = localStorage.getItem('hp-palette');
+  if(saved && ['cobalt','violet','forest','graphite'].includes(saved)){
+    const savedBtn = document.querySelector(`#palette-switch button[data-p="${saved}"]`);
+    setPalette(saved, savedBtn);
+  }
+  document.querySelectorAll('#palette-switch button').forEach(btn=>{
+    btn.addEventListener('click', ()=>setPalette(btn.dataset.p, btn));
+  });
+})();
+
+/* ─── SCROLL-DRIVEN PDF assembly (signature B moment) ─── */
+(function(){
+  const stage = document.querySelector('.s-build');
+  if(!stage) return;
+  const stageEl = stage.querySelector('.build-stage');
+  const steps = stage.querySelectorAll('.build-steps li');
+  const rows = stage.querySelectorAll('.build-pdf .pdf-row');
+  const fill = document.getElementById('bp-fill');
+  ScrollTrigger.create({
+    trigger: stage,
+    start: 'top top',
+    end: 'bottom bottom',
+    scrub: 0.4,
+    pin: stageEl,
+    pinSpacing: false,
+    onUpdate: self => {
+      const p = self.progress;
+      const stepIdx = Math.min(7, Math.floor(p * 8));
+      steps.forEach((s,i)=>s.classList.toggle('lit', i<=stepIdx));
+      rows.forEach((r)=>{
+        const rs = +r.dataset.step;
+        r.classList.toggle('shown', rs<=stepIdx);
+      });
+      if(fill) fill.style.width = (p*100) + '%';
+    }
+  });
+})();
+
+/* ─── DASHBOARD: location bars + brand list + KPI counters ─── */
+(function(){
+  const fills = document.querySelectorAll('.s-dashboard .ll-fill');
+  if(fills.length){
+    ScrollTrigger.create({
+      trigger:'.s-dashboard', start:'top 75%', once:true,
+      onEnter:()=>{
+        fills.forEach((el,i)=>{
+          const pct = parseFloat(el.dataset.pct);
+          gsap.to(el,{ width: pct+'%', duration: .9, ease:'expo.out', delay: i*.06 });
+        });
+      }
+    });
+  }
+  const brands = [
+    ['BMW X3 · корп.',47],['BMW X5 · флот',52],['BMW i7 · VIP',38],
+    ['Audi Q5 · парк',44],['Audi A8L · executive',41],['Mercedes E-class',49],
+    ['Mercedes GLC · служба',46],['Mercedes S-class',36],['Porsche Cayenne',34],
+    ['Lexus RX · парк',42],['Volvo XC90',38],['Genesis G80',39]
+  ];
+  const c = document.getElementById('dash-brands');
+  if(c){
+    brands.forEach(([n,p])=>{
+      c.insertAdjacentHTML('beforeend', `<div class="b-row"><span class="bn">${n}</span><span class="bp">${p} %</span></div>`);
+    });
+  }
+  document.querySelectorAll('.s-dashboard .dash-kpi [data-target]').forEach(el=>{
+    const t = parseFloat(el.dataset.target);
+    if(isNaN(t)) return;
+    ScrollTrigger.create({ trigger:'.s-dashboard', start:'top 80%', once:true, onEnter:()=>{
+      const o={n:0};
+      gsap.to(o,{ n:t, duration:1.4, ease:'expo.out', onUpdate:()=>{ el.textContent = Math.round(o.n); } });
+    }});
+  });
+})();
+
+/* ─── REVEAL SAFETY NET ─── */
+(function(){
+  function forceReveal(){
+    const stuck = document.querySelectorAll('[style*="opacity: 0"], [style*="opacity:0"]');
+    stuck.forEach(el => {
+      if(el.id === 'cur' || el.id === 'boot' || el.classList.contains('boot-cursor')) return;
+      el.style.opacity = '1';
+      el.style.transform = 'none';
+      el.style.visibility = 'visible';
+    });
+    if(typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh(true);
+  }
+  setTimeout(forceReveal, 4000);
+  addEventListener('pageshow', e => { if(e.persisted) setTimeout(forceReveal, 100); });
+  addEventListener('keydown', e => {
+    if(e.key === 'End' || e.key === 'Home') setTimeout(forceReveal, 200);
+  });
+  if(window.matchMedia){
+    const mq = window.matchMedia('print');
+    mq.addEventListener && mq.addEventListener('change', e => { if(e.matches) forceReveal(); });
+  }
+})();
+</script>
+</body>
+</html>
