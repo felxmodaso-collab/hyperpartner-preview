@@ -1000,7 +1000,7 @@ html.reveal-fallback *{opacity:1!important;transform:none!important;visibility:v
 <!-- S7.7 — SIGNATURE: scroll-pinned 12-second cycle (terminal typing + conveyor video parallax) -->
 <section class="sct s-cycle" id="cycle">
   <div class="cycle-stage">
-    <video class="cycle-veo" autoplay muted loop playsinline preload="metadata" aria-hidden="true">
+    <video class="cycle-veo" autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto" aria-hidden="true">
       <source src="assets/conveyor.webm" type="video/webm">
       <source src="assets/conveyor.mp4" type="video/mp4">
     </video>
@@ -1436,7 +1436,7 @@ const rg=document.getElementById('robots-grid');
 robots.forEach(r=>rg.insertAdjacentHTML('beforeend', `
   <article class="robot">
     <div class="robot-bg">
-      ${r.v ? `<video class="robot-veo" autoplay muted loop playsinline preload="metadata" aria-hidden="true"><source src="assets/${r.v}" type="video/mp4"></video>` : ''}
+      ${r.v ? `<video class="robot-veo" autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto" aria-hidden="true"><source src="assets/${r.v}" type="video/mp4"></video>` : ''}
       <span class="ico">${r.g}</span>
     </div>
     <div class="robot-id">${r.n}</div>
@@ -1819,6 +1819,21 @@ document.querySelectorAll('.sct p.lead, .sct .i50-list .row, .sct .tech-stack-ro
     const mq = window.matchMedia('print');
     mq.addEventListener && mq.addEventListener('change', e => { if(e.matches) forceReveal(); });
   }
+})();
+
+/* iOS autoplay unlock — kick videos on first touch / click */
+(function videoUnlock(){
+  const kickAll = () => {
+    document.querySelectorAll('video').forEach(v => {
+      try { v.muted = true; v.setAttribute('playsinline',''); const p = v.play(); if(p && p.catch) p.catch(()=>{}); } catch(e){}
+    });
+  };
+  document.addEventListener('touchstart', kickAll, {passive: true});
+  document.addEventListener('click', kickAll);
+  // Also try once on first visibility
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) kickAll(); });
+  // And on load
+  window.addEventListener('load', kickAll);
 })();
 </script>
 </body>

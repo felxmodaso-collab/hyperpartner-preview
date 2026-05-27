@@ -87,7 +87,10 @@ body{font-family:var(--fd);font-weight:400;-webkit-font-smoothing:antialiased;cu
 .act{position:relative;width:100%;height:200vh;background:var(--bg)}
 .act-stage{position:sticky;top:0;height:100vh;width:100%;overflow:hidden;display:flex;align-items:flex-end;justify-content:flex-start;padding:0}
 .act-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
-.act-bg.image{background-size:cover;background-position:center}
+.act-bg.image{background-size:cover;background-position:center;transition:opacity .5s cubic-bezier(.16,1,.3,1)}
+.act-bg.video{opacity:0;transition:opacity .6s cubic-bezier(.16,1,.3,1);pointer-events:none;background:transparent;will-change:opacity}
+.act-bg.video.is-ready{opacity:1}
+.act-bg.video::-webkit-media-controls{display:none!important}
 .act-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(6,7,12,.05) 0%,rgba(6,7,12,.18) 38%,rgba(6,7,12,.75) 70%,rgba(6,7,12,.96) 100%);z-index:1;pointer-events:none}
 .act-inner{position:relative;z-index:2;padding:0 64px 100px;max-width:1320px;width:100%}
 @media(max-width:900px){.act-inner{padding:0 24px 80px}}
@@ -327,7 +330,7 @@ body{font-family:var(--fd);font-weight:400;-webkit-font-smoothing:antialiased;cu
 <section class="act act-1" id="act-1">
   <div class="act-stage">
     <div class="act-bg image" aria-hidden="true"></div>
-    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" poster="assets/C-01-chaos.png" aria-hidden="true" style="display:none">
+    <video class="act-bg video" autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto" poster="assets/C-01-chaos.png" aria-hidden="true" tabindex="-1">
       <source src="assets/C-01-chaos.mp4" type="video/mp4">
     </video>
     <div class="act-overlay"></div>
@@ -349,7 +352,7 @@ body{font-family:var(--fd);font-weight:400;-webkit-font-smoothing:antialiased;cu
 <section class="act act-2" id="act-2">
   <div class="act-stage">
     <div class="act-bg image" aria-hidden="true"></div>
-    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+    <video class="act-bg video" autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto" aria-hidden="true" tabindex="-1">
       <source src="assets/C-02-signal.mp4" type="video/mp4">
     </video>
     <div class="act-overlay"></div>
@@ -370,7 +373,7 @@ body{font-family:var(--fd);font-weight:400;-webkit-font-smoothing:antialiased;cu
 <section class="act act-3" id="act-3">
   <div class="act-stage">
     <div class="act-bg image" aria-hidden="true"></div>
-    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+    <video class="act-bg video" autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto" aria-hidden="true" tabindex="-1">
       <source src="assets/C-03-robots.mp4" type="video/mp4">
     </video>
     <div class="act-overlay"></div>
@@ -396,7 +399,7 @@ body{font-family:var(--fd);font-weight:400;-webkit-font-smoothing:antialiased;cu
 <section class="act act-4" id="act-4">
   <div class="act-stage">
     <div class="act-bg image" aria-hidden="true"></div>
-    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+    <video class="act-bg video" autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto" aria-hidden="true" tabindex="-1">
       <source src="assets/C-04-build.mp4" type="video/mp4">
     </video>
     <div class="act-overlay"></div>
@@ -417,7 +420,7 @@ body{font-family:var(--fd);font-weight:400;-webkit-font-smoothing:antialiased;cu
 <section class="act act-5" id="act-5">
   <div class="act-stage">
     <div class="act-bg image" aria-hidden="true"></div>
-    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+    <video class="act-bg video" autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto" aria-hidden="true" tabindex="-1">
       <source src="assets/C-05-precision.mp4" type="video/mp4">
     </video>
     <div class="act-overlay"></div>
@@ -440,7 +443,7 @@ body{font-family:var(--fd);font-weight:400;-webkit-font-smoothing:antialiased;cu
 <section class="act act-6" id="act-6">
   <div class="act-stage">
     <div class="act-bg image" aria-hidden="true"></div>
-    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+    <video class="act-bg video" autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto" aria-hidden="true" tabindex="-1">
       <source src="assets/C-06-scale.mp4" type="video/mp4">
     </video>
     <div class="act-overlay"></div>
@@ -462,7 +465,7 @@ body{font-family:var(--fd);font-weight:400;-webkit-font-smoothing:antialiased;cu
 <section class="act act-7" id="act-7">
   <div class="act-stage">
     <div class="act-bg image" aria-hidden="true"></div>
-    <video class="act-bg video" autoplay muted loop playsinline preload="metadata" aria-hidden="true" style="display:none">
+    <video class="act-bg video" autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto" aria-hidden="true" tabindex="-1">
       <source src="assets/C-07-invite.mp4" type="video/mp4">
     </video>
     <div class="act-overlay"></div>
@@ -746,9 +749,9 @@ document.querySelectorAll('.act').forEach((act,idx)=>{
   }, { rootMargin: '0px 0px -25% 0px', threshold: 0.01 });
   io.observe(act);
 
-  /* Scrub-controlled bg zoom (parallax depth) */
-  gsap.fromTo(bg, { scale:1.06, y:0 }, {
-    scale:1, y:-40,
+  /* Scrub-controlled bg zoom (parallax depth) + cross-act dissolve at boundaries */
+  gsap.fromTo(bg, { scale:1.08, y:0 }, {
+    scale:1, y:-60,
     scrollTrigger: {
       trigger: act,
       start: 'top top',
@@ -757,26 +760,76 @@ document.querySelectorAll('.act').forEach((act,idx)=>{
     }
   });
 
-  /* Video version preferred — only swap in after a non-black frame is on screen.
-     Audit iter-14 P0: loadeddata fires on intro fade-in (often pure black).
-     Use timeupdate to wait until currentTime > 0.4s OR play 1 cycle. */
+  /* Cross-dissolve into NEXT act: as this act exits, fade it out smoothly.
+     The next act enters from underneath because sticky layering. */
+  if(stage){
+    gsap.to(stage, {
+      opacity: 0, scale: 0.94,
+      scrollTrigger: {
+        trigger: act,
+        start: 'bottom 90%',
+        end: 'bottom top',
+        scrub: 0.6
+      }
+    });
+  }
+
+  /* Video — uses opacity, never display:none (which kills iOS autoplay).
+     Mobile: autoplay loop (scrub is unreliable on mobile Safari).
+     Desktop: scrub video.currentTime with scroll progress AND keep loop playback.
+     Image stays as fallback underneath. */
   if(video){
     let swapped = false;
+    const isMobileNow = window.innerWidth < 900 || /iPhone|iPad|Android/i.test(navigator.userAgent);
     const swap = () => {
       if(swapped) return;
       swapped = true;
-      gsap.to(bg, { opacity: 0, duration: .5, ease: 'power2.out', onComplete: () => { bg.style.display = 'none'; } });
-      video.style.display = 'block';
-      gsap.fromTo(video, { opacity: 0 }, { opacity: 1, duration: .6, ease: 'power2.out' });
+      video.classList.add('is-ready');
+      bg.style.opacity = '0';
     };
-    video.addEventListener('loadeddata', () => {
-      try { if(video.duration > 1) video.currentTime = Math.min(0.6, video.duration * 0.08); } catch(e){}
+    const tryPlay = () => {
+      const p = video.play();
+      if(p && p.catch) p.catch(()=>{});
+    };
+    video.addEventListener('loadedmetadata', () => {
+      try { if(video.duration > 1) video.currentTime = Math.min(0.4, video.duration * 0.06); } catch(e){}
+      tryPlay();
     });
-    video.addEventListener('timeupdate', () => {
-      if(video.currentTime > 0.45) swap();
-    });
-    // Safety fallback after 4s of attempt
-    setTimeout(() => { if(!swapped && video.readyState >= 2) swap(); }, 4000);
+    video.addEventListener('canplay', tryPlay);
+    video.addEventListener('loadeddata', () => { if(video.readyState >= 2) setTimeout(swap, 120); });
+    video.addEventListener('timeupdate', () => { if(video.currentTime > 0.25) swap(); });
+
+    // Desktop only: scrub-control video.currentTime with scroll progress.
+    // This gives the Apple/Stripe-style "scroll scrubs the film clip" feel.
+    if(!isMobileNow && !reduced){
+      const scrubVideo = () => {
+        if(!video.duration || isNaN(video.duration)) return;
+        ScrollTrigger.create({
+          trigger: act,
+          start: 'top 80%',
+          end: 'bottom top',
+          scrub: 0.4,
+          onUpdate: s => {
+            // Map scroll progress 0→1 to video time 0→duration
+            try {
+              if(video.duration && video.readyState >= 2){
+                const t = s.progress * video.duration;
+                // Only seek if difference is significant (avoid jitter)
+                if(Math.abs(video.currentTime - t) > 0.05) video.currentTime = t;
+              }
+            } catch(e){}
+          }
+        });
+      };
+      if(video.readyState >= 1) scrubVideo();
+      else video.addEventListener('loadedmetadata', scrubVideo, {once:true});
+    }
+
+    // First touch unlock for iOS
+    const oncePlay = () => { tryPlay(); };
+    document.addEventListener('touchstart', oncePlay, {passive:true});
+    document.addEventListener('click', oncePlay);
+    setTimeout(() => { if(!swapped && video.readyState >= 1) swap(); }, 4000);
   }
 });
 

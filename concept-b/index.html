@@ -603,7 +603,7 @@ html.no-gsap .sct *, html.no-gsap .case-card, html.no-gsap .srv, html.no-gsap .m
       </h1>
       <aside class="s-hero-aside">
         <div class="hero-photo">
-          <video autoplay muted loop playsinline preload="metadata" poster="assets/B-typing-hands.png" aria-label="Цифровой сотрудник работает за вас">
+          <video autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto" poster="assets/B-typing-hands.png" aria-label="Цифровой сотрудник работает за вас">
             <source src="assets/B-keyboard-flow.mp4" type="video/mp4">
           </video>
         </div>
@@ -636,7 +636,7 @@ html.no-gsap .sct *, html.no-gsap .case-card, html.no-gsap .srv, html.no-gsap .m
 <!-- S2 — VISION (long-form essay) -->
 <section class="sct s-vision" id="vision">
   <div class="s-vision-photo" aria-hidden="true">
-    <video autoplay muted loop playsinline preload="metadata">
+    <video autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto">
       <source src="assets/B-pen-write.mp4" type="video/mp4">
     </video>
   </div>
@@ -799,7 +799,7 @@ html.no-gsap .sct *, html.no-gsap .case-card, html.no-gsap .srv, html.no-gsap .m
 <section class="sct s-build" id="build">
   <div class="build-stage">
     <div class="build-ambient" aria-hidden="true">
-      <video autoplay muted loop playsinline preload="metadata">
+      <video autoplay muted loop playsinline webkit-playsinline disableremoteplayback preload="auto">
         <source src="assets/B-pages-turn.mp4" type="video/mp4">
       </video>
     </div>
@@ -1530,6 +1530,19 @@ document.querySelectorAll('.case-card, .case-photo, .case-txt, .case-stat-line, 
     const mq = window.matchMedia('print');
     mq.addEventListener && mq.addEventListener('change', e => { if(e.matches) forceReveal(); });
   }
+})();
+
+/* iOS autoplay unlock — kick videos on first touch / click */
+(function videoUnlock(){
+  const kickAll = () => {
+    document.querySelectorAll('video').forEach(v => {
+      try { v.muted = true; v.setAttribute('playsinline',''); const p = v.play(); if(p && p.catch) p.catch(()=>{}); } catch(e){}
+    });
+  };
+  document.addEventListener('touchstart', kickAll, {passive: true});
+  document.addEventListener('click', kickAll);
+  document.addEventListener('visibilitychange', () => { if(!document.hidden) kickAll(); });
+  window.addEventListener('load', kickAll);
 })();
 </script>
 </body>
