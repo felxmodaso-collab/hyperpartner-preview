@@ -20,7 +20,28 @@ addEventListener('DOMContentLoaded',function(){setTimeout(function(){var b=docum
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{min-height:100%;background:#0E0E10;color:#F5F0E8;overflow-x:hidden;scroll-behavior:smooth}
+html,body{min-height:100%;background:#000;color:#F5F0E8;overflow-x:hidden;scroll-behavior:smooth}
+
+/* === AETHER PARTICLE BACKGROUND === */
+#aether-bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;background:#000;transition:transform .6s cubic-bezier(.22,1,.36,1),filter .6s cubic-bezier(.22,1,.36,1)}
+#aether-bg.warp{transform:scale(3.5) translate(0,0);filter:brightness(1.6) blur(2px)}
+body{position:relative}
+body>nav,body>section,body>footer,body>.boot,body>.psw{position:relative;z-index:2}
+
+/* === SCROLL-SNAP WITH AUTO-DOWELL === */
+html.snap-mode{scroll-snap-type:y mandatory;overflow-y:scroll}
+html.snap-mode body>section{scroll-snap-align:start;scroll-snap-stop:always;min-height:100vh}
+
+/* === SECTION WARP TRANSITION === */
+.sct{transition:opacity .55s cubic-bezier(.22,1,.36,1),filter .55s cubic-bezier(.22,1,.36,1)}
+.sct.warping-out{opacity:0;filter:blur(8px) brightness(0.3);pointer-events:none}
+.sct.warping-in{opacity:0;transform:scale(.85);filter:blur(12px)}
+.sct.warped-in{opacity:1;transform:scale(1);filter:blur(0);transition:opacity .8s cubic-bezier(.22,1,.36,1) .15s,transform .8s cubic-bezier(.22,1,.36,1) .15s,filter .9s cubic-bezier(.22,1,.36,1) .15s}
+
+/* Aether hero badge style (overrides) */
+.aether-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;border-radius:9999px;background:rgba(191,128,255,.10);border:1px solid rgba(191,128,255,.28);backdrop-filter:blur(8px);margin-bottom:24px;font-size:13px;font-weight:500;color:#E5DCFF;letter-spacing:.02em}
+.aether-badge svg{width:14px;height:14px;color:#BF80FF}
+.aether-h1-grad{background:linear-gradient(180deg,#FFFFFF 0%,#9CA3AF 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
 
 :root{
   --bg:#08090F;
@@ -640,6 +661,7 @@ html.reveal-fallback *{opacity:1!important;transform:none!important;visibility:v
 </head>
 
 <body>
+<canvas id="aether-bg" aria-hidden="true"></canvas>
 <a class="skip-link" href="#hero">К содержимому</a>
 <div id="cur"></div>
 <div class="grid-bg"></div>
@@ -1834,6 +1856,183 @@ document.querySelectorAll('.sct p.lead, .sct .i50-list .row, .sct .tech-stack-ro
   document.addEventListener('visibilitychange', () => { if(!document.hidden) kickAll(); });
   // And on load
   window.addEventListener('load', kickAll);
+})();
+</script>
+
+<!-- === AETHER BACKGROUND + WARP TRANSITIONS === -->
+<script>
+(function(){
+  // 1. Particle field on fixed canvas
+  const canvas = document.getElementById('aether-bg');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const mouse = { x: null, y: null, radius: 200 };
+  let particles = [];
+  let raf = 0;
+  const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    init();
+  }
+
+  function init(){
+    particles = [];
+    const targetCount = Math.min(180, Math.floor((canvas.width * canvas.height) / 12000));
+    for(let i=0;i<targetCount;i++){
+      const size = Math.random()*2 + 1;
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        dx: (Math.random()*0.4) - 0.2,
+        dy: (Math.random()*0.4) - 0.2,
+        size: size,
+      });
+    }
+  }
+
+  function step(){
+    raf = requestAnimationFrame(step);
+    // dark gradient background inside canvas
+    const g = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 0, canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height));
+    g.addColorStop(0, '#0A0815');
+    g.addColorStop(0.6, '#050308');
+    g.addColorStop(1, '#000000');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // particles
+    for(let i=0;i<particles.length;i++){
+      const p = particles[i];
+      if(p.x > canvas.width || p.x < 0) p.dx = -p.dx;
+      if(p.y > canvas.height || p.y < 0) p.dy = -p.dy;
+      // mouse repulsion
+      if(mouse.x !== null){
+        const dx = mouse.x - p.x, dy = mouse.y - p.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if(dist < mouse.radius + p.size){
+          const force = (mouse.radius - dist) / mouse.radius;
+          p.x -= (dx/dist) * force * 5;
+          p.y -= (dy/dist) * force * 5;
+        }
+      }
+      p.x += p.dx;
+      p.y += p.dy;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(191, 128, 255, 0.85)';
+      ctx.fill();
+    }
+    // connect
+    const maxDistSq = ((canvas.width/7) * (canvas.height/7));
+    for(let a=0;a<particles.length;a++){
+      for(let b=a+1;b<particles.length;b++){
+        const dx = particles[a].x - particles[b].x;
+        const dy = particles[a].y - particles[b].y;
+        const distSq = dx*dx + dy*dy;
+        if(distSq < maxDistSq){
+          let opacity = 1 - (distSq / 20000);
+          if(opacity < 0) opacity = 0;
+          // mouse-proximity → white glow
+          let near = false;
+          if(mouse.x !== null){
+            const mdx = particles[a].x - mouse.x, mdy = particles[a].y - mouse.y;
+            if(Math.sqrt(mdx*mdx + mdy*mdy) < mouse.radius) near = true;
+          }
+          ctx.strokeStyle = near ? `rgba(255,255,255,${opacity})` : `rgba(200,150,255,${opacity * 0.6})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(particles[a].x, particles[a].y);
+          ctx.lineTo(particles[b].x, particles[b].y);
+          ctx.stroke();
+        }
+      }
+    }
+  }
+
+  window.addEventListener('resize', resize);
+  window.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+  window.addEventListener('mouseout', () => { mouse.x = null; mouse.y = null; });
+  resize();
+  if(!isReduced) step();
+})();
+
+// 2. Scroll-snap with auto-snap + warp transition between sections
+(function(){
+  const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(isReduced) return;
+
+  const sections = Array.from(document.querySelectorAll('section.sct'));
+  if(sections.length < 2) return;
+  const bg = document.getElementById('aether-bg');
+  let currentIdx = 0;
+  let isTransitioning = false;
+  let scrollAccum = 0;
+  let lastScrollTime = 0;
+  const SCROLL_THRESHOLD = 150; // px of accumulated wheel delta to trigger snap
+
+  // Initial: mark first section visible
+  sections.forEach((s, i) => { if(i === 0) s.classList.add('warped-in'); });
+
+  function goTo(idx, dir){
+    if(isTransitioning || idx === currentIdx || idx < 0 || idx >= sections.length) return;
+    isTransitioning = true;
+    const cur = sections[currentIdx];
+    const next = sections[idx];
+
+    // 1. Warp out current + warp background
+    cur.classList.remove('warped-in');
+    cur.classList.add('warping-out');
+    if(bg) bg.classList.add('warp');
+
+    // 2. After warp-out, scroll to next + warp-in
+    setTimeout(() => {
+      next.classList.add('warping-in');
+      next.scrollIntoView({ behavior: 'auto', block: 'start' });
+      requestAnimationFrame(() => {
+        // Force reflow so warping-in actually applies
+        void next.offsetHeight;
+        if(bg) bg.classList.remove('warp');
+        next.classList.remove('warping-in');
+        next.classList.add('warped-in');
+        cur.classList.remove('warping-out');
+      });
+      currentIdx = idx;
+      setTimeout(() => { isTransitioning = false; scrollAccum = 0; }, 900);
+    }, 600);
+  }
+
+  // Wheel-based auto-snap
+  window.addEventListener('wheel', (e) => {
+    if(isTransitioning){ e.preventDefault(); return; }
+    const now = performance.now();
+    if(now - lastScrollTime > 500) scrollAccum = 0;
+    lastScrollTime = now;
+    scrollAccum += e.deltaY;
+    if(Math.abs(scrollAccum) >= SCROLL_THRESHOLD){
+      e.preventDefault();
+      const dir = scrollAccum > 0 ? 1 : -1;
+      goTo(currentIdx + dir, dir);
+      scrollAccum = 0;
+    }
+  }, { passive: false });
+
+  // Keyboard
+  window.addEventListener('keydown', (e) => {
+    if(isTransitioning) return;
+    if(e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' '){ e.preventDefault(); goTo(currentIdx + 1, 1); }
+    else if(e.key === 'ArrowUp' || e.key === 'PageUp'){ e.preventDefault(); goTo(currentIdx - 1, -1); }
+  });
+
+  // Touch swipe
+  let touchY0 = 0;
+  window.addEventListener('touchstart', e => { touchY0 = e.touches[0].clientY; }, { passive: true });
+  window.addEventListener('touchend', e => {
+    if(isTransitioning) return;
+    const dy = touchY0 - e.changedTouches[0].clientY;
+    if(Math.abs(dy) > 50) goTo(currentIdx + (dy > 0 ? 1 : -1), dy > 0 ? 1 : -1);
+  }, { passive: true });
 })();
 </script>
 </body>
