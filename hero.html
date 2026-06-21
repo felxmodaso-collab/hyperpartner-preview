@@ -1,0 +1,1496 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HyperPartner — hero (видео + чат)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<style>
+  :root{
+    --paper:#F5F4F0;--ink:#1E1D1A;--forest:#16302B;
+    --mint:#1F9C84;--mint-deep:#16735F;--mint-bright:#27B499;--peach:#F7CFB4;
+    --ease:cubic-bezier(0.16,1,0.3,1);
+    --ease-std:cubic-bezier(0.4,0,0.2,1);   /* Sierra chat ease */
+    --frame:1280px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{background:var(--paper);color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+    letter-spacing:-0.01em;line-height:1.45;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
+
+  /* ===== full-bleed cinematic banner — ONE clean clip (no cross-fade ghosting) ===== */
+  .stage{position:relative;z-index:1;width:100%;height:min(92svh,920px);overflow:hidden;background:#0e1413}
+  .stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 46%;
+    opacity:0;animation:vidIn 1.3s var(--ease-std) .1s forwards}
+  @keyframes vidIn{to{opacity:1}}
+  /* film grain — filmic texture + dithers any 8-bit gradient banding (the bright window) */
+  .grain{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:160px 160px}
+
+  .scrim{position:absolute;inset:0;z-index:3;pointer-events:none}
+  .scrim.top{background:linear-gradient(180deg,rgba(12,16,15,.5) 0%,transparent 18%)}
+  .scrim.text{background:linear-gradient(105deg,rgba(12,16,15,.6) 0%,rgba(12,16,15,.3) 30%,transparent 58%)}
+  .scrim.bottom{background:linear-gradient(0deg,rgba(12,16,15,.36) 0%,transparent 30%)}
+
+  .frame{position:absolute;inset:0;z-index:5}
+  .frame-in{position:relative;max-width:var(--frame);height:100%;margin:0 auto;padding:0 24px;display:flex;align-items:flex-start}
+  @media(min-width:1024px){.frame-in{padding:0 40px}}
+
+  header{position:fixed;top:0;left:0;right:0;z-index:30;
+    transition:background .4s var(--ease),backdrop-filter .4s var(--ease),box-shadow .4s var(--ease)}
+  /* full header: transparent over the hero, dark frosted bar once scrolled (keeps the white logo readable over the light section) */
+  header.scrolled{background:color-mix(in oklab,var(--forest) 80%, transparent);
+    backdrop-filter:blur(18px) saturate(140%);-webkit-backdrop-filter:blur(18px) saturate(140%);
+    box-shadow:inset 0 -1px 0 rgba(255,255,255,.07),0 12px 34px -18px rgba(0,0,0,.55)}
+  header.scrolled .nav{height:70px}
+  .nav{max-width:var(--frame);margin:0 auto;padding:0 24px;display:flex;align-items:center;gap:30px;height:88px;color:#fff}
+  @media(min-width:1024px){.nav{padding:0 40px}}
+  .brand{display:flex;align-items:center;text-decoration:none}
+  .brand .hp-logo{height:22px;width:274px;display:block;filter:drop-shadow(0 1px 8px rgba(0,0,0,.35))}
+  .links{display:none;gap:30px;margin-left:22px}
+  @media(min-width:920px){.links{display:flex}}
+  .links a{color:rgba(255,255,255,.82);text-decoration:none;font-size:15px;font-weight:400;transition:color .25s var(--ease)}
+  .links a:hover{color:#fff}
+  .right{margin-left:auto;display:flex;align-items:center;gap:22px}
+  .signin{display:none;color:rgba(255,255,255,.82);text-decoration:none;font-size:15px}
+  @media(min-width:560px){.signin{display:inline}}
+  .pill{display:inline-flex;align-items:center;height:42px;padding:0 22px;border-radius:9999px;font-size:15px;font-weight:500;
+    text-decoration:none;cursor:pointer;white-space:nowrap;transition:transform .3s var(--ease),background .25s var(--ease)}
+  .pill-light{background:rgba(255,255,255,.92);color:var(--ink)}
+  .pill-light:hover{transform:translateY(-1px);background:#fff}
+
+  /* ===== liquid-metal buttons: animated metal RIM + frosted-glass CORE (same frost recipe as chat .bub) =====
+     The .bub deliberately has NO transform (transform kills backdrop-filter). So hover/press here use
+     shadow + brightness only — never transform — so the glass core's frost never blinks off. */
+  @property --mangle{syntax:"<angle>";initial-value:0deg;inherits:false}
+  @keyframes metalspin{to{--mangle:360deg}}
+  .pill-metal{position:relative;display:inline-flex;align-items:center;justify-content:center;
+    height:46px;padding:0 24px;border-radius:100px;text-decoration:none;cursor:pointer;white-space:nowrap;
+    font-size:15px;font-weight:500;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.28);overflow:hidden;
+    background:rgba(255,255,255,.10);                                   /* frosted-glass core */
+    backdrop-filter:blur(96px) saturate(135%) brightness(1.12);
+    -webkit-backdrop-filter:blur(96px) saturate(135%) brightness(1.12);
+    box-shadow:0 18px 30px -14px rgba(0,0,0,.35),0 4px 10px -6px rgba(0,0,0,.3);
+    transition:box-shadow .3s var(--ease),background .3s var(--ease)}
+  .pill-metal>span{position:relative;z-index:2}
+  .pill-metal::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2px;pointer-events:none;z-index:1;
+    background:conic-gradient(from var(--mangle),#cfcfcf,#ffffff,#7c7c7c,#f0f0f0,#9a9a9a,#ffffff,#8a8a8a,#dcdcdc,#cfcfcf);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;
+    mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask-composite:exclude;
+    animation:metalspin 5s linear infinite}
+  .pill-metal:hover{background:rgba(255,255,255,.14);
+    box-shadow:0 26px 44px -16px rgba(0,0,0,.42),0 8px 18px -8px rgba(0,0,0,.34)}
+  .pill-metal:hover::before{animation-duration:1.8s}
+  .pill-metal:active{background:rgba(255,255,255,.08);
+    box-shadow:inset 0 2px 5px rgba(0,0,0,.35),0 6px 14px -8px rgba(0,0,0,.3)}
+  .pill-metal-lg{height:50px;padding:0 30px;font-size:16px}
+  .pill-metal .rip{position:absolute;width:18px;height:18px;border-radius:50%;pointer-events:none;z-index:3;
+    transform:translate(-50%,-50%) scale(0);
+    background:radial-gradient(circle,rgba(255,255,255,.5) 0%,rgba(255,255,255,0) 70%);
+    animation:pillripple .6s ease-out forwards}
+  @keyframes pillripple{to{transform:translate(-50%,-50%) scale(5);opacity:0}}
+  @media(prefers-reduced-motion:reduce){.pill-metal::before{animation:none}}
+
+  .copy{max-width:min(720px,90%);margin-top:clamp(120px,23vh,230px)}
+  h1{margin:0;color:#fff;font-weight:400;letter-spacing:-0.03em;line-height:1.06;
+    font-size:clamp(2.1rem,4.6vw,3.85rem);text-shadow:0 2px 34px rgba(0,0,0,.22);white-space:nowrap}
+  h1 .ln{display:block;overflow:hidden}
+  h1 .ln>span{display:block;transform:translateY(108%);animation:lineUp 1.05s var(--ease) forwards}
+  h1 .ln:nth-child(1)>span{animation-delay:.4s}
+  h1 .ln:nth-child(2)>span{animation-delay:.52s}
+  @keyframes lineUp{to{transform:none}}
+  .cta{margin-top:30px;opacity:0;animation:fadeUp 1s var(--ease) 1s forwards}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  .pill-lg{height:50px;padding:0 28px;font-size:16px}
+
+  /* ===== chat — glass feed; bubbles unfurl from the bottom edge (Sierra) ===== */
+  /* feed bottom == video edge = the RED line = the birth/appearance boundary (overflow clips
+     here, messages are born here). padding-bottom = the gap up to the YELLOW line, the level
+     a settled message's BOTTOM rises to. Tall top fade = the "mist" older messages dissolve into. */
+  .chat{position:absolute;right:24px;bottom:0;padding-bottom:40px;z-index:10;
+    width:454px;max-width:calc(100% - 48px);
+    display:flex;flex-direction:column;justify-content:flex-end;overflow:hidden;
+    max-height:min(72vh,580px)}
+    /* NO mask here: a mask on this ancestor creates a stacking context that kills the bubbles'
+       backdrop-filter (the frost). Old messages fade via the opacity ladder instead. */
+  @media(min-width:1024px){.chat{right:40px}}
+
+  /* each message = a row whose HEIGHT is tweened 0 -> auto by GSAP (Sierra mechanism):
+     the bubble grows out of the bottom edge of the feed ("отлепляется снизу"). overflow
+     clips it during the grow so it emerges from the edge rather than fading from nothing. */
+  /* the whole stack lives in #feedInner; it is what slides (transform) so messages
+     enter from the video edge and the stack rises together — one continuous motion. */
+  #feedInner{display:flex;flex-direction:column;will-change:transform}
+  .cell{display:flex;padding-top:10px}
+  .row.left .cell{justify-content:flex-start}
+  .row.right .cell{justify-content:flex-end}
+
+  /* MATTE frosted glass: heavy backdrop blur frosts whatever is behind into a uniform tone,
+     so white text reads on any background (bright window or dark hair). */
+  /* premium DARK frosted glass (Apple-tier). No filter/transform on the bubble itself, and no
+     transformed ancestor (see #feedInner / height-grow) — so backdrop-filter renders CONSTANTLY,
+     never toggling off during motion. Dark translucent tint => white text reads on any frame. */
+  /* EXACT Sierra glass, read from their live code: 10% white tint + heavy blur, white text, and a
+     2px GRADIENT BORDER via a masked ::before (bright at top, fading down). That gradient edge is
+     the "premium" — NOT a tint, shadow or noise. (text-shadow kept faint for bright frames.) */
+  /* TRUE Sierra glass (verified live from sierra.ai): heavy blur + 10% white tint, white text,
+     ZERO chrome — no border, no shadow, no gradient edge, no grain. The premium is the emptiness.
+     saturate+brightness lift the frost into a clean light milky tone over the darker video,
+     matching how Sierra's frost reads over their bright photo. */
+  .bub{width:334px;max-width:84%;border-radius:16px;padding:14px 16px;color:rgba(255,255,255,.94);position:relative;
+    background:rgba(255,255,255,0.10);
+    backdrop-filter:blur(96px) saturate(135%) brightness(1.12);-webkit-backdrop-filter:blur(96px) saturate(135%) brightness(1.12);
+    text-shadow:0 1px 4px rgba(0,0,0,.18);
+    transition:opacity .5s var(--ease-std);
+    will-change:opacity}
+  .bub.wide{width:auto;max-width:96%}
+
+  .hd{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12.5px;font-weight:500;color:rgba(255,255,255,.68)}
+  .ava{width:22px;height:22px;border-radius:7px;flex:none;display:grid;place-items:center;overflow:hidden}
+  .ava-agent{background:var(--forest)}
+  .ava-agent img{width:14px;height:auto;display:block}
+  .ava-cust{border-radius:50%;background:linear-gradient(140deg,#d8b48b,#a9855c);color:#fff;font-size:11px;font-weight:600}
+  .tx{font-size:15px;line-height:1.42;color:#fff}
+
+  .typing{display:inline-flex;gap:5px;align-items:center;padding:5px 2px 1px}
+  .typing i{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.75);animation:blink 1.2s infinite}
+  .typing i:nth-child(2){animation-delay:.18s}.typing i:nth-child(3){animation-delay:.36s}
+  @keyframes blink{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+
+  .wtitle{display:flex;align-items:center;gap:7px;color:rgba(255,255,255,.64);font-size:11.5px;font-weight:500;margin:2px 0 10px}
+  .wtitle .dot{width:7px;height:7px;border-radius:50%;background:var(--mint-bright)}
+  .wrow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:5px}
+  .wrow .k{color:rgba(255,255,255,.72);font-size:13px}
+  .wrow .v{color:#fff;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums}
+  .wbtn{margin-top:11px;width:100%;height:38px;border-radius:9px;background:rgba(255,255,255,.94);color:var(--ink);text-shadow:none;font-size:13.5px;font-weight:600;border:none;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:7px;transition:transform .25s var(--ease),background .25s var(--ease)}
+  .wbtn:hover{transform:translateY(-1px);background:#fff}
+
+  .below{position:relative;z-index:2;padding:34px 0 56px}
+  .below-in{max-width:var(--frame);margin:0 auto;padding:0 24px;display:flex;flex-wrap:wrap;align-items:center;gap:16px 30px;color:rgba(30,29,26,.55);font-size:13.5px}
+  @media(min-width:1024px){.below-in{padding:0 40px}}
+  .below .label{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase}
+  .below .dot{width:5px;height:5px;border-radius:50%;background:var(--mint);opacity:.6}
+  .below b{color:rgba(30,29,26,.72);font-weight:600}
+
+  /* ===== Tech stack — «Работаем с лидерами рынка»: large COLORED logos, organic balanced constellation
+     (not rows/columns). Lives on the warm paper body below the hero. ===== */
+  .tech{position:relative;z-index:2;background:var(--paper);
+    padding:clamp(86px,12vh,150px) 24px clamp(98px,14vh,166px)}
+  @media(min-width:1024px){.tech{padding-left:40px;padding-right:40px}}
+  .tech::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(58% 46% at 50% 20%, color-mix(in oklab,var(--mint) 9%, transparent), transparent 72%)}
+  .tech-head{position:relative;max-width:var(--frame);margin:0 auto;text-align:center}
+  .tech-eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint-deep);font-weight:600}
+  .tech-head h2{margin:14px 0 0;font-weight:400;letter-spacing:-.025em;line-height:1.06;color:var(--ink);
+    font-size:clamp(2rem,4.3vw,3.3rem)}
+  .tech-sub{margin:16px auto 0;max-width:560px;color:rgba(30,29,26,.55);font-size:15px;line-height:1.55}
+
+  .tech-field{position:relative;max-width:920px;margin:clamp(56px,8vh,96px) auto 0;
+    display:flex;flex-direction:column;align-items:center;gap:clamp(32px,4.6vh,56px)}
+  .tech-row{display:flex;justify-content:center;align-items:flex-start;gap:clamp(46px,6.6vw,104px)}
+  .logo{display:flex;flex-direction:column;align-items:center;gap:15px;
+    opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+  .tech.in .logo{opacity:1;transform:translateY(0);transition-delay:calc(var(--i,0) * 55ms)}
+  .logo .mark,.logo .wm{height:clamp(60px,6.4vw,90px);display:grid;place-items:center}
+  .logo .mark{width:clamp(60px,6.4vw,90px)}
+  .logo svg{width:100%;height:100%;fill:var(--c,#777);
+    filter:drop-shadow(0 8px 18px color-mix(in oklab,var(--c,#777) 22%, transparent));
+    transition:transform .45s var(--ease),filter .45s var(--ease)}
+  .logo .wm{font-weight:700;font-size:clamp(1.9rem,3.2vw,2.7rem);color:var(--c);line-height:1;letter-spacing:-.02em;
+    filter:drop-shadow(0 8px 18px color-mix(in oklab,var(--c) 20%, transparent));
+    transition:transform .45s var(--ease),filter .45s var(--ease)}
+  .logo .nm{font-size:14px;font-weight:500;letter-spacing:-.01em;color:rgba(30,29,26,.56);transition:color .35s var(--ease)}
+  .logo:hover svg,.logo:hover .wm{transform:translateY(-5px) scale(1.07);
+    filter:drop-shadow(0 16px 32px color-mix(in oklab,var(--c) 42%, transparent))}
+  .logo:hover .nm{color:var(--ink)}
+  @media(max-width:620px){
+    .tech-row{gap:clamp(24px,7vw,46px)}
+    .logo .mark,.logo .wm{height:clamp(46px,12vw,64px)}
+    .logo .mark{width:clamp(46px,12vw,64px)}
+    .logo .wm{font-size:clamp(1.4rem,7vw,1.9rem)}
+  }
+  @media(prefers-reduced-motion:reduce){.logo{opacity:1;transform:none;transition:none}}
+
+  @media(max-width:620px){
+    .nav{height:70px;gap:10px}
+    .brand .hp-logo{height:17px;width:212px}
+    .pill{height:36px;padding:0 14px;font-size:13px}
+    .stage{height:auto;min-height:100svh}
+    .stage video{object-position:54% 28%}
+    .frame-in{align-items:flex-start;padding-top:104px}
+    h1{font-size:clamp(1.6rem,7.1vw,2.4rem);letter-spacing:-0.02em}
+    .copy{margin-top:96px;max-width:100%}
+    .chat{left:14px;right:14px;width:auto;max-width:none;bottom:16px;max-height:50vh}
+    .bub{width:auto;max-width:86%}
+    .below-in{font-size:12.5px;gap:12px 18px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+    .cta{opacity:1;transform:none}
+    h1 .ln>span{transform:none}
+    .stage video{opacity:1}
+    .row{grid-template-rows:1fr}
+    .bub{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<section class="stage">
+  <video id="vid" autoplay muted loop playsinline preload="auto"><source src="hero-a.mp4" type="video/mp4" /></video>
+  <div class="grain"></div>
+  <div class="scrim top"></div>
+  <div class="scrim text"></div>
+  <div class="scrim bottom"></div>
+
+  <header>
+    <nav class="nav">
+      <a class="brand" href="#" aria-label="HyperPartner"><svg class="hp-logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2481 199" width="2481" height="199" role="img" aria-label="HyperPartner"><defs><linearGradient id="hpPulse" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="0"><stop offset="0" stop-color="#FFE6B0" stop-opacity="0"/><stop offset="0.5" stop-color="#FFF4D8" stop-opacity="1"/><stop offset="1" stop-color="#FFE6B0" stop-opacity="0"/><animate attributeName="x1" values="0;4962" dur="2.4s" repeatCount="indefinite" calcMode="linear"/><animate attributeName="x2" values="0;2481" dur="2.4s" repeatCount="indefinite" calcMode="linear"/></linearGradient><filter id="hpGlow" x="-6%" y="-30%" width="112%" height="160%"><feGaussianBlur stdDeviation="2.2"/></filter><g id="hpWhite"><path d="M0 0 C5.722 4.757 10.991 9.855 16.24 15.126 C17.138 16.025 18.037 16.923 18.962 17.848 C21.406 20.292 23.847 22.739 26.287 25.186 C28.845 27.75 31.406 30.311 33.967 32.873 C38.806 37.716 43.643 42.561 48.479 47.407 C53.989 52.928 59.501 58.446 65.014 63.964 C76.346 75.306 87.674 86.652 99 98 C98.055 99.111 97.109 100.221 96.163 101.33 C95.9 101.639 95.9 101.639 94.567 103.203 C92.419 105.666 90.138 107.974 87.82 110.277 C86.892 111.202 85.964 112.127 85.008 113.08 C84.047 114.033 83.086 114.985 82.125 115.938 C81.14 116.917 80.156 117.897 79.172 118.877 C76.784 121.254 74.393 123.628 72 126 C67.831 124.283 64.663 121.343 61.304 118.419 C60.64 117.845 59.976 117.27 59.293 116.678 C50.602 109.102 42.127 101.296 33.75 93.375 C32.948 92.618 32.146 91.861 31.319 91.081 C-3.291 58.209 -3.291 58.209 -4.75 35.057 C-4.819 23.18 -3.07 11.453 0 0 Z " transform="translate(0,0)"/><path d="M0 0 C1.592 -0.046 3.185 -0.09 4.777 -0.133 C5.478 -0.171 6.178 -0.209 6.9 -0.248 C8.805 -0.281 8.805 -0.281 11.84 0.242 C14.848 4.369 16.661 9.22 18.648 13.898 C19.012 14.746 19.375 15.594 19.749 16.467 C20.929 19.224 22.103 21.983 23.277 24.742 C24.087 26.637 24.897 28.532 25.707 30.427 C31.031 42.904 36.276 55.412 41.398 67.973 C41.844 69.063 42.29 70.154 42.75 71.277 C42.941 71.749 42.941 71.749 43.91 74.133 C44.84 76.242 44.84 76.242 45.84 77.242 C46.157 76.76 46.473 76.277 46.799 75.78 C73.839 34.6 73.839 34.6 87.027 15.117 C87.47 14.462 87.912 13.807 88.368 13.133 C89.599 11.31 90.834 9.491 92.07 7.672 C92.755 6.664 93.44 5.655 94.145 4.617 C95.84 2.242 95.84 2.242 97.84 0.242 C100.806 0.077 103.673 0.034 106.637 0.086 C107.081 0.09 107.081 0.09 109.331 0.11 C112.168 0.141 115.004 0.189 117.84 0.242 C118.738 0.259 119.636 0.275 120.562 0.292 C126.739 0.412 132.914 0.573 139.09 0.742 C140.926 0.791 142.762 0.839 144.598 0.887 C149.012 1.002 153.426 1.121 157.84 1.242 C155.661 4.562 153.489 7.811 150.957 10.871 C150.696 11.189 150.696 11.189 149.375 12.797 C149.101 13.128 149.101 13.128 147.715 14.805 C143.677 19.728 139.697 24.677 135.84 29.742 C131.559 35.358 127.126 40.835 122.656 46.301 C118.472 51.43 114.435 56.65 110.422 61.914 C107.533 65.669 104.53 69.328 101.527 72.992 C97.038 78.473 92.676 84.03 88.402 89.68 C83.306 96.417 78.024 102.974 72.596 109.447 C72.047 110.104 71.499 110.761 70.934 111.438 C70.695 111.721 70.695 111.721 69.486 113.157 C68.943 113.845 68.4 114.533 67.84 115.242 C67.43 115.74 67.02 116.238 66.598 116.75 C63.157 121.17 61.852 124.915 61.031 130.41 C60.899 131.191 60.767 131.973 60.631 132.778 C60.204 135.326 59.803 137.877 59.402 140.43 C59.11 142.202 58.817 143.974 58.521 145.746 C57.914 149.404 57.318 153.063 56.73 156.724 C55.74 162.888 54.707 169.044 53.669 175.2 C52.375 182.878 51.11 190.56 49.84 198.242 C34.33 198.242 18.82 198.242 2.84 198.242 C6.27 173.091 6.27 173.091 7.883 163.621 C8.238 161.492 8.593 159.362 8.947 157.232 C9.492 153.987 10.038 150.742 10.587 147.497 C11.128 144.289 11.662 141.08 12.195 137.871 C12.361 136.904 12.526 135.938 12.697 134.942 C14.091 126.516 14.449 120.425 10.543 112.598 C10.371 112.239 10.371 112.239 9.499 110.422 C8.375 108.085 7.232 105.758 6.09 103.43 C5.3 101.793 4.511 100.157 3.724 98.519 C2.153 95.251 0.577 91.986 -1.002 88.723 C-3.771 82.99 -6.446 77.217 -9.098 71.43 C-10.038 69.385 -10.978 67.341 -11.918 65.297 C-12.418 64.207 -12.919 63.118 -13.435 61.995 C-16.706 54.876 -19.992 47.763 -23.276 40.649 C-24.436 38.134 -25.596 35.619 -26.756 33.104 C-27.123 32.309 -27.49 31.513 -27.868 30.693 C-28.59 29.128 -29.312 27.562 -30.033 25.995 C-31.753 22.265 -33.488 18.543 -35.259 14.837 C-35.588 14.147 -35.916 13.457 -36.254 12.745 C-37.143 10.88 -38.039 9.017 -38.934 7.155 C-40.16 4.242 -40.16 4.242 -40.16 1.242 C-30.972 0.945 -21.784 0.666 -12.595 0.423 C-8.395 0.31 -4.198 0.169 0 0 Z " transform="translate(470.16015625,-0.2421875)"/><path d="M0 0 C15.18 0 30.36 0 46 0 C44.875 12.376 44.875 12.376 43.984 17.877 C43.787 19.104 43.591 20.332 43.388 21.597 C43.177 22.883 42.967 24.17 42.75 25.496 C42.529 26.861 42.309 28.226 42.089 29.59 C41.631 32.427 41.17 35.263 40.707 38.099 C40.115 41.729 39.527 45.359 38.942 48.99 C38.489 51.798 38.033 54.606 37.578 57.414 C37.255 59.401 36.934 61.389 36.612 63.376 C36.415 64.582 36.218 65.787 36.016 67.029 C35.843 68.088 35.671 69.148 35.493 70.239 C35.087 72.511 34.56 74.761 34 77 C59.41 77 84.82 77 111 77 C111.66 71.72 112.32 66.44 113 61 C113.768 56.025 114.556 51.059 115.383 46.094 C115.604 44.749 115.826 43.404 116.047 42.059 C116.619 38.581 117.196 35.102 117.773 31.624 C118.365 28.051 118.954 24.476 119.543 20.902 C120.692 13.934 121.846 6.967 123 0 C138.51 0 154.02 0 170 0 C167.305 16.548 164.609 33.097 161.913 49.645 C160.66 57.337 159.407 65.028 158.154 72.72 C157.669 75.697 157.184 78.674 156.699 81.65 C156.579 82.388 156.459 83.125 156.335 83.885 C155.003 92.065 153.67 100.245 152.335 108.424 C152.215 109.158 152.095 109.893 151.971 110.65 C150.97 116.786 150.97 116.786 150.523 119.524 C149.065 128.458 147.611 137.393 146.163 146.33 C145.224 152.132 144.281 157.935 143.337 163.737 C142.784 167.137 142.232 170.537 141.684 173.937 C141.085 177.647 140.481 181.357 139.876 185.066 C139.7 186.168 139.523 187.271 139.341 188.407 C139.178 189.401 139.015 190.395 138.847 191.419 C138.707 192.285 138.566 193.151 138.422 194.044 C138 196 138 196 137 197 C135.557 197.093 134.11 197.117 132.664 197.114 C131.743 197.113 130.822 197.113 129.873 197.113 C128.872 197.108 127.871 197.103 126.84 197.098 C125.82 197.096 124.801 197.095 123.75 197.093 C120.479 197.088 117.208 197.075 113.938 197.062 C111.726 197.057 109.514 197.053 107.303 197.049 C101.868 197.038 96.434 197.021 91 197 C91.762 191.641 92.525 186.282 93.289 180.923 C93.546 179.119 93.803 177.314 94.059 175.509 C96.644 157.33 99.328 139.167 102 121 C76.92 121 51.84 121 26 121 C25.505 124.795 25.505 124.795 23 144 C22.336 148.617 21.664 153.229 20.957 157.84 C20.784 158.984 20.61 160.128 20.432 161.306 C19.894 164.85 19.353 168.394 18.812 171.938 C18.441 174.386 18.069 176.835 17.697 179.283 C16.801 185.189 15.9 191.095 15 197 C-0.51 197 -16.02 197 -32 197 C-31.408 190.486 -30.819 184.168 -29.748 177.75 C-29.625 176.995 -29.502 176.241 -29.376 175.463 C-28.97 172.975 -28.559 170.488 -28.148 168 C-27.854 166.2 -27.56 164.401 -27.266 162.601 C-26.472 157.744 -25.673 152.887 -24.874 148.03 C-24.036 142.941 -23.203 137.85 -22.369 132.76 C-20.969 124.223 -19.567 115.686 -18.162 107.149 C-16.538 97.275 -14.918 87.401 -13.3 77.526 C-11.743 68.019 -10.183 58.512 -8.621 49.006 C-7.957 44.961 -7.294 40.917 -6.631 36.872 C-5.852 32.117 -5.07 27.363 -4.287 22.61 C-3.999 20.863 -3.713 19.116 -3.427 17.369 C-3.038 14.991 -2.646 12.612 -2.252 10.234 C-2.139 9.538 -2.026 8.843 -1.91 8.126 C-1.442 5.312 -0.904 2.713 0 0 Z " transform="translate(236,1)"/><path d="M0 0 C24.146 -0.08 24.146 -0.08 34.508 -0.098 C41.554 -0.11 48.6 -0.124 55.646 -0.151 C61.333 -0.173 67.019 -0.185 72.706 -0.19 C74.866 -0.193 77.026 -0.201 79.185 -0.211 C101.079 -0.317 123.764 0.381 140.812 16.25 C155.103 31.9 156.783 49.785 156.179 70.012 C155.334 84.102 148.311 97.492 138 107 C126.62 116.268 112.956 121.142 98.26 121.114 C97.938 121.114 97.938 121.114 96.307 121.114 C94.197 121.113 92.087 121.106 89.977 121.098 C88.505 121.096 87.034 121.094 85.563 121.093 C81.706 121.09 77.85 121.08 73.993 121.069 C70.051 121.058 66.11 121.054 62.168 121.049 C54.445 121.038 46.723 121.021 39 121 C42.138 97.208 42.138 97.208 44.125 87.188 C44.294 86.294 44.463 85.4 44.637 84.479 C45.866 78.134 45.866 78.134 47 77 C48.523 76.893 50.05 76.854 51.576 76.842 C52.064 76.837 52.064 76.837 54.531 76.811 C55.595 76.804 56.658 76.797 57.754 76.789 C59.993 76.761 62.232 76.732 64.471 76.703 C68.01 76.662 71.55 76.625 75.089 76.599 C78.498 76.571 81.907 76.525 85.316 76.477 C86.366 76.473 87.415 76.47 88.496 76.467 C94.68 76.364 99.391 75.672 105 73 C108.836 68.967 109.772 65.003 110.09 59.598 C109.942 55.329 109.201 51.693 107 48 C100.64 42.066 91.154 42.846 83.026 42.795 C82.049 42.785 81.073 42.775 80.067 42.765 C76.858 42.733 73.65 42.708 70.441 42.684 C68.209 42.663 65.977 42.642 63.745 42.621 C57.885 42.566 52.024 42.516 46.163 42.468 C40.177 42.417 34.191 42.362 28.205 42.307 C16.47 42.199 4.735 42.098 -7 42 C-4.69 28.14 -2.38 14.28 0 0 Z " transform="translate(650,1)"/><path d="M0 0 C47.19 0 94.38 0 143 0 C141.768 9.852 140.513 19.643 138.938 29.438 C138.764 30.549 138.591 31.661 138.412 32.807 C138.244 33.859 138.076 34.912 137.902 35.996 C137.753 36.936 137.603 37.877 137.449 38.845 C137 41 137 41 136 42 C132.956 42.095 129.935 42.126 126.89 42.114 C125.934 42.114 124.978 42.114 123.993 42.114 C120.817 42.113 117.641 42.105 114.465 42.098 C112.269 42.096 110.073 42.094 107.878 42.093 C102.086 42.09 96.294 42.08 90.502 42.069 C84.597 42.058 78.692 42.054 72.787 42.049 C61.191 42.038 49.596 42.021 38 42 C37.974 42.599 37.948 43.199 37.922 43.816 C37.211 55.177 34.993 65.538 33 77 C65.01 77 97.02 77 130 77 C128.874 91.638 128.874 91.638 127.844 97.543 C127.626 98.8 127.408 100.058 127.184 101.354 C126.958 102.619 126.732 103.884 126.5 105.188 C126.272 106.508 126.044 107.829 125.816 109.15 C124.139 118.721 124.139 118.721 123 121 C90.66 121 58.32 121 25 121 C24.34 125.62 23.68 130.24 23 135 C22.505 138.135 22.505 138.135 20 154 C52.34 154 84.68 154 118 154 C112 192 112 192 111 197 C63.81 197 16.62 197 -32 197 C-30.17 183.584 -28.306 170.221 -26.105 156.869 C-25.83 155.187 -25.555 153.506 -25.281 151.824 C-24.548 147.339 -23.812 142.855 -23.075 138.371 C-22.299 133.65 -21.527 128.929 -20.754 124.207 C-19.46 116.305 -18.164 108.403 -16.866 100.501 C-15.366 91.37 -13.87 82.239 -12.375 73.108 C-10.932 64.287 -9.486 55.466 -8.039 46.646 C-7.425 42.904 -6.812 39.161 -6.2 35.419 C-5.48 31.027 -4.76 26.636 -4.037 22.245 C-3.773 20.634 -3.509 19.023 -3.245 17.412 C-2.886 15.216 -2.525 13.02 -2.163 10.825 C-1.961 9.596 -1.76 8.367 -1.552 7.101 C-1.127 4.716 -0.588 2.351 0 0 Z " transform="translate(838,1)"/><path d="M0 0 C0.473 0 0.473 0 2.869 0.001 C3.861 -0.002 4.853 -0.005 5.876 -0.009 C9.179 -0.018 12.483 -0.02 15.787 -0.021 C18.083 -0.025 20.38 -0.028 22.677 -0.031 C27.508 -0.037 32.34 -0.039 37.171 -0.039 C43.332 -0.039 49.493 -0.052 55.653 -0.069 C60.407 -0.081 65.161 -0.083 69.915 -0.082 C72.184 -0.083 74.452 -0.088 76.721 -0.095 C98.845 -0.164 121.16 0.366 138.431 16.147 C151.255 29.389 154.971 45.83 154.778 63.753 C154.334 79.248 149.951 94.778 139.056 106.272 C126.321 117.701 111.942 120.66 95.431 122.147 C102.781 133.947 110.145 145.737 117.619 157.459 C118.19 158.356 118.762 159.253 119.352 160.177 C120.487 161.958 121.622 163.738 122.757 165.518 C125.489 169.807 128.212 174.1 130.931 178.397 C131.399 179.134 131.867 179.872 132.35 180.632 C135.798 186.085 139.131 191.603 142.431 197.147 C136.009 197.401 129.588 197.576 123.162 197.696 C120.979 197.746 118.795 197.814 116.613 197.901 C98.521 198.602 98.521 198.602 93.578 195.16 C91.733 192.552 90.575 190.121 89.431 187.147 C88.617 185.784 87.776 184.438 86.904 183.111 C86.098 181.771 85.295 180.428 84.494 179.084 C79.289 170.462 73.88 161.98 68.437 153.507 C63.609 145.992 58.818 138.455 54.06 130.895 C53.608 130.176 53.155 129.457 52.689 128.717 C52.299 128.096 51.908 127.475 51.506 126.835 C50.502 125.258 49.468 123.702 48.431 122.147 C45.495 121.763 42.751 121.543 39.806 121.459 C39.004 121.425 38.203 121.391 37.376 121.356 C35.395 121.273 33.413 121.208 31.431 121.147 C32.242 115.844 33.06 110.542 33.885 105.241 C34.164 103.439 34.441 101.637 34.717 99.835 C35.114 97.237 35.518 94.641 35.923 92.045 C35.984 91.645 35.984 91.645 36.29 89.62 C36.974 85.285 37.898 81.283 39.431 77.147 C40.117 77.141 40.803 77.135 41.51 77.129 C48.664 77.065 55.818 76.98 62.972 76.884 C65.641 76.849 68.309 76.823 70.977 76.8 C74.818 76.767 78.657 76.714 82.498 76.658 C83.686 76.652 84.875 76.646 86.1 76.639 C93.513 76.508 98.963 76.067 104.806 71.147 C107.712 67.57 107.62 64.225 107.681 59.772 C107.707 58.65 107.733 57.529 107.759 56.373 C107.323 52.087 105.76 49.526 102.806 46.459 C96.111 42.759 88.23 42.845 80.771 42.828 C80.258 42.823 80.258 42.823 77.663 42.797 C74.303 42.767 70.944 42.75 67.583 42.733 C65.242 42.714 62.901 42.694 60.56 42.674 C54.42 42.623 48.279 42.583 42.139 42.546 C35.865 42.506 29.59 42.455 23.316 42.404 C11.021 42.308 -1.274 42.223 -13.569 42.147 C-13.258 39.626 -12.946 37.105 -12.634 34.584 C-12.547 33.879 -12.46 33.175 -12.371 32.449 C-11.55 25.847 -10.563 19.277 -9.506 12.709 C-9.333 11.597 -9.16 10.486 -8.981 9.34 C-8.897 8.814 -8.897 8.814 -8.471 6.151 C-8.322 5.21 -8.172 4.27 -8.018 3.301 C-7.075 -1.222 -4.051 0.02 0 0 Z " transform="translate(1014.5688781738281,0.853363037109375)"/><path d="M0 0 C14.85 0 29.7 0 45 0 C44.323 8.801 43.457 17.21 41.959 25.859 C41.754 27.07 41.549 28.281 41.338 29.529 C40.782 32.806 40.221 36.082 39.658 39.357 C39.068 42.797 38.485 46.238 37.9 49.679 C36.797 56.175 35.687 62.669 34.575 69.164 C33.308 76.566 32.048 83.969 30.788 91.372 C28.199 106.583 25.602 121.792 23 137 C7.82 137 -7.36 137 -23 137 C-18.883 110.004 -14.636 83.034 -10.249 56.081 C-9.401 50.874 -8.56 45.666 -7.721 40.458 C-7.063 36.389 -6.402 32.32 -5.739 28.251 C-5.426 26.328 -5.115 24.404 -4.806 22.48 C-4.378 19.822 -3.944 17.165 -3.509 14.508 C-3.385 13.73 -3.262 12.953 -3.134 12.152 C-3.014 11.426 -2.894 10.7 -2.77 9.952 C-2.669 9.33 -2.568 8.707 -2.464 8.066 C-1.848 5.323 -0.889 2.667 0 0 Z " transform="translate(641,61)"/><path d="M0 0 C15.18 0 30.36 0 46 0 C41.801 26.718 37.535 53.423 33.194 80.118 C32.512 84.314 31.832 88.509 31.155 92.705 C30.321 97.865 29.484 103.025 28.644 108.184 C28.328 110.128 28.013 112.073 27.7 114.018 C27.269 116.694 26.833 119.369 26.395 122.044 C26.332 122.443 26.332 122.443 26.01 124.459 C25.114 129.886 25.114 129.886 24 131 C22.588 131.093 21.171 131.117 19.756 131.114 C18.855 131.113 17.954 131.113 17.026 131.113 C16.047 131.108 15.067 131.103 14.059 131.098 C13.061 131.096 12.064 131.095 11.036 131.093 C7.837 131.088 4.637 131.075 1.438 131.062 C-0.726 131.057 -2.889 131.053 -5.053 131.049 C-10.369 131.038 -15.684 131.021 -21 131 C-19.435 117.107 -17.175 103.343 -14.902 89.551 C-14.504 87.119 -14.105 84.688 -13.707 82.257 C-12.878 77.194 -12.047 72.132 -11.214 67.071 C-10.146 60.584 -9.082 54.096 -8.019 47.608 C-7.002 41.401 -5.984 35.195 -4.965 28.988 C-4.771 27.808 -4.578 26.627 -4.378 25.411 C-3.831 22.078 -3.283 18.745 -2.734 15.411 C-2.653 14.919 -2.653 14.919 -2.245 12.425 C-2.095 11.516 -1.945 10.606 -1.79 9.67 C-1.661 8.884 -1.532 8.098 -1.399 7.288 C-0.974 4.851 -0.485 2.426 0 0 Z " transform="translate(1002,67)"/><path d="M0 0 C4.005 1.604 6.677 4.421 9.641 7.445 C9.904 7.71 9.904 7.71 11.238 9.051 C12.913 10.738 14.582 12.431 16.25 14.125 C17.388 15.273 18.526 16.42 19.664 17.566 C22.448 20.372 25.226 23.185 28 26 C26.412 29.858 23.948 32.299 21.015 35.228 C20.51 35.735 20.004 36.243 19.482 36.766 C17.815 38.438 16.14 40.102 14.465 41.766 C13.304 42.925 12.143 44.086 10.983 45.246 C8.554 47.673 6.122 50.097 3.687 52.519 C0.559 55.63 -2.562 58.747 -5.682 61.867 C-8.076 64.261 -10.472 66.652 -12.87 69.042 C-14.022 70.192 -15.174 71.342 -16.325 72.492 C-17.929 74.094 -19.536 75.692 -21.145 77.29 C-21.603 77.746 -21.603 77.746 -23.919 80.053 C-26 82 -26 82 -27 82 C-31.9 30.59 -31.9 30.59 -20.988 17.336 C-14.889 10.557 -7.633 4.945 0 0 Z " transform="translate(27,115)"/></g><g id="hpBronze"><path d="M0 0 C19.537 -3.713 44.531 -7.636 62.017 4.02 C77.381 14.908 90.123 29.687 102.609 43.647 C108.019 49.684 113.597 55.555 119.19 61.422 C130.647 73.447 141.891 85.652 153 98 C151.143 102.031 148.473 104.783 145.336 107.859 C144.784 108.409 144.232 108.958 143.663 109.524 C141.905 111.271 140.14 113.01 138.375 114.75 C137.179 115.936 135.984 117.122 134.789 118.309 C131.865 121.211 128.934 124.107 126 127 C119.366 121.543 113.348 115.496 107.281 109.427 C106.108 108.257 104.935 107.086 103.761 105.917 C100.592 102.756 97.426 99.592 94.261 96.428 C92.283 94.451 90.305 92.475 88.326 90.499 C81.425 83.607 74.526 76.712 67.63 69.815 C61.197 63.381 54.758 56.953 48.317 50.528 C42.784 45.008 37.256 39.485 31.73 33.959 C28.431 30.659 25.129 27.361 21.824 24.066 C18.723 20.975 15.627 17.878 12.534 14.778 C11.395 13.639 10.255 12.501 9.113 11.365 C7.561 9.821 6.015 8.27 4.471 6.718 C3.602 5.85 2.734 4.982 1.839 4.088 C0 2 0 2 0 0 Z " transform="translate(28,0)"/><path d="M0 0 C0.589 0 0.589 0 3.573 0.003 C4.227 0.002 4.881 0.001 5.555 0 C7.763 -0.001 9.971 0.004 12.179 0.01 C13.756 0.01 15.332 0.01 16.909 0.009 C21.202 0.009 25.495 0.015 29.788 0.022 C34.27 0.028 38.752 0.028 43.233 0.03 C51.726 0.033 60.219 0.041 68.711 0.051 C78.378 0.062 88.044 0.068 97.71 0.073 C117.599 0.083 137.489 0.101 157.378 0.123 C155.851 14.55 153.588 28.758 151.378 43.123 C98.248 43.123 45.118 43.123 -9.622 43.123 C-6.023 16.728 -6.023 16.728 -4.997 9.811 C-4.876 8.964 -4.754 8.118 -4.63 7.246 C-3.58 0.168 -3.58 0.168 0 0 Z " transform="translate(1759.6218271255493,-0.1230478286743164)"/><path d="M0 0 C1.722 0.006 3.445 0.017 5.167 0.033 C6.106 0.038 7.044 0.043 8.011 0.048 C11.138 0.065 14.265 0.091 17.392 0.118 C19.569 0.135 21.747 0.151 23.924 0.168 C28.508 0.205 33.091 0.246 37.675 0.289 C43.506 0.344 49.336 0.381 55.167 0.413 C59.677 0.441 64.186 0.482 68.696 0.527 C70.842 0.546 72.988 0.56 75.134 0.57 C97.617 0.678 119.44 2.313 136.861 18.227 C148.915 31.008 152.589 48.046 152.236 65.102 C151.551 78.676 147.978 90.908 140.236 102.102 C139.796 102.739 139.357 103.376 138.904 104.032 C131.372 113.799 118.53 119.374 106.685 121.798 C101.884 122.395 97.063 122.25 92.236 122.102 C98.613 132.644 105.11 143.098 111.744 153.479 C116.882 161.526 121.95 169.616 126.998 177.72 C127.581 178.655 128.163 179.589 128.763 180.552 C129.329 181.46 129.895 182.368 130.477 183.303 C132.938 187.221 135.443 191.11 137.953 194.996 C139.236 197.102 139.236 197.102 139.236 198.102 C132.908 198.588 126.584 198.918 120.242 199.146 C118.091 199.241 115.941 199.37 113.794 199.536 C96.484 200.835 96.484 200.835 91.128 196.329 C87.398 191.864 84.87 186.896 82.461 181.63 C80.409 177.399 77.808 173.531 75.236 169.602 C74.234 168.023 73.236 166.443 72.24 164.86 C71.745 164.077 71.25 163.293 70.74 162.486 C69.225 160.086 67.713 157.684 66.201 155.282 C65.192 153.681 64.182 152.079 63.173 150.477 C62.684 149.701 62.195 148.924 61.692 148.124 C59.17 144.129 56.624 140.153 54.036 136.2 C53.78 135.808 53.78 135.808 52.484 133.826 C51.506 132.333 50.523 130.843 49.536 129.356 C46.236 124.322 46.236 124.322 46.236 122.102 C42.276 122.102 38.316 122.102 34.236 122.102 C35.737 110.981 37.37 99.898 39.361 88.852 C39.531 87.895 39.702 86.937 39.877 85.95 C40.039 85.067 40.202 84.184 40.369 83.274 C40.512 82.492 40.655 81.709 40.803 80.902 C41.236 79.102 41.236 79.102 42.236 78.102 C43.758 77.996 45.286 77.956 46.812 77.945 C47.3 77.94 47.3 77.94 49.767 77.914 C50.831 77.906 51.894 77.899 52.99 77.892 C55.229 77.863 57.467 77.835 59.706 77.806 C63.246 77.764 66.785 77.728 70.325 77.701 C73.734 77.673 77.143 77.627 80.552 77.579 C81.601 77.576 82.651 77.573 83.732 77.569 C89.91 77.467 94.643 76.805 100.236 74.102 C104.821 68.577 105.707 64.168 105.236 57.102 C104.301 53.363 103.151 50.159 100.611 47.227 C93.817 44.01 86.423 43.801 79.034 43.784 C78.546 43.779 78.546 43.779 76.075 43.753 C72.877 43.723 69.68 43.705 66.482 43.688 C64.253 43.67 62.023 43.65 59.794 43.63 C53.95 43.579 48.106 43.539 42.262 43.502 C36.289 43.461 30.316 43.41 24.343 43.36 C12.641 43.264 0.938 43.179 -10.764 43.102 C-10.237 36.788 -9.611 30.539 -8.608 24.282 C-8.501 23.612 -8.394 22.942 -8.283 22.251 C-8.06 20.862 -7.835 19.472 -7.608 18.083 C-7.259 15.947 -6.92 13.81 -6.581 11.673 C-6.361 10.313 -6.141 8.954 -5.921 7.595 C-5.723 6.371 -5.525 5.148 -5.321 3.887 C-4.482 -0.312 -4.514 0.123 0 0 Z " transform="translate(2328.7642822265625,-0.10247802734375)"/><path d="M0 0 C12.666 -0.047 25.332 -0.082 37.999 -0.104 C43.881 -0.114 49.764 -0.128 55.646 -0.151 C61.333 -0.173 67.019 -0.185 72.706 -0.19 C74.866 -0.193 77.026 -0.201 79.185 -0.211 C101.079 -0.317 123.764 0.381 140.812 16.25 C155.1 31.897 156.784 49.784 156.184 70.008 C155.813 76.053 154.319 81.398 152 87 C151.83 87.441 151.83 87.441 150.973 89.672 C145.897 101.303 135.874 110.961 124.147 115.758 C115.592 118.985 107.449 121.131 98.26 121.114 C97.938 121.114 97.938 121.114 96.307 121.114 C94.197 121.113 92.087 121.106 89.977 121.098 C88.505 121.096 87.034 121.094 85.563 121.093 C81.706 121.09 77.85 121.08 73.993 121.069 C70.051 121.058 66.11 121.054 62.168 121.049 C54.445 121.038 46.723 121.021 39 121 C42.566 95.95 42.566 95.95 43.562 89.438 C43.619 89.049 43.619 89.049 43.904 87.08 C44.479 83.346 45.207 80.314 47 77 C47.609 76.994 48.217 76.988 48.844 76.982 C55.204 76.918 61.563 76.834 67.923 76.738 C70.293 76.704 72.664 76.676 75.034 76.654 C78.45 76.62 81.866 76.568 85.281 76.512 C86.334 76.505 87.386 76.499 88.47 76.492 C94.655 76.37 99.389 75.671 105 73 C108.836 68.967 109.772 65.003 110.09 59.598 C109.942 55.329 109.201 51.693 107 48 C100.661 42.086 91.222 42.846 83.117 42.795 C82.151 42.785 81.184 42.775 80.188 42.765 C77.012 42.733 73.836 42.708 70.66 42.684 C68.451 42.663 66.241 42.642 64.031 42.621 C58.23 42.566 52.428 42.516 46.627 42.468 C40.701 42.417 34.775 42.362 28.85 42.307 C17.233 42.199 5.617 42.098 -6 42 C-5.465 32.421 -4.141 23.124 -2.438 13.688 C-2.201 12.35 -1.964 11.012 -1.729 9.674 C-1.158 6.448 -0.582 3.224 0 0 Z " transform="translate(1208,1)"/><path d="M0 0 C2.01 0.001 4.021 0.035 6.03 0.095 C6.56 0.099 6.56 0.099 9.242 0.121 C12.625 0.155 16.007 0.23 19.39 0.306 C21.684 0.336 23.978 0.364 26.272 0.388 C31.896 0.454 37.517 0.555 43.14 0.681 C44.685 7.194 46.231 13.707 47.777 20.22 C48.349 22.629 48.921 25.039 49.493 27.448 C52.789 41.336 56.084 55.223 59.378 69.111 C60.662 74.521 61.945 79.932 63.228 85.343 C63.55 86.698 63.872 88.054 64.193 89.41 C68.235 106.45 72.282 123.489 76.338 140.525 C77.609 145.862 78.878 151.2 80.146 156.538 C81.297 161.382 82.452 166.224 83.608 171.067 C84.309 174.004 85.007 176.942 85.704 179.88 C86.17 181.843 86.64 183.805 87.11 185.767 C87.381 186.912 87.652 188.057 87.932 189.237 C88.167 190.224 88.402 191.212 88.645 192.229 C89.14 194.681 89.14 194.681 89.14 197.681 C74.29 197.681 59.44 197.681 44.14 197.681 C41.5 185.801 38.86 173.921 36.14 161.681 C14.03 161.351 -8.08 161.021 -30.86 160.681 C-28.88 156.721 -26.9 152.761 -24.86 148.681 C-23.886 146.343 -22.929 143.997 -22.005 141.638 C-14.027 123.705 -14.027 123.705 -6.873 120.903 C3.774 118.236 15.354 119.454 26.14 120.681 C24.334 113.544 22.526 106.407 20.715 99.271 C19.875 95.958 19.035 92.645 18.197 89.331 C17.234 85.522 16.267 81.715 15.3 77.908 C14.999 76.715 14.698 75.522 14.387 74.293 C14.247 73.743 14.247 73.743 13.538 70.957 C13.292 69.984 13.045 69.012 12.791 68.01 C12.14 65.681 12.14 65.681 11.14 63.681 C10.952 64.007 10.952 64.007 10.001 65.655 C8.857 67.638 7.713 69.621 6.569 71.604 C5.223 73.937 3.877 76.271 2.531 78.604 C-0.889 84.534 -4.312 90.463 -7.739 96.388 C-14.201 107.564 -20.618 118.762 -26.953 130.009 C-31.593 138.235 -36.309 146.417 -41.037 154.592 C-46.617 164.244 -52.15 173.922 -57.67 183.608 C-58.305 184.721 -58.94 185.835 -59.595 186.982 C-60.154 187.963 -60.713 188.945 -61.289 189.956 C-61.808 190.855 -62.326 191.755 -62.86 192.681 C-63.196 193.614 -63.531 194.546 -63.876 195.507 C-66.329 198.195 -67.151 198.06 -70.699 198.249 C-72.757 198.248 -74.815 198.22 -76.872 198.169 C-77.955 198.162 -79.039 198.155 -80.155 198.148 C-83.62 198.12 -87.083 198.057 -90.548 197.994 C-92.895 197.969 -95.242 197.946 -97.589 197.925 C-103.347 197.87 -109.103 197.786 -114.86 197.681 C-110.749 189.315 -106.51 181.078 -101.86 172.994 C-100.723 170.998 -99.586 169.002 -98.45 167.005 C-97.864 165.975 -97.277 164.944 -96.672 163.882 C-93.555 158.376 -90.49 152.841 -87.423 147.306 C-79.7 133.38 -71.92 119.486 -64.131 105.597 C-62.394 102.5 -60.658 99.403 -58.923 96.306 C-58.349 95.281 -57.774 94.257 -57.183 93.201 C-52.869 85.496 -48.58 77.778 -44.298 70.056 C-39.174 60.819 -34.008 51.608 -28.794 42.421 C-25.787 37.115 -22.808 31.795 -19.856 26.458 C-19.687 26.153 -19.687 26.153 -18.831 24.605 C-17.178 21.618 -15.529 18.629 -13.884 15.638 C-13.585 15.098 -13.585 15.098 -12.075 12.365 C-11.55 11.411 -11.026 10.458 -10.485 9.476 C-9.949 8.554 -9.413 7.631 -8.86 6.681 C-8.391 5.646 -7.923 4.61 -7.439 3.543 C-4.535 0.32 -4.1 0.241 0 0 Z " transform="translate(1441.8603515625,0.31884765625)"/><path d="M0 0 C12.536 -0.047 25.072 -0.082 37.607 -0.104 C43.43 -0.114 49.252 -0.128 55.074 -0.151 C60.702 -0.173 66.33 -0.185 71.958 -0.19 C74.095 -0.193 76.233 -0.201 78.371 -0.211 C100.503 -0.319 122.894 0.639 140.188 16.375 C152.499 29.47 156.747 46.816 156.285 64.43 C154.948 81.168 150.541 96.399 137.766 108.035 C125.45 118.036 111.659 121.41 96 121 C103.35 132.8 110.714 144.59 118.188 156.312 C118.759 157.21 119.331 158.107 119.92 159.031 C121.055 160.811 122.191 162.591 123.326 164.372 C143 195.257 143 195.257 143 197 C136.653 197.46 130.311 197.773 123.951 197.989 C121.793 198.079 119.637 198.201 117.483 198.358 C100.145 199.586 100.145 199.586 95.024 195.376 C91.499 191.127 89.233 186.316 87.038 181.282 C85.59 178.1 83.79 175.349 81.848 172.441 C81.222 171.468 80.597 170.496 79.953 169.493 C79.329 168.526 78.705 167.559 78.062 166.562 C76.688 164.423 75.315 162.284 73.941 160.145 C73.276 159.109 72.611 158.073 71.926 157.006 C69.61 153.392 67.306 149.771 65.013 146.142 C64.019 144.571 63.02 143.003 62.016 141.438 C59.829 138.012 57.75 134.601 55.906 130.977 C55.579 130.363 55.253 129.75 54.916 129.118 C54.077 127.521 53.286 125.898 52.5 124.273 C48.399 120.544 43.358 121.064 38 121 C38.811 115.697 39.629 110.395 40.454 105.094 C40.733 103.292 41.01 101.49 41.286 99.688 C41.683 97.091 42.087 94.495 42.492 91.898 C42.553 91.498 42.553 91.498 42.859 89.473 C43.543 85.138 44.467 81.136 46 77 C46.311 76.998 46.311 76.998 47.882 76.989 C54.372 76.947 60.861 76.878 67.35 76.792 C69.769 76.764 72.188 76.743 74.607 76.729 C78.093 76.707 81.577 76.661 85.062 76.609 C86.137 76.608 87.211 76.607 88.318 76.606 C94.976 76.477 99.312 75.524 105 72 C109.291 67.432 109.282 62.724 109.219 56.73 C108.865 52.317 107.519 49.32 104.179 46.417 C97.84 42.295 89.094 42.699 81.777 42.681 C80.81 42.671 79.843 42.661 78.846 42.651 C75.687 42.62 72.527 42.603 69.367 42.586 C67.162 42.567 64.957 42.548 62.751 42.527 C56.974 42.476 51.198 42.436 45.421 42.399 C39.515 42.359 33.609 42.308 27.703 42.258 C16.135 42.161 4.568 42.077 -7 42 C-6.536 38.547 -6.069 35.094 -5.602 31.641 C-5.472 30.677 -5.343 29.714 -5.209 28.721 C-4.35 22.383 -3.408 16.063 -2.375 9.75 C-2.253 8.998 -2.131 8.247 -2.005 7.473 C-1.123 2.247 -1.123 2.247 0 0 Z " transform="translate(1577,1)"/><path d="M0 0 C14.85 0 29.7 0 45 0 C50.243 9.321 55.459 18.608 60.428 28.071 C62.74 32.469 65.059 36.864 67.379 41.258 C67.772 42.002 68.165 42.747 68.569 43.514 C72.797 51.518 77.076 59.495 81.359 67.47 C84.79 73.864 88.207 80.265 91.605 86.676 C91.993 87.407 92.381 88.138 92.781 88.892 C94.674 92.463 96.566 96.035 98.455 99.608 C99.142 100.904 99.829 102.2 100.516 103.496 C101.117 104.632 101.718 105.769 102.337 106.939 C103.411 108.916 104.536 110.867 105.718 112.781 C107 115 107 115 107 117 C107.66 117 108.32 117 109 117 C109.026 116.63 109.026 116.63 109.16 114.758 C109.693 107.807 110.518 100.982 111.658 94.107 C111.823 93.092 111.987 92.078 112.156 91.032 C112.693 87.725 113.237 84.419 113.781 81.113 C114.159 78.801 114.536 76.489 114.913 74.177 C115.7 69.356 116.491 64.536 117.284 59.716 C118.302 53.525 119.312 47.333 120.32 41.14 C121.096 36.378 121.876 31.616 122.657 26.855 C123.031 24.57 123.405 22.285 123.777 19.999 C124.294 16.822 124.817 13.646 125.342 10.47 C125.496 9.52 125.649 8.57 125.808 7.591 C125.951 6.732 126.094 5.873 126.241 4.988 C126.364 4.237 126.487 3.487 126.614 2.714 C127 1 127 1 128 0 C129.412 -0.093 130.829 -0.117 132.244 -0.114 C133.145 -0.113 134.046 -0.113 134.974 -0.113 C135.953 -0.108 136.933 -0.103 137.941 -0.098 C138.939 -0.096 139.936 -0.095 140.964 -0.093 C144.163 -0.088 147.363 -0.075 150.562 -0.062 C152.726 -0.057 154.889 -0.053 157.053 -0.049 C162.369 -0.038 167.684 -0.021 173 0 C172.348 9.764 170.742 19.357 169.148 29 C168.854 30.8 168.56 32.599 168.266 34.399 C167.472 39.256 166.673 44.113 165.874 48.97 C165.036 54.059 164.203 59.15 163.369 64.24 C161.969 72.777 160.567 81.314 159.162 89.851 C157.538 99.725 155.918 109.599 154.3 119.474 C152.743 128.981 151.183 138.488 149.621 147.994 C148.957 152.039 148.294 156.083 147.631 160.128 C146.852 164.883 146.07 169.637 145.287 174.39 C144.999 176.137 144.713 177.884 144.427 179.631 C144.038 182.009 143.646 184.388 143.252 186.766 C143.196 187.114 143.196 187.114 142.91 188.874 C142.442 191.688 141.904 194.287 141 197 C126.81 197 112.62 197 98 197 C91.897 185.883 85.834 174.76 80 163.5 C76.088 155.95 72.094 148.453 68 141 C63.906 133.547 59.913 126.05 56 118.5 C48.929 104.861 41.67 91.313 34 78 C29.077 105.287 24.554 132.639 20.062 160 C19.988 160.455 19.988 160.455 19.61 162.759 C17.736 174.172 15.868 185.586 14 197 C-1.18 197 -16.36 197 -32 197 C-28.953 175.996 -25.613 155.052 -22.175 134.109 C-21.431 129.572 -20.689 125.036 -19.947 120.499 C-18.705 112.913 -17.462 105.328 -16.218 97.742 C-14.781 88.983 -13.346 80.224 -11.913 71.465 C-10.378 62.085 -8.841 52.706 -7.304 43.326 C-6.864 40.638 -6.424 37.949 -5.984 35.261 C-5.294 31.05 -4.604 26.839 -3.913 22.628 C-3.66 21.085 -3.407 19.542 -3.155 18 C-2.81 15.894 -2.464 13.789 -2.118 11.684 C-1.925 10.507 -1.732 9.329 -1.534 8.117 C-1.069 5.403 -0.54 2.7 0 0 Z " transform="translate(1940,1)"/><path d="M0 0 C46.86 0 93.72 0 142 0 C140.826 14.093 138.325 28.05 136 42 C119.83 42.165 119.83 42.165 38 43 C36.02 54.22 34.04 65.44 32 77 C64.01 77 96.02 77 129 77 C135.62 90.24 125.433 106.399 123 121 C90.33 121 57.66 121 24 121 C23.34 126.28 22.68 131.56 22 137 C21.01 142.61 20.02 148.22 19 154 C51.34 154 83.68 154 117 154 C115.792 163.662 114.567 173.228 112.938 182.812 C112.764 183.86 112.591 184.907 112.412 185.986 C111.132 193.605 111.132 193.605 110 197 C62.81 197 15.62 197 -33 197 C-25.928 152.212 -25.928 152.212 -22.56 131.521 C-22.436 130.763 -22.313 130.004 -22.186 129.222 C-21.796 126.825 -21.406 124.428 -21.016 122.031 C-20.883 121.215 -20.75 120.398 -20.613 119.557 C-19.354 111.819 -18.094 104.081 -16.832 96.344 C-15.24 86.579 -13.651 76.813 -12.067 67.047 C-10.938 60.091 -9.805 53.136 -8.67 46.181 C-7.997 42.057 -7.325 37.933 -6.658 33.808 C-6.035 29.959 -5.408 26.111 -4.776 22.263 C-4.547 20.856 -4.318 19.449 -4.092 18.042 C-3.782 16.119 -3.466 14.197 -3.149 12.274 C-2.975 11.201 -2.8 10.128 -2.62 9.022 C-2 6 -2 6 0 0 Z " transform="translate(2147,1)"/><path d="M0 0 C14.85 0 29.7 0 45 0 C44.323 8.801 43.457 17.21 41.959 25.859 C41.754 27.07 41.549 28.281 41.338 29.529 C40.782 32.806 40.221 36.082 39.658 39.357 C39.068 42.797 38.485 46.238 37.9 49.679 C36.797 56.175 35.687 62.669 34.575 69.164 C33.308 76.566 32.048 83.969 30.788 91.372 C28.199 106.583 25.602 121.792 23 137 C7.82 137 -7.36 137 -23 137 C-18.883 110.004 -14.636 83.034 -10.249 56.081 C-9.401 50.874 -8.56 45.666 -7.721 40.458 C-7.063 36.389 -6.402 32.32 -5.739 28.251 C-5.426 26.328 -5.115 24.404 -4.806 22.48 C-4.378 19.822 -3.944 17.165 -3.509 14.508 C-3.385 13.73 -3.262 12.953 -3.134 12.152 C-3.014 11.426 -2.894 10.7 -2.77 9.952 C-2.669 9.33 -2.568 8.707 -2.464 8.066 C-1.848 5.323 -0.889 2.667 0 0 Z " transform="translate(1199,61)"/><path d="M0 0 C14.85 0 29.7 0 45 0 C44.333 8.677 43.504 16.999 42.066 25.536 C41.873 26.713 41.679 27.89 41.48 29.103 C40.846 32.947 40.204 36.79 39.562 40.633 C39.117 43.32 38.673 46.007 38.229 48.694 C37.301 54.301 36.369 59.907 35.435 65.513 C34.354 71.991 33.28 78.469 32.209 84.949 C31.065 91.868 29.917 98.787 28.768 105.706 C28.438 107.694 28.108 109.683 27.779 111.671 C27.166 115.367 26.551 119.063 25.934 122.758 C25.843 123.308 25.843 123.308 25.383 126.092 C25.214 127.096 25.046 128.099 24.873 129.133 C24.728 130.006 24.582 130.878 24.433 131.777 C24 134 24 134 23 137 C8.15 137 -6.7 137 -22 137 C-20.875 123.5 -20.875 123.5 -20.127 118.99 C-19.959 117.961 -19.791 116.933 -19.617 115.873 C-19.436 114.791 -19.254 113.709 -19.066 112.594 C-18.97 112.006 -18.97 112.006 -18.48 109.032 C-17.845 105.187 -17.204 101.343 -16.562 97.5 C-16.117 94.814 -15.673 92.128 -15.229 89.442 C-14.301 83.833 -13.369 78.225 -12.435 72.618 C-11.236 65.425 -10.044 58.231 -8.853 51.036 C-7.827 44.833 -6.797 38.63 -5.768 32.427 C-5.438 30.44 -5.108 28.452 -4.779 26.465 C-4.166 22.767 -3.55 19.069 -2.934 15.371 C-2.752 14.273 -2.57 13.175 -2.383 12.043 C-2.214 11.037 -2.046 10.031 -1.873 8.994 C-1.728 8.121 -1.582 7.248 -1.433 6.348 C-1.04 4.215 -0.526 2.105 0 0 Z " transform="translate(1567,61)"/><path d="M0 0 C14.85 0 29.7 0 45 0 C43.875 13.5 43.875 13.5 43.089 18.099 C43.001 18.623 43.001 18.623 42.554 21.277 C42.363 22.38 42.172 23.484 41.975 24.622 C41.873 25.221 41.873 25.221 41.358 28.253 C40.806 31.498 40.25 34.743 39.691 37.988 C39.105 41.397 38.524 44.806 37.943 48.215 C36.968 53.926 35.989 59.637 35.007 65.347 C33.872 71.949 32.744 78.552 31.618 85.156 C30.532 91.524 29.443 97.892 28.352 104.259 C27.888 106.965 27.426 109.67 26.964 112.376 C26.322 116.142 25.674 119.907 25.025 123.672 C24.834 124.796 24.643 125.921 24.446 127.079 C24.358 127.589 24.358 127.589 23.911 130.171 C23.834 130.615 23.834 130.615 23.448 132.866 C23 135 23 135 22 137 C7.15 137 -7.7 137 -23 137 C-21.875 124.625 -21.875 124.625 -21.089 120.028 C-20.913 118.982 -20.736 117.936 -20.554 116.859 C-20.363 115.753 -20.172 114.647 -19.975 113.508 C-19.771 112.311 -19.568 111.115 -19.358 109.882 C-18.806 106.636 -18.249 103.391 -17.691 100.146 C-17.105 96.738 -16.524 93.329 -15.943 89.921 C-14.967 84.208 -13.988 78.496 -13.007 72.784 C-11.873 66.182 -10.744 59.579 -9.618 52.976 C-8.531 46.609 -7.442 40.242 -6.352 33.875 C-5.888 31.17 -5.426 28.465 -4.964 25.76 C-4.321 21.992 -3.673 18.224 -3.025 14.457 C-2.834 13.335 -2.643 12.213 -2.446 11.057 C-2.269 10.034 -2.093 9.01 -1.911 7.956 C-1.758 7.066 -1.605 6.176 -1.448 5.259 C-1 3 -1 3 0 0 Z " transform="translate(1805,61)"/><path d="M0 0 C14.85 0 29.7 0 45 0 C43.875 12.375 43.875 12.375 43.127 16.927 C42.959 17.963 42.791 18.999 42.617 20.066 C42.436 21.161 42.254 22.256 42.066 23.385 C41.873 24.57 41.679 25.755 41.48 26.976 C40.954 30.191 40.424 33.405 39.893 36.619 C39.336 39.996 38.782 43.373 38.229 46.751 C37.3 52.412 36.368 58.073 35.435 63.734 C34.356 70.274 33.281 76.814 32.209 83.354 C31.064 90.336 29.916 97.318 28.768 104.3 C28.438 106.307 28.108 108.313 27.779 110.319 C27.166 114.054 26.55 117.787 25.934 121.521 C25.843 122.076 25.843 122.076 25.383 124.882 C25.298 125.39 25.298 125.39 24.873 127.961 C24.728 128.843 24.582 129.725 24.433 130.633 C24.041 132.773 23.528 134.89 23 137 C7.82 137 -7.36 137 -23 137 C-17.648 104.039 -17.648 104.039 -15.28 89.476 C-15.133 88.568 -14.985 87.66 -14.833 86.724 C-14.234 83.044 -13.636 79.364 -13.037 75.684 C-11.411 65.688 -9.787 55.691 -8.169 45.694 C-7.223 39.85 -6.275 34.008 -5.325 28.165 C-4.942 25.808 -4.561 23.451 -4.18 21.094 C-3.66 17.867 -3.135 14.64 -2.609 11.414 C-2.459 10.475 -2.308 9.536 -2.153 8.569 C-2.015 7.723 -1.876 6.878 -1.733 6.006 C-1.615 5.275 -1.496 4.544 -1.374 3.79 C-1 2 -1 2 0 0 Z " transform="translate(2315,61)"/><path d="M0 0 C3.893 1.81 6.649 4.31 9.676 7.305 C10.205 7.825 10.735 8.345 11.28 8.882 C12.393 9.98 13.503 11.081 14.611 12.185 C16.312 13.875 18.031 15.545 19.752 17.215 C20.832 18.285 21.911 19.357 22.988 20.43 C23.506 20.928 24.023 21.426 24.557 21.939 C25.974 23.375 25.974 23.375 28 26 C27.4 36.279 9.742 50.477 2.938 57.75 C2.334 58.398 1.73 59.045 1.107 59.713 C-13.335 75.085 -26.184 87.709 -48.036 88.839 C-60.143 88.899 -72.157 87.443 -84 85 C-79.616 79.755 -75.003 74.865 -70.159 70.045 C-69.778 69.664 -69.778 69.664 -67.851 67.737 C-65.353 65.24 -62.852 62.747 -60.352 60.254 C-58.611 58.515 -56.871 56.777 -55.131 55.038 C-50.566 50.477 -45.999 45.919 -41.43 41.362 C-36.763 36.704 -32.098 32.044 -27.434 27.385 C-18.292 18.254 -9.147 9.126 0 0 Z " transform="translate(112,113)"/></g></defs><use href="#hpWhite" fill="#FFFFFF"/><use href="#hpBronze" fill="#C79A7E"/><g filter="url(#hpGlow)"><use href="#hpWhite" fill="none" stroke="url(#hpPulse)" stroke-width="16" stroke-linecap="round"/><use href="#hpBronze" fill="none" stroke="url(#hpPulse)" stroke-width="16" stroke-linecap="round"/></g><use href="#hpWhite" fill="none" stroke="url(#hpPulse)" stroke-width="6" stroke-linecap="round"/><use href="#hpBronze" fill="none" stroke="url(#hpPulse)" stroke-width="6" stroke-linecap="round"/></svg></a>
+      <div class="right"><a class="pill-metal" href="#"><span>Узнать больше</span></a></div>
+    </nav>
+  </header>
+
+  <div class="frame">
+    <div class="frame-in">
+      <div class="copy">
+        <h1>
+          <span class="ln"><span>Рутину закрывают</span></span>
+          <span class="ln"><span>цифровые сотрудники.</span></span>
+        </h1>
+        <div class="cta"><a class="pill-metal pill-metal-lg" href="#"><span>Узнать больше</span></a></div>
+      </div>
+      <aside class="chat" id="chat" aria-label="Цифровой сотрудник"></aside>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Tech stack: «Работаем с лидерами рынка» — large COLORED logos, organic balanced field ===== -->
+<section class="tech" id="tech">
+  <div class="tech-head">
+    <span class="tech-eyebrow">Технологии</span>
+    <h2>Работаем с лидерами рынка</h2>
+    <p class="tech-sub">Цифровые сотрудники собраны на проверенном стеке ИИ, данных и автоматизации.</p>
+  </div>
+  <div class="tech-field">
+    <div class="tech-row">
+    <div class="logo" style="--c:#D97757;--i:0"><span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg></span><span class="nm">Claude</span></div>
+    </div>
+    <div class="tech-row">
+    <div class="logo" style="--c:#8E75B2;--i:1"><span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81"/></svg></span><span class="nm">Gemini</span></div>
+    <div class="logo" style="--c:#3776AB;--i:2"><span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg></span><span class="nm">Python</span></div>
+    </div>
+    <div class="tech-row">
+    <div class="logo" style="--c:#0FAAFF;--i:3"><span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 6.064v11.872h12.13L24 6.064zm3.264 2.208h.005c.863.001 1.915.245 2.676.633l-.82 1.43c-.835-.404-1.255-.442-1.73-.467-.708-.038-1.064.215-1.069.488-.007.332.669.633 1.305.838.964.306 2.19.715 2.377 1.9L7.77 8.437h2.046l2.064 5.576-.007-5.575h2.37c2.257 0 3.318.764 3.318 2.519 0 1.575-1.09 2.514-2.936 2.514h-.763l-.01 2.094-3.588-.003-.25-.908c-.37.122-.787.189-1.23.189-.456 0-.885-.071-1.263-.2l-.358.919-2 .006.09-.462c-.029.025-.057.05-.087.074-.535.43-1.208.629-2.037.644l-.213.002a5.075 5.075 0 0 1-2.581-.675l.73-1.448c.79.467 1.286.572 1.956.558.347-.007.598-.07.761-.239a.557.557 0 0 0 .156-.369c.007-.376-.53-.553-1.185-.756-.531-.164-1.135-.389-1.606-.735-.559-.41-.825-.924-.812-1.65a1.99 1.99 0 0 1 .566-1.377c.519-.537 1.357-.863 2.363-.863zm10.597 1.67v1.904h.521c.694 0 1.247-.23 1.248-.964 0-.709-.554-.94-1.248-.94zm-5.087.767l-.748 2.362c.223.085.481.133.757.133.268 0 .52-.047.742-.126l-.736-2.37z"/></svg></span><span class="nm">SAP</span></div>
+    <div class="logo" style="--c:#FF6F00;--i:4"><span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M1.292 5.856L11.54 0v24l-4.095-2.378V7.603l-6.168 3.564.015-5.31zm21.43 5.311l-.014-5.31L12.46 0v24l4.095-2.378V14.87l3.092 1.788-.018-4.618-3.074-1.756V7.603l6.168 3.564z"/></svg></span><span class="nm">TensorFlow</span></div>
+    <div class="logo" style="--c:#0D0D0D;--i:5"><span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22.282 9.821a5.985 5.985 0 0 0-.516-4.91 6.046 6.046 0 0 0-6.51-2.9A6.065 6.065 0 0 0 4.981 4.18a5.985 5.985 0 0 0-3.998 2.9 6.046 6.046 0 0 0 .743 7.097 5.98 5.98 0 0 0 .51 4.911 6.051 6.051 0 0 0 6.515 2.9A5.985 5.985 0 0 0 13.26 24a6.056 6.056 0 0 0 5.772-4.206 5.99 5.99 0 0 0 3.997-2.9 6.056 6.056 0 0 0-.747-7.073zM13.26 22.43a4.476 4.476 0 0 1-2.876-1.04l.141-.081 4.779-2.758a.795.795 0 0 0 .392-.681v-6.737l2.02 1.168a.071.071 0 0 1 .038.052v5.583a4.504 4.504 0 0 1-4.494 4.494zM3.6 18.304a4.47 4.47 0 0 1-.535-3.014l.142.085 4.783 2.759a.771.771 0 0 0 .78 0l5.843-3.369v2.332a.08.08 0 0 1-.033.062L9.74 19.95a4.5 4.5 0 0 1-6.14-1.646zM2.34 7.896a4.485 4.485 0 0 1 2.366-1.973V11.6a.766.766 0 0 0 .388.676l5.815 3.355-2.02 1.168a.076.076 0 0 1-.071 0l-4.83-2.786A4.504 4.504 0 0 1 2.34 7.872zm16.597 3.855-5.833-3.387L15.119 7.15a.076.076 0 0 1 .071 0l4.83 2.791a4.494 4.494 0 0 1-.676 8.105v-5.678a.79.79 0 0 0-.407-.667zm2.01-3.023-.141-.085-4.774-2.782a.776.776 0 0 0-.785 0L9.409 9.23V6.897a.066.066 0 0 1 .028-.061l4.83-2.787a4.5 4.5 0 0 1 6.68 4.66zM8.305 12.863l-2.02-1.164a.08.08 0 0 1-.038-.057V6.075a4.5 4.5 0 0 1 7.375-3.453l-.142.08L8.704 5.46a.795.795 0 0 0-.393.681zm1.097-2.365 2.602-1.5 2.607 1.5v2.999l-2.597 1.5-2.607-1.5z"/></svg></span><span class="nm">OpenAI</span></div>
+    </div>
+    <div class="tech-row">
+    <div class="logo logo-wm" style="--c:#16735F;--i:6"><span class="wm">Sherpa</span><span class="nm">Sherpa RPA</span></div>
+    <div class="logo" style="--c:#FA4616;--i:7"><span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M0 7.882v8.235h8.235V7.882H0Zm.852.852h6.53v6.53H.852v-6.53Zm22.268.695c-.514 0-.886.345-.886.873 0 .511.36.878.886.878.518 0 .88-.359.88-.878 0-.521-.359-.873-.88-.873Zm-17.023.055a.501.501 0 0 0-.522.522c0 .302.22.509.522.509.302 0 .522-.206.522-.509a.501.501 0 0 0-.522-.522Zm17.023.102c.437 0 .716.278.716.716 0 .426-.274.712-.716.712-.426 0-.719-.271-.719-.712 0-.44.278-.716.719-.716Zm-.347.213v.988h.197v-.318h.14l.176.318h.22l-.186-.347a.32.32 0 0 0 .206-.311c0-.203-.159-.33-.374-.33h-.379Zm-3.74.002v4.468h.853v-1.774c0-.571.302-.914.804-.914s.763.33.763.838v1.85h.852v-1.946c0-.88-.619-1.45-1.409-1.45-.509 0-.818.192-1.01.515V9.801h-.853Zm3.937.157h.157c.115 0 .193.064.193.171 0 .118-.078.181-.193.181h-.157v-.352Zm-21.375.049v2.495c0 1.141.625 1.808 1.684 1.808 1.079 0 1.718-.681 1.718-1.808v-2.495h-.852v2.495c0 .646-.275 1.004-.846 1.004-.591 0-.852-.378-.852-1.004v-2.495h-.852Zm7.547 0v4.262h.852v-1.375h.77c.928 0 1.533-.543 1.533-1.457 0-.88-.591-1.43-1.533-1.43H9.142Zm7.809 0v.914h-.399v.722h.399v1.45c0 .791.35 1.176 1.161 1.176h.447v-.729h-.337c-.33 0-.419-.144-.419-.44v-1.457h.749v-.722h-.749v-.914h-.852Zm-6.957.687h.681c.488 0 .756.276.756.743 0 .502-.268.776-.756.776h-.681v-1.519Zm4.138.186c-.921 0-1.546.728-1.546 1.718 0 .997.639 1.712 1.546 1.712.537 0 .887-.193 1.086-.516v.475h.853v-3.348h-.853v.523c-.206-.344-.563-.564-1.086-.564Zm-8.461.041v3.348h.852v-3.348h-.852Zm8.661.701c.543 0 .886.399.886.976 0 .585-.364.963-.886.963-.578 0-.88-.406-.88-.963 0-.598.337-.976.88-.976Z"/></svg></span><span class="nm">UiPath</span></div>
+    <div class="logo" style="--c:#C74634;--i:8"><span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 6.75a5.25 5.25 0 1 0 0 10.5h9a5.25 5.25 0 0 0 0-10.5zm0 2.1h9a3.15 3.15 0 0 1 0 6.3h-9a3.15 3.15 0 0 1 0-6.3z"/></svg></span><span class="nm">Oracle</span></div>
+    <div class="logo" style="--c:#4581C3;--i:9"><span class="mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.629 13.227c-.593 0-1.139.2-1.58.533l-2.892-1.976a2.61 2.61 0 0 0 .101-.711 2.633 2.633 0 0 0-2.629-2.629A2.632 2.632 0 0 0 0 11.073a2.632 2.632 0 0 0 2.629 2.629c.593 0 1.139-.2 1.579-.533L7.1 15.145c-.063.226-.1.465-.1.711 0 .247.037.484.1.711l-2.892 1.976a2.608 2.608 0 0 0-1.579-.533A2.632 2.632 0 0 0 0 20.639a2.632 2.632 0 0 0 2.629 2.629 2.632 2.632 0 0 0 2.629-2.629c0-.247-.037-.485-.101-.711l2.892-1.976c.441.333.987.533 1.58.533a2.633 2.633 0 0 0 2.629-2.629c0-1.45-1.18-2.629-2.629-2.629ZM16.112.732c-4.72 0-7.888 2.748-7.888 8.082v3.802a3.525 3.525 0 0 1 3.071.008v-3.81c0-3.459 1.907-5.237 4.817-5.237s4.817 1.778 4.817 5.237v8.309H24V8.814C24 3.448 20.832.732 16.112.732Z"/></svg></span><span class="nm">Neo4j</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== Совершенно новый опыт ведения бизнеса — video-driven feature cards (4 blocks) ===== -->
+<style>
+  .exp{position:relative;z-index:2;background:var(--paper);padding:clamp(40px,5vh,72px) 24px clamp(80px,11vh,130px)}
+  @media(min-width:1024px){.exp{padding-left:40px;padding-right:40px}}
+  .exp-head{max-width:var(--frame);margin:0 auto clamp(34px,5vh,58px);text-align:center}
+  .exp-eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint-deep);font-weight:600}
+  .exp-head h2{margin:14px auto 0;max-width:20ch;font-weight:400;letter-spacing:-.025em;line-height:1.06;color:var(--ink);font-size:clamp(2rem,4.3vw,3.3rem)}
+  .exp-txt p b{color:#fff;font-weight:600;font-variant-numeric:tabular-nums}
+  .exp-wrap{max-width:1160px;margin:0 auto;display:flex;flex-direction:column;gap:clamp(16px,1.8vw,22px)}
+  .exp-card{position:relative;overflow:hidden;border-radius:26px;color:#fff;isolation:isolate;
+    opacity:0;transform:translateY(28px);transition:opacity .8s var(--ease),transform .8s var(--ease);
+    box-shadow:0 34px 80px -40px rgba(0,30,18,.55)}
+  .exp.in .exp-card{opacity:1;transform:none}
+  .exp.in .exp-row .exp-card:nth-child(2){transition-delay:.08s}
+  .exp.in .exp-row .exp-card:nth-child(3){transition-delay:.16s}
+  .exp-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;mix-blend-mode:screen}
+  .exp-scrim{display:none}
+  /* card colours — colour comes from the card, white tonal UI from the blended video */
+  .c-fte {background:radial-gradient(120% 130% at 82% 8%,#1f7a59 0%,transparent 52%),linear-gradient(155deg,#16302B,#0c3327)}
+  .c-roi {background:radial-gradient(120% 120% at 85% 12%,#27b499 0%,transparent 55%),linear-gradient(155deg,#1f9c84,#11574a)}
+  .c-sec {background:radial-gradient(120% 120% at 18% 8%,#22463a 0%,transparent 55%),linear-gradient(155deg,#1E2723,#121d18)}
+  .c-pers{background:radial-gradient(120% 120% at 20% 12%,#dc7d52 0%,transparent 55%),linear-gradient(155deg,#c25e3e,#8c3a20)}
+  .exp-txt{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:space-between;
+    padding:clamp(24px,3vw,42px)}
+  .exp-txt .label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.82)}
+  .exp-txt h3{margin:10px 0 0;font-weight:500;letter-spacing:-.02em;line-height:1.1}
+  .exp-txt p{margin-top:auto;padding-top:14px;font-size:14px;line-height:1.45;color:rgba(255,255,255,.78);max-width:30ch}
+  .exp-big{aspect-ratio:16/9}
+  .exp-big h3{font-size:clamp(1.9rem,3.2vw,2.7rem);max-width:15ch}
+  .exp-big .exp-txt p{font-size:15px;max-width:34ch}
+  .exp-row{display:grid;grid-template-columns:1fr;gap:clamp(16px,1.8vw,22px)}
+  @media(min-width:760px){.exp-row{grid-template-columns:repeat(3,1fr)}}
+  .exp-sm{aspect-ratio:4/5}
+  .exp-sm h3{font-size:clamp(1.25rem,1.8vw,1.5rem)}
+  .exp-sm .exp-txt p{font-size:13px}
+  @media(max-width:759px){
+    .exp-big{aspect-ratio:5/6}
+    .exp-big .exp-bg{object-position:64% center}
+    .exp-big h3{font-size:clamp(1.7rem,7vw,2.3rem);max-width:13ch}
+    .exp-big .exp-txt p{font-size:14px}
+  }
+  @media(prefers-reduced-motion:reduce){.exp-card{opacity:1;transform:none;transition:none}}
+</style>
+<section class="exp" id="experience">
+  <div class="exp-head">
+    <span class="exp-eyebrow">Результат</span>
+    <h2>Совершенно новый опыт ведения бизнеса</h2>
+  </div>
+  <div class="exp-wrap">
+    <article class="exp-card exp-big c-fte">
+      <video class="exp-bg" src="exp-vid/exp-fte.mp4" muted loop playsinline preload="auto"></video>
+      <div class="exp-scrim"></div>
+      <div class="exp-txt">
+        <div><span class="label">Масштаб</span><h3>Снимаем рутину целыми отделами</h3></div>
+        <p><b>609 FTE</b> ручного труда — на автономных агентах.</p>
+      </div>
+    </article>
+    <div class="exp-row">
+      <article class="exp-card exp-sm c-roi">
+        <video class="exp-bg" src="exp-vid/exp-roi.mp4" muted loop playsinline preload="auto"></video>
+        <div class="exp-txt"><div><span class="label">Экономика</span><h3>Окупается за квартал</h3></div><p>До <b>25%</b> ФОТ · <b>1–6 мес</b>.</p></div>
+      </article>
+      <article class="exp-card exp-sm c-sec">
+        <video class="exp-bg" src="exp-vid/exp-sec.mp4" muted loop playsinline preload="auto"></video>
+        <div class="exp-txt"><div><span class="label">Контроль</span><h3>Безопасность и единый контур</h3></div><p>Закрытый контур · наружу только токены.</p></div>
+      </article>
+      <article class="exp-card exp-sm c-pers">
+        <video class="exp-bg" src="exp-vid/exp-pers.mp4" muted loop playsinline preload="auto"></video>
+        <div class="exp-txt"><div><span class="label">Сервис</span><h3>Персональный сервис каждому</h3></div><p>Клиент чувствует личное внимание.</p></div>
+      </article>
+    </div>
+  </div>
+</section>
+<script>
+  // exp cards: play the reveal once when the card scrolls into view; reset on leave so it replays
+  (function(){var io=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target.querySelector('video.exp-bg');if(!v)return;
+    if(e.isIntersecting){try{v.currentTime=0;}catch(x){}v.play().catch(function(){});}else{v.pause();try{v.currentTime=0;}catch(x){}}});},{threshold:0.4});
+  document.querySelectorAll('.exp .exp-card').forEach(function(c){io.observe(c);});})();
+</script>
+
+<!-- ===== «Кем станет робот в вашей компании» — sticky-narrative scrollytelling (retool «Build powerful apps» mechanic) ===== -->
+<style>
+  .roles{position:relative;z-index:2;background:var(--paper);padding:clamp(64px,9vh,120px) 24px clamp(40px,6vh,80px)}
+  @media(min-width:1024px){.roles{padding-left:40px;padding-right:40px}}
+  .roles-head{max-width:var(--frame);margin:0 auto clamp(8px,3vh,28px);text-align:center}
+  .roles-eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint-deep);font-weight:600}
+  .roles-head h2{margin:14px auto 0;max-width:18ch;font-weight:400;letter-spacing:-.025em;line-height:1.05;color:var(--ink);font-size:clamp(2rem,4.3vw,3.3rem)}
+  .roles-head .roles-sub{margin:18px auto 0;max-width:54ch;color:rgba(30,29,26,.62);font-size:clamp(15px,1.5vw,17.5px);line-height:1.55}
+  .roles-stage{max-width:var(--frame);margin:0 auto}
+  .rn-sticky{position:sticky;top:0;height:100vh;display:flex;align-items:center}
+  .rn-panels{position:relative;flex:1;min-height:340px}
+  .rn-panel{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;opacity:0;pointer-events:none;will-change:opacity,transform}
+  .rn-panel.is-active{opacity:1;pointer-events:auto}
+  .rn-panel .label{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--mint-deep)}
+  .rn-panel h3{margin:13px 0 0;font-weight:500;letter-spacing:-.02em;line-height:1.1;color:var(--ink);font-size:clamp(1.7rem,2.6vw,2.5rem);max-width:15ch}
+  .rn-panel p{margin:16px 0 0;color:rgba(30,29,26,.66);font-size:clamp(15px,1.15vw,16.5px);line-height:1.55;max-width:42ch}
+  .rn-stats{display:flex;flex-wrap:wrap;gap:14px 30px;margin-top:clamp(22px,3vh,34px)}
+  .rn-stat{display:flex;flex-direction:column;gap:3px}
+  .rn-stat .v{font-size:clamp(1.35rem,2vw,1.85rem);font-weight:600;letter-spacing:-.02em;color:var(--forest);font-variant-numeric:tabular-nums;line-height:1}
+  .rn-stat .v.mint{color:var(--mint)}
+  .rn-stat .k{font-size:12.5px;color:rgba(30,29,26,.55);line-height:1.3;max-width:16ch}
+  .rv-item{min-height:100vh;display:grid;place-items:center}
+  .rv-card{position:relative;width:min(100%,680px);aspect-ratio:1/1;border-radius:20px;overflow:hidden;background:#F5F4F0;box-shadow:0 30px 70px -48px rgba(8,30,20,.42);will-change:transform,opacity}
+  .rv-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+  @media(min-width:1024px){
+    .roles-stage{display:grid;grid-template-columns:minmax(0,4.7fr) minmax(0,7fr);column-gap:clamp(40px,5vw,96px);align-items:stretch}
+  }
+  @media(max-width:1023px){
+    .roles-stage{display:flex;flex-direction:column;gap:clamp(40px,7vh,72px)}
+    .roles-narr,.roles-vis{display:contents}
+    .rn-sticky{position:static;height:auto;display:contents}
+    .rn-rail,.rn-nums{display:none}
+    .rn-panels{position:static;min-height:0;display:contents}
+    .rn-panel{position:static;inset:auto;opacity:0;pointer-events:auto;transform:translateY(24px);justify-content:flex-start;transition:opacity .7s var(--ease),transform .7s var(--ease)}
+    .rn-panel.rv-in{opacity:1;transform:none}
+    .rv-item{min-height:0}
+    .rv-card{width:min(100%,520px);margin:0 auto;opacity:0;transform:translateY(28px) scale(.98);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+    .rv-item.rv-in .rv-card{opacity:1;transform:none}
+    .rn-panel:nth-of-type(1){order:0}.rv-item:nth-of-type(1){order:1}
+    .rn-panel:nth-of-type(2){order:2}.rv-item:nth-of-type(2){order:3}
+    .rn-panel:nth-of-type(3){order:4}.rv-item:nth-of-type(3){order:5}
+    .rn-panel:nth-of-type(4){order:6}.rv-item:nth-of-type(4){order:7}
+    .rn-panel:nth-of-type(5){order:8}.rv-item:nth-of-type(5){order:9}
+  }
+  @media(prefers-reduced-motion:reduce){.rn-panel{transition:none!important}.rv-card{transition:none!important}}
+
+  /* ===== live in-section interface mockups (premium warm charcoal + clay, scoped under .mk) ===== */
+  .mk{--char:#1B1A17;--char2:#23211D;--char3:#2C2925;--hair-d:rgba(255,255,255,.08);
+    --paper:#FCFBF8;--paper2:#F3EFE8;--paper3:#FFFFFF;--hair-l:#EAE4DA;
+    --clay:#CB7A52;--gold:#DBA45E;--rose:#C57E69;--clay-d:#B05E37;
+    --t-d:#F1EDE4;--m-d:rgba(241,237,228,.5);--t-l:#211E1A;--m-l:#8B847A;
+    position:absolute;top:0;left:0;width:1000px;height:1000px;transform-origin:top left;
+    font-family:"IBM Plex Sans",system-ui,sans-serif;letter-spacing:-.01em;color:var(--t-l)}
+  .mk .bg{position:absolute;inset:0}
+  .mk .bg-warm{background:radial-gradient(95% 85% at 84% 4%,#f3e3d3 0%,rgba(243,227,211,0) 55%),radial-gradient(85% 85% at 4% 98%,#ece5da 0%,rgba(236,229,218,0) 60%),linear-gradient(135deg,#f5f2ec,#efe8df)}
+  .mk .mono{font-family:"IBM Plex Mono","IBM Plex Sans",monospace}.mk .tnum{font-variant-numeric:tabular-nums}
+  .mk .win{position:absolute;border-radius:24px;overflow:hidden;display:flex;flex-direction:column}
+  .mk .win.dark{background:var(--char);color:var(--t-d);border:1px solid rgba(255,255,255,.07);box-shadow:0 80px 130px -52px rgba(22,15,8,.62),0 8px 22px -10px rgba(0,0,0,.42)}
+  .mk .win.light{background:var(--paper);color:var(--t-l);border:1px solid var(--hair-l);box-shadow:0 70px 120px -50px rgba(40,28,18,.42),0 4px 14px -7px rgba(0,0,0,.12)}
+  .mk .bar{flex:none;height:60px;display:flex;align-items:center;gap:16px;padding:0 24px;border-bottom:1px solid var(--hair-d)}
+  .mk .win.light .bar{border-bottom:1px solid var(--hair-l)}
+  .mk .wm{font-weight:700;font-size:21px;letter-spacing:-.02em}.mk .wm .p{color:var(--clay)}
+  .mk .tabs{display:flex;gap:22px;font-size:16px;margin-left:6px}
+  .mk .tabs a{color:var(--m-d);text-decoration:none;position:relative;padding-bottom:20px;margin-bottom:-20px}
+  .mk .win.light .tabs a{color:var(--m-l)}.mk .tabs a.on{color:var(--t-d)}.mk .win.light .tabs a.on{color:var(--t-l)}
+  .mk .tabs a.on::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;background:var(--clay);border-radius:2px}
+  .mk .spacer{margin-left:auto}
+  .mk .search{height:34px;border-radius:9px;background:rgba(255,255,255,.05);border:1px solid var(--hair-d);width:150px;display:flex;align-items:center;padding:0 12px;color:var(--m-d);font-size:14px}
+  .mk .win.light .search{background:#F4F0E9;border-color:var(--hair-l);color:var(--m-l)}
+  .mk .ava{border-radius:50%;flex:none;display:grid;place-items:center;color:#2a2018;font-weight:600}
+  .mk .body{flex:1;display:flex;min-height:0}
+  .mk .side{flex:none;width:62px;border-right:1px solid var(--hair-d);display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:16px}
+  .mk .win.light .side{border-right:1px solid var(--hair-l)}
+  .mk .side .ic{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;color:var(--m-d)}
+  .mk .side .ic.on{background:rgba(203,122,82,.16);color:var(--clay)}.mk .side .ic svg{width:19px;height:19px}
+  .mk .content{flex:1;min-width:0;padding:20px 22px;display:flex;flex-direction:column;gap:14px}
+  .mk .ey{font-size:13.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--m-d)}
+  .mk .win.light .ey{color:var(--m-l)}
+  .mk .card2{background:var(--char2);border:1px solid var(--hair-d);border-radius:16px;padding:16px 18px;min-width:0}
+  .mk .win.light .card2{background:var(--paper3);border-color:var(--hair-l)}
+  .mk .big{font-weight:600;letter-spacing:-.025em;line-height:1}
+  .mk .delta{display:inline-flex;align-items:center;gap:4px;height:26px;padding:0 9px;border-radius:7px;background:rgba(203,122,82,.16);color:var(--clay);font-size:15px;font-weight:600}
+  .mk .pill{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 11px;border-radius:999px;font-size:14px;font-weight:500;white-space:nowrap}
+  .mk .pill.mut{background:rgba(255,255,255,.07);color:var(--m-d)}.mk .win.light .pill.mut{background:#EFEAE1;color:var(--m-l)}
+  .mk .pill.clay{background:rgba(203,122,82,.17);color:var(--clay-d)}.mk .pill.rose{background:rgba(197,106,82,.18);color:#b25c44}
+  .mk .dot{width:7px;height:7px;border-radius:50%;background:var(--clay);flex:none}
+  .mk .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:11px;background:var(--clay);color:#fff;font-size:16px;font-weight:600}
+  .mk .wave{display:flex;align-items:center;gap:3px;height:34px}.mk .wave i{width:4px;border-radius:2px;background:var(--clay);opacity:.85}
+  .mk .kpirow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .mk .kpi .lbl{font-size:14px;color:var(--m-d)}.mk .win.light .kpi .lbl{color:var(--m-l)}
+  .mk .kpi .num{font-size:30px;font-weight:600;margin-top:6px}
+  .mk .tbl{width:100%;border-collapse:collapse}
+  .mk .tbl th{font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;text-align:left;font-weight:500;color:var(--m-d);padding:0 8px 9px 0}
+  .mk .win.light .tbl th{color:var(--m-l)}
+  .mk .tbl td{font-size:16px;padding:10px 8px 10px 0;border-top:1px solid var(--hair-d)}
+  .mk .win.light .tbl td{border-top:1px solid var(--hair-l)}
+  .mk .tbl td.r,.mk .tbl th.r{text-align:right;padding-right:0}
+  .mk .gline{stroke:var(--hair-d)}.mk .win.light .gline{stroke:#EEE8DE}
+  .mk .legend{font-size:14px;display:flex;flex-direction:column;gap:8px}
+  .mk .legend div{display:flex;align-items:center;gap:8px}.mk .legend .sw{width:10px;height:10px;border-radius:3px;flex:none}
+  .mk .chip{position:absolute;display:inline-flex;align-items:center;gap:9px;height:48px;padding:0 20px;border-radius:999px;background:#fff;border:1px solid var(--hair-l);box-shadow:0 28px 48px -22px rgba(40,28,18,.5);font-weight:600;font-size:19px;color:var(--t-l);white-space:nowrap}
+  .mk .chip .n{font-weight:700;color:var(--clay-d)}
+  .mk svg{display:block}
+  /* marketing: real BI dashboard (Image#7) framed as a window */
+  .rv-card.mk-img{background:radial-gradient(95% 85% at 84% 4%,#f3e3d3 0%,rgba(243,227,211,0) 55%),radial-gradient(85% 85% at 4% 98%,#ece5da 0%,rgba(236,229,218,0) 60%),linear-gradient(135deg,#f5f2ec,#efe8df)}
+  .rv-card.mk-img img{position:absolute;inset:auto;top:50%;left:50%;transform:translate(-50%,-50%);width:92%;height:auto;object-fit:contain;border-radius:14px;box-shadow:0 50px 90px -36px rgba(20,30,45,.55),0 4px 12px -6px rgba(0,0,0,.3)}
+</style>
+<section class="roles" id="roles">
+  <div class="roles-head">
+    <span class="roles-eyebrow">Применение</span>
+    <h2>Кем станет робот в вашей компании</h2>
+    <p class="roles-sub">Один цифровой сотрудник закрывает рутину сразу в нескольких отделах — там, где она съедает время и деньги. Команда занимается решениями, а не расшифровками и таблицами.</p>
+  </div>
+  <div class="roles-stage">
+    <div class="roles-narr">
+      <div class="rn-sticky">
+        <div class="rn-panels">
+          <article class="rn-panel is-active" data-i="0">
+            <span class="label">Продажи и сервис</span>
+            <h3>Ни одного потерянного клиента</h3>
+            <p>Слушает 100% звонков, сам ведёт CRM и после каждого разговора готовит резюме и следующий шаг по клиенту. Менеджеры приходят к готовым сделкам, а не к расшифровкам.</p>
+            <div class="rn-stats">
+              <div class="rn-stat"><span class="v mint">+15–30%</span><span class="k">конверсия в продажу</span></div>
+              <div class="rn-stat"><span class="v">+10–25%</span><span class="k">средний чек</span></div>
+              <div class="rn-stat"><span class="v">1–3 мес</span><span class="k">окупаемость</span></div>
+            </div>
+          </article>
+          <article class="rn-panel" data-i="1">
+            <span class="label">Бухгалтерия и финансы</span>
+            <h3>Документы проводятся сами</h3>
+            <p>Разбирает и проводит документы из почты, 1С, SAP и Excel. Человек подключается только там, где есть спор или исключение.</p>
+            <div class="rn-stats">
+              <div class="rn-stat"><span class="v mint">5–20×</span><span class="k">быстрее обработка</span></div>
+              <div class="rn-stat"><span class="v">−30–70%</span><span class="k">ручной работы</span></div>
+              <div class="rn-stat"><span class="v">&lt;1%</span><span class="k">ошибок</span></div>
+            </div>
+          </article>
+          <article class="rn-panel" data-i="2">
+            <span class="label">HR и подбор</span>
+            <h3>Рекрутёр видит только живых кандидатов</h3>
+            <p>Берёт на себя первичный отбор и отвечает сотрудникам из базы знаний. Незаинтересованные отсеиваются сами, а найм идёт заметно быстрее.</p>
+            <div class="rn-stats">
+              <div class="rn-stat"><span class="v mint">Ниже</span><span class="k">текучесть кадров</span></div>
+              <div class="rn-stat"><span class="v">Быстрее</span><span class="k">закрытие вакансий</span></div>
+              <div class="rn-stat"><span class="v">0 рутины</span><span class="k">первичный отбор берёт ИИ</span></div>
+            </div>
+          </article>
+          <article class="rn-panel" data-i="3">
+            <span class="label">Маркетинг и аналитика</span>
+            <h3>Отчёты собираются без вас</h3>
+            <p>Сводит данные из CRM, рекламы и финансов, сам обновляет дашборды и присылает руководителям короткий AI-дайджест — без ручных выгрузок.</p>
+            <div class="rn-stats">
+              <div class="rn-stat"><span class="v mint">−70–90%</span><span class="k">ручной отчётности</span></div>
+              <div class="rn-stat"><span class="v">5–10×</span><span class="k">быстрее аналитика</span></div>
+              <div class="rn-stat"><span class="v">Каждое утро</span><span class="k">свежие цифры на столе</span></div>
+            </div>
+          </article>
+          <article class="rn-panel" data-i="4">
+            <span class="label">Закупки и ценообразование</span>
+            <h3>Маржа под защитой в реальном времени</h3>
+            <p>Следит за ценами поставщиков и рынка, ловит отклонения и предупреждает раньше, чем они съедят прибыль.</p>
+            <div class="rn-stats">
+              <div class="rn-stat"><span class="v mint">2–3 мин</span><span class="k">цикл анализа цен</span></div>
+              <div class="rn-stat"><span class="v">+5–20%</span><span class="k">маржа</span></div>
+              <div class="rn-stat"><span class="v">−80–90%</span><span class="k">ручной нагрузки</span></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+    <div class="roles-vis">
+      <div class="rv-item" data-i="0"><div class="rv-card"><div class="mk"><div class="bg bg-warm"></div>
+  <div class="win dark" style="left:56px;top:64px;width:888px;height:872px">
+    <div class="bar"><span class="wm">Hyper<span class="p">Partner</span></span>
+      <div class="tabs"><a class="on">Дашборд</a><a>Сделки</a><a>Звонки</a><a>Клиенты</a></div>
+      <span class="spacer"></span><span class="search">Поиск</span>
+      <span class="ava" style="width:34px;height:34px;background:linear-gradient(140deg,#e6c197,#cb8f63);font-size:13px">АК</span>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="ic on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 19V5m6 14V9m6 10V13"/></svg></div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M5 4h4l2 5-3 2a12 12 0 006 6l2-3 5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z"/></svg></div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5 20a7 7 0 0114 0"/></svg></div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M12 3v3m0 12v3M3 12h3m12 0h3"/></svg></div>
+      </div>
+      <div class="content">
+        <!-- KPI row -->
+        <div class="kpirow">
+          <div class="card2 kpi"><div class="lbl">Выручка · месяц</div><div class="num tnum">₽ 8,42 млн</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:8px"><span class="delta">↑ 24%</span>
+              <svg width="96" height="26" viewBox="0 0 96 26"><polyline points="0,22 16,18 32,20 48,12 64,14 80,6 96,3" fill="none" stroke="#CB7A52" stroke-width="2.2" stroke-linecap="round"/></svg></div></div>
+          <div class="card2 kpi"><div class="lbl">Звонков на контроле</div><div class="num tnum">100%</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:8px"><span class="pill mut">1 248 / нед</span>
+              <svg width="80" height="26" viewBox="0 0 80 26"><polyline points="0,16 16,15 32,16 48,14 64,15 80,14" fill="none" stroke="#DBA45E" stroke-width="2.2" stroke-linecap="round"/></svg></div></div>
+          <div class="card2 kpi"><div class="lbl">Средний чек</div><div class="num tnum">+18%</div>
+            <div style="display:flex;align-items:center;gap:8px;margin-top:8px"><span class="delta">↑ 10–25%</span>
+              <svg width="80" height="26" viewBox="0 0 80 26"><polyline points="0,20 16,18 32,19 48,12 64,13 80,7" fill="none" stroke="#CB7A52" stroke-width="2.2" stroke-linecap="round"/></svg></div></div>
+        </div>
+        <!-- chart + ring -->
+        <div style="display:grid;grid-template-columns:1.55fr 1fr;gap:12px;flex:1;min-height:0">
+          <div class="card2" style="display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center"><span class="ey">Выручка · 12 недель</span><span class="pill mut" style="margin-left:auto">2026</span></div>
+            <svg viewBox="0 0 470 200" style="width:100%;flex:1;margin-top:8px" preserveAspectRatio="none">
+              <defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#CB7A52" stop-opacity=".34"/><stop offset="1" stop-color="#CB7A52" stop-opacity="0"/></linearGradient></defs>
+              <line x1="0" y1="52" x2="470" y2="52" class="gline"/><line x1="0" y1="120" x2="470" y2="120" class="gline"/><line x1="0" y1="188" x2="470" y2="188" class="gline"/>
+              <path d="M0,170 C40,162 62,128 104,134 C150,141 168,92 214,98 C256,104 280,66 326,70 C372,74 410,42 440,38 L470,30 L470,200 L0,200 Z" fill="url(#sg)"/>
+              <path d="M0,170 C40,162 62,128 104,134 C150,141 168,92 214,98 C256,104 280,66 326,70 C372,74 410,42 440,38 L470,30" fill="none" stroke="#CB7A52" stroke-width="3" stroke-linecap="round"/>
+              <circle cx="470" cy="30" r="5.5" fill="#CB7A52"/>
+            </svg>
+          </div>
+          <!-- CUSTOM concentric ring chart -->
+          <div class="card2" style="display:flex;flex-direction:column;align-items:center">
+            <span class="ey" style="align-self:flex-start">Воронка качества</span>
+            <svg width="172" height="172" viewBox="0 0 200 200" style="margin-top:6px">
+              <defs>
+                <linearGradient id="r1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#E7B36A"/><stop offset="1" stop-color="#CB7A52"/></linearGradient>
+                <linearGradient id="r2" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D98E5E"/><stop offset="1" stop-color="#B85C3A"/></linearGradient>
+              </defs>
+              <circle cx="100" cy="100" r="82" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="13"/>
+              <circle cx="100" cy="100" r="82" fill="none" stroke="url(#r1)" stroke-width="13" stroke-linecap="round" pathLength="100" stroke-dasharray="100 100" transform="rotate(-90 100 100)"/>
+              <circle cx="100" cy="100" r="60" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="13"/>
+              <circle cx="100" cy="100" r="60" fill="none" stroke="url(#r2)" stroke-width="13" stroke-linecap="round" pathLength="100" stroke-dasharray="27 100" transform="rotate(-90 100 100)"/>
+              <text x="100" y="94" text-anchor="middle" fill="#F1EDE4" font-size="34" font-weight="600" font-family="IBM Plex Sans">100%</text>
+              <text x="100" y="118" text-anchor="middle" fill="rgba(241,237,228,.5)" font-size="14" font-family="IBM Plex Sans">звонков</text>
+            </svg>
+            <div class="legend" style="margin-top:10px;align-self:stretch">
+              <div><span class="sw" style="background:#E7B36A"></span>Расшифровка · 100%</div>
+              <div><span class="sw" style="background:#D98E5E"></span>Конверсия в сделку · 27%</div>
+            </div>
+          </div>
+        </div>
+        <!-- deals + AI call -->
+        <div style="display:grid;grid-template-columns:1.4fr 1fr;gap:12px">
+          <div class="card2">
+            <span class="ey">Последние сделки</span>
+            <table class="tbl" style="margin-top:4px">
+              <tr><th>Клиент</th><th class="r">Сумма</th><th class="r">Этап</th></tr>
+              <tr><td>Акме Корп</td><td class="r tnum">₽ 240 000</td><td class="r"><span class="pill clay">Закрыта</span></td></tr>
+              <tr><td>Бета Решения</td><td class="r tnum">₽ 180 000</td><td class="r"><span class="pill mut">Переговоры</span></td></tr>
+              <tr><td>Гамма Инвест</td><td class="r tnum">₽ 120 000</td><td class="r"><span class="pill mut">Предложение</span></td></tr>
+            </table>
+          </div>
+          <div class="card2" style="display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600">Звонок · Акме<span class="pill clay" style="margin-left:auto"><span class="dot"></span>100%</span></div>
+            <div class="wave" style="margin-top:12px"><i style="height:30%"></i><i style="height:60%"></i><i style="height:86%"></i><i style="height:46%"></i><i style="height:72%"></i><i style="height:96%"></i><i style="height:54%"></i><i style="height:36%"></i><i style="height:74%"></i><i style="height:50%"></i><i style="height:88%"></i><i style="height:42%"></i></div>
+            <div style="font-size:14px;color:var(--m-d);margin-top:10px;line-height:1.45">Резюме: интерес к premium, перезвонить в&nbsp;пятницу.</div>
+            <div class="btn" style="margin-top:auto;height:36px">Открыть резюме</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chip" style="left:548px;top:30px"><span class="dot"></span>AI-резюме готово</div>
+</div></div></div>
+      <div class="rv-item" data-i="1"><div class="rv-card"><div class="mk"><div class="bg bg-warm"></div>
+  <div class="win light" style="left:54px;top:70px;width:892px;height:600px">
+    <div class="bar"><span class="wm" style="color:var(--t-l)">Hyper<span class="p">Partner</span></span>
+      <span style="margin-left:14px;font-size:18px;font-weight:600">Документооборот</span>
+      <span class="spacer"></span><span class="pill mut">Фильтр</span><span class="pill clay">Экспорт</span>
+    </div>
+    <div style="flex:1;display:grid;grid-template-columns:1.5fr 1fr;gap:14px;padding:16px 20px;min-height:0">
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="kpirow">
+          <div class="card2 kpi"><div class="lbl">Обработано · мес</div><div class="num tnum" style="font-size:24px">₽ 72,1 млн</div><span class="delta" style="margin-top:6px">↑ 6,2%</span></div>
+          <div class="card2 kpi"><div class="lbl">Точность</div><div class="num tnum" style="font-size:24px">99,3%</div><span class="pill mut" style="margin-top:6px">&lt; 1% ошибок</span></div>
+          <div class="card2 kpi"><div class="lbl">Скорость</div><div class="num tnum" style="font-size:24px">5–20×</div><span class="pill mut" style="margin-top:6px">быстрее</span></div>
+        </div>
+        <div class="card2" style="flex:1;min-height:0">
+          <span class="ey">Входящие документы</span>
+          <table class="tbl" style="margin-top:4px">
+            <colgroup><col style="width:86px"><col><col style="width:96px"><col style="width:130px"></colgroup>
+            <tr><th>№</th><th>Поставщик</th><th>Источник</th><th class="r">Статус</th></tr>
+            <tr><td class="mono">СЧ-2819</td><td>Норд-Сталь</td><td>Почта</td><td class="r"><span class="pill mut">Проведён</span></td></tr>
+            <tr><td class="mono">ДГ-1142</td><td>Бета Решения</td><td>Excel</td><td class="r"><span class="pill mut">Проведён</span></td></tr>
+            <tr style="background:rgba(203,122,82,.08)"><td class="mono">СЧ-3002</td><td>ГлобалКомп</td><td>Почта</td><td class="r"><span class="pill rose">На проверке</span></td></tr>
+            <tr><td class="mono">АКТ-0471</td><td>СтройДвор</td><td>1С</td><td class="r"><span class="pill mut">Проведён</span></td></tr>
+          </table>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <!-- CUSTOM donut -->
+        <div class="card2" style="display:flex;flex-direction:column;align-items:center">
+          <span class="ey" style="align-self:flex-start">Типы документов</span>
+          <svg width="158" height="158" viewBox="0 0 200 200" style="margin-top:4px">
+            <circle cx="100" cy="100" r="74" fill="none" stroke="#EFE8DE" stroke-width="26"/>
+            <circle cx="100" cy="100" r="74" fill="none" stroke="#CB7A52" stroke-width="26" pathLength="100" stroke-dasharray="42 100" transform="rotate(-90 100 100)"/>
+            <circle cx="100" cy="100" r="74" fill="none" stroke="#DBA45E" stroke-width="26" pathLength="100" stroke-dasharray="28 100" stroke-dashoffset="-42" transform="rotate(-90 100 100)"/>
+            <circle cx="100" cy="100" r="74" fill="none" stroke="#C57E69" stroke-width="26" pathLength="100" stroke-dasharray="20 100" stroke-dashoffset="-70" transform="rotate(-90 100 100)"/>
+            <circle cx="100" cy="100" r="74" fill="none" stroke="#D8CFC2" stroke-width="26" pathLength="100" stroke-dasharray="10 100" stroke-dashoffset="-90" transform="rotate(-90 100 100)"/>
+            <text x="100" y="94" text-anchor="middle" fill="#211E1A" font-size="30" font-weight="600" font-family="IBM Plex Sans">8 940</text>
+            <text x="100" y="116" text-anchor="middle" fill="#8B847A" font-size="13" font-family="IBM Plex Sans">за месяц</text>
+          </svg>
+          <div class="legend" style="margin-top:8px;align-self:stretch">
+            <div><span class="sw" style="background:#CB7A52"></span>Счета · 42%</div>
+            <div><span class="sw" style="background:#DBA45E"></span>Договоры · 28%</div>
+            <div><span class="sw" style="background:#C57E69"></span>Акты · 20%</div>
+            <div><span class="sw" style="background:#D8CFC2"></span>Прочее · 10%</div>
+          </div>
+        </div>
+        <div class="card2" style="flex:1;display:flex;flex-direction:column;justify-content:center">
+          <div class="ey">Подключено</div>
+          <div style="display:flex;flex-wrap:wrap;gap:7px;margin-top:10px">
+            <span class="pill mut">Почта</span><span class="pill mut">1С</span><span class="pill mut">SAP</span><span class="pill mut">Excel</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chip" style="left:614px;top:618px"><span class="n">−33 FTE</span> рутины</div>
+  <div class="chip" style="left:600px;top:700px"><span class="n">5–20×</span> быстрее</div>
+</div></div></div>
+      <div class="rv-item" data-i="2"><div class="rv-card"><div class="mk"><div class="bg bg-warm"></div>
+  <div class="win dark" style="left:56px;top:64px;width:888px;height:872px">
+    <div class="bar"><span class="wm">Hyper<span class="p">Partner</span></span>
+      <div class="tabs"><a class="on">Подбор</a><a>Вакансии</a><a>Кандидаты</a><a>База знаний</a></div>
+      <span class="spacer"></span><span class="search">Поиск</span>
+      <span class="ava" style="width:34px;height:34px;background:linear-gradient(140deg,#e6c197,#cb8f63);font-size:13px">HR</span>
+    </div>
+    <div class="body">
+      <div class="side">
+        <div class="ic on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.2"/><path d="M5 20a7 7 0 0114 0"/></svg></div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg></div>
+      </div>
+      <div class="content">
+        <div class="kpirow">
+          <div class="card2 kpi"><div class="lbl">Открыто вакансий</div><div class="num tnum">18</div><span class="pill mut" style="margin-top:6px">6 отделов</span></div>
+          <div class="card2 kpi"><div class="lbl">Кандидатов в работе</div><div class="num tnum">1 240</div><span class="delta" style="margin-top:6px">↑ за неделю</span></div>
+          <div class="card2 kpi"><div class="lbl">Срок закрытия</div><div class="num tnum">−40%</div><span class="pill mut" style="margin-top:6px">меньше рутины</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:12px;flex:1;min-height:0">
+          <div class="card2" style="display:flex;flex-direction:column;justify-content:center;gap:14px">
+            <span class="ey">Воронка найма</span>
+            <div><div style="display:flex;justify-content:space-between;font-size:15px;margin-bottom:6px"><span>Отклики</span><span class="tnum" style="color:var(--m-d)">1 240</span></div><div style="height:18px;border-radius:6px;background:rgba(255,255,255,.06)"><div style="height:100%;width:100%;border-radius:6px;background:linear-gradient(90deg,#E7B36A,#CB7A52)"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:15px;margin-bottom:6px"><span>Скрининг ИИ</span><span class="tnum" style="color:var(--m-d)">850</span></div><div style="height:18px;border-radius:6px;background:rgba(255,255,255,.06)"><div style="height:100%;width:68.5%;border-radius:6px;background:linear-gradient(90deg,#E0A064,#C06E42)"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:15px;margin-bottom:6px"><span>Интервью</span><span class="tnum" style="color:var(--m-d)">250</span></div><div style="height:18px;border-radius:6px;background:rgba(255,255,255,.06)"><div style="height:100%;width:20.2%;border-radius:6px;background:#C57E69"></div></div></div>
+            <div><div style="display:flex;justify-content:space-between;font-size:15px;margin-bottom:6px"><span>Офферы</span><span class="tnum" style="color:var(--m-d)">45</span></div><div style="height:18px;border-radius:6px;background:rgba(255,255,255,.06)"><div style="height:100%;width:3.6%;border-radius:6px;background:#B0532F"></div></div></div>
+          </div>
+          <div class="card2">
+            <span class="ey">Соответствие кандидатов</span>
+            <div style="display:flex;flex-direction:column;gap:14px;margin-top:12px">
+              <div style="display:flex;align-items:center;gap:12px"><span class="ava" style="width:38px;height:38px;background:linear-gradient(140deg,#d8b48b,#a9855c);font-size:13px">СР</span><div style="min-width:0"><div style="font-size:15px;font-weight:600">Софья Р.</div><div style="font-size:13px;color:var(--m-d)">Senior Engineer</div></div>
+                <svg width="44" height="44" viewBox="0 0 40 40" style="margin-left:auto"><circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/><circle cx="20" cy="20" r="16" fill="none" stroke="#CB7A52" stroke-width="4" stroke-linecap="round" pathLength="100" stroke-dasharray="92 100" transform="rotate(-90 20 20)"/><text x="20" y="24" text-anchor="middle" fill="#F1EDE4" font-size="12" font-weight="600" font-family="IBM Plex Sans">92</text></svg></div>
+              <div style="display:flex;align-items:center;gap:12px"><span class="ava" style="width:38px;height:38px;background:linear-gradient(140deg,#cdb89a,#8f7a5f);font-size:13px">ЛК</span><div style="min-width:0"><div style="font-size:15px;font-weight:600">Лев К.</div><div style="font-size:13px;color:var(--m-d)">Product Lead</div></div>
+                <svg width="44" height="44" viewBox="0 0 40 40" style="margin-left:auto"><circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/><circle cx="20" cy="20" r="16" fill="none" stroke="#DBA45E" stroke-width="4" stroke-linecap="round" pathLength="100" stroke-dasharray="87 100" transform="rotate(-90 20 20)"/><text x="20" y="24" text-anchor="middle" fill="#F1EDE4" font-size="12" font-weight="600" font-family="IBM Plex Sans">87</text></svg></div>
+              <div style="display:flex;align-items:center;gap:12px"><span class="ava" style="width:38px;height:38px;background:linear-gradient(140deg,#c8a9b4,#8a6f7e);font-size:13px">АП</span><div style="min-width:0"><div style="font-size:15px;font-weight:600">Анна П.</div><div style="font-size:13px;color:var(--m-d)">Маркетинг</div></div>
+                <svg width="44" height="44" viewBox="0 0 40 40" style="margin-left:auto"><circle cx="20" cy="20" r="16" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="4"/><circle cx="20" cy="20" r="16" fill="none" stroke="#C57E69" stroke-width="4" stroke-linecap="round" pathLength="100" stroke-dasharray="85 100" transform="rotate(-90 20 20)"/><text x="20" y="24" text-anchor="middle" fill="#F1EDE4" font-size="12" font-weight="600" font-family="IBM Plex Sans">85</text></svg></div>
+            </div>
+          </div>
+        </div>
+        <div class="card2">
+          <div style="display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600">AI-ассистент · база знаний<span class="pill clay" style="margin-left:auto"><span class="dot"></span>онлайн</span></div>
+          <div style="display:flex;gap:10px;margin-top:12px">
+            <div style="font-size:14px;background:rgba(255,255,255,.06);border-radius:10px;padding:10px 13px;max-width:52%">Сколько дней отпуска осталось у Софьи?</div>
+            <div style="font-size:14px;background:rgba(203,122,82,.16);color:#e8b489;border-radius:10px;padding:10px 13px;max-width:52%;margin-left:auto">12 дней. Оформить заявку?</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chip" style="left:560px;top:30px"><span class="dot"></span>−40% срок найма</div>
+</div></div></div>
+      <div class="rv-item" data-i="3"><div class="rv-card mk-img"><img src="gen3/marketing-real.webp" alt="Дашборд: маркетинг и аналитика" loading="lazy"></div></div>
+      <div class="rv-item" data-i="4"><div class="rv-card"><div class="mk"><div class="bg bg-warm"></div>
+  <div class="win light" style="left:54px;top:60px;width:892px;height:712px">
+    <div class="bar"><span class="wm" style="color:var(--t-l)">Hyper<span class="p">Partner</span></span>
+      <span style="margin-left:14px;font-size:18px;font-weight:600">Цены и закупки</span>
+      <span class="spacer"></span><span class="pill clay"><span class="dot"></span>в реальном времени</span>
+    </div>
+    <div style="flex:1;display:grid;grid-template-columns:1.5fr 1fr;gap:14px;padding:16px 20px;min-height:0">
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="kpirow">
+          <div class="card2 kpi"><div class="lbl">Цикл анализа</div><div class="num tnum" style="font-size:24px">2 мин</div><span class="pill mut" style="margin-top:6px">было ~3 дня</span></div>
+          <div class="card2 kpi"><div class="lbl">Маржа</div><div class="num tnum" style="font-size:24px">+12%</div><span class="delta" style="margin-top:6px">5–20%</span></div>
+          <div class="card2 kpi"><div class="lbl">Позиций</div><div class="num tnum" style="font-size:24px">3 480</div><span class="pill mut" style="margin-top:6px">под контролем</span></div>
+        </div>
+        <div class="card2" style="flex:1;min-height:0;display:flex;flex-direction:column">
+          <div style="display:flex;align-items:center"><span class="ey">Рынок vs поставщик</span><span class="pill mut" style="margin-left:auto">30 дней</span></div>
+          <svg viewBox="0 0 470 150" style="width:100%;flex:1;margin-top:8px" preserveAspectRatio="none">
+            <path d="M0,96 C50,70 80,110 130,64 C180,30 220,96 270,52 C320,22 360,68 410,38 L470,24 L470,70 C410,86 360,52 310,86 C260,120 220,66 170,100 C120,134 80,96 0,122 Z" fill="rgba(247,207,180,.45)"/>
+            <path d="M0,96 C50,70 80,110 130,64 C180,30 220,96 270,52 C320,22 360,68 410,38 L470,24" fill="none" stroke="#CB7A52" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="card2">
+          <span class="ey">Мониторинг поставщиков</span>
+          <table class="tbl" style="margin-top:4px">
+            <colgroup><col><col style="width:96px"><col style="width:60px"><col style="width:150px"></colgroup>
+            <tr><td>Норд-Сталь</td><td class="r tnum">₽1 250</td><td class="r" style="color:var(--clay)">↗</td><td class="r"><span class="pill mut">Стабильно</span></td></tr>
+            <tr style="background:rgba(203,122,82,.08)"><td>ГлобалКомп</td><td class="r tnum">₽890</td><td class="r" style="color:#b25c44">↘</td><td class="r"><span class="pill rose">Отклонение цены</span></td></tr>
+            <tr><td>Зенит Пром</td><td class="r tnum">₽320</td><td class="r" style="color:var(--m-l)">→</td><td class="r"><span class="pill mut">Стабильно</span></td></tr>
+          </table>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+        <div class="card2" style="display:flex;flex-direction:column;align-items:center">
+          <span class="ey" style="align-self:flex-start">Снижение нагрузки</span>
+          <svg width="160" height="160" viewBox="0 0 200 200" style="margin-top:4px">
+            <circle cx="100" cy="100" r="78" fill="none" stroke="#EFE8DE" stroke-width="16"/>
+            <circle cx="100" cy="100" r="78" fill="none" stroke="#CB7A52" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray="85 100" transform="rotate(-90 100 100)"/>
+            <text x="100" y="94" text-anchor="middle" fill="#211E1A" font-size="36" font-weight="600" font-family="IBM Plex Sans">−85%</text>
+            <text x="100" y="118" text-anchor="middle" fill="#8B847A" font-size="13" font-family="IBM Plex Sans">на аналитиков</text>
+          </svg>
+        </div>
+        <div class="card2" style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:8px">
+          <div class="ey">Отклонения за день</div>
+          <div style="display:flex;align-items:baseline;gap:8px"><span class="big" style="font-size:30px">7</span><span class="pill rose">требуют решения</span></div>
+          <div style="font-size:14px;color:var(--m-l);line-height:1.4">Маржа защищена раньше, чем отклонение ударит по прибыли.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="chip" style="left:628px;top:792px"><span class="n">2–3 мин</span> цикл</div>
+  <div class="chip" style="left:612px;top:870px"><span class="n">+5–20%</span> маржа</div>
+</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     TEAM · CALCULATOR · REVIEWS · FOOTER  (appended after #roles)
+     Concept: paper + forest + mint + peach, IBM Plex, one ease.
+====================================================================== -->
+<style>
+  /* shared reveal */
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+  /* ===================== TEAM ===================== */
+  .team{position:relative;z-index:2;background:var(--paper);padding:clamp(64px,10vh,130px) 24px clamp(56px,8vh,104px)}
+  @media(min-width:1024px){.team{padding-left:40px;padding-right:40px}}
+  .team-head{max-width:var(--frame);margin:0 auto clamp(34px,5vh,58px)}
+  .team-eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint-deep);font-weight:600}
+  .team-head h2{margin:14px 0 0;max-width:16ch;font-weight:400;letter-spacing:-.025em;line-height:1.06;color:var(--ink);font-size:clamp(2rem,4.3vw,3.3rem)}
+  .team-head h2 em{font-style:normal;color:var(--mint-deep)}
+  .team-lede{margin:18px 0 0;max-width:60ch;color:rgba(30,29,26,.6);font-size:clamp(15px,1.5vw,17.5px);line-height:1.55}
+  .team-grid{max-width:var(--frame);margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(14px,1.6vw,24px)}
+  @media(max-width:1100px){.team-grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:680px){.team-grid{grid-template-columns:repeat(2,1fr);gap:16px}}
+  .tm-card{position:relative}
+  .tm-photo{position:relative;aspect-ratio:4/5;border-radius:16px;overflow:hidden;background:#e7e6e0;
+    box-shadow:0 26px 50px -32px rgba(8,30,20,.4)}
+  .tm-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block;
+    filter:grayscale(.9) contrast(1.05) brightness(.98);transition:filter .6s var(--ease),transform .9s var(--ease)}
+  .tm-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,rgba(22,48,43,.42) 100%);
+    opacity:.7;transition:opacity .6s var(--ease)}
+  .tm-card:hover .tm-photo img{filter:grayscale(.15) contrast(1.03) brightness(1);transform:scale(1.035)}
+  .tm-card:hover .tm-photo::after{opacity:.5}
+  .tm-meta{padding:16px 2px 0}
+  .tm-name{font-size:clamp(16px,1.25vw,18.5px);font-weight:600;letter-spacing:-.01em;color:var(--ink);line-height:1.2}
+  .tm-role{margin-top:4px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--mint-deep)}
+  .tm-bio{margin-top:10px;font-size:13.5px;line-height:1.5;color:rgba(30,29,26,.6)}
+
+  /* ===================== CALCULATOR ===================== */
+  .calc{position:relative;z-index:2;background:var(--paper);padding:clamp(56px,8vh,104px) 24px clamp(64px,10vh,130px)}
+  @media(min-width:1024px){.calc{padding-left:40px;padding-right:40px}}
+  .calc-head{max-width:var(--frame);margin:0 auto clamp(34px,5vh,54px);text-align:center}
+  .calc-eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint-deep);font-weight:600}
+  .calc-head h2{margin:14px auto 0;max-width:20ch;font-weight:400;letter-spacing:-.025em;line-height:1.06;color:var(--ink);font-size:clamp(2rem,4.3vw,3.3rem)}
+  .calc-head .calc-sub{margin:16px auto 0;max-width:52ch;color:rgba(30,29,26,.6);font-size:clamp(15px,1.5vw,17px);line-height:1.55}
+  .calc-grid{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:clamp(20px,2.5vw,34px)}
+  @media(min-width:900px){.calc-grid{grid-template-columns:1.05fr .95fr;align-items:start}}
+  .calc-form{display:flex;flex-direction:column;gap:clamp(22px,3vh,34px)}
+  .calc-q-label{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:13px;display:flex;align-items:center;gap:10px}
+  .calc-q-label .qn{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--forest);color:#fff;font-size:12px;font-weight:600;flex:none}
+  .calc-opts{display:flex;flex-wrap:wrap;gap:9px}
+  .calc-opt{position:relative;display:flex;flex-direction:column;align-items:flex-start;border:1px solid rgba(22,48,43,.16);background:#fff;border-radius:13px;
+    padding:13px 16px;cursor:pointer;text-align:left;transition:border-color .3s var(--ease),background .3s var(--ease),box-shadow .3s var(--ease);
+    font-family:inherit;min-width:0}
+  .calc-opt .t{font-size:14.5px;font-weight:500;color:var(--ink);line-height:1.25}
+  .calc-opt .s{margin-top:3px;font-size:12px;color:rgba(30,29,26,.5);line-height:1.3}
+  .calc-opt .free{display:inline-block;margin-top:6px;font-size:11px;font-weight:600;color:var(--mint-deep);background:rgba(31,156,132,.12);border-radius:6px;padding:2px 7px}
+  .calc-opt:hover{border-color:rgba(22,48,43,.34)}
+  .calc-opt.is-on{border-color:var(--mint);background:rgba(31,156,132,.07);box-shadow:0 0 0 1px var(--mint) inset}
+  .calc-opt.is-on .t{color:var(--mint-deep)}
+
+  .calc-result{position:relative;border-radius:24px;background:var(--forest);color:#fff;overflow:hidden;
+    padding:clamp(26px,3vw,38px);box-shadow:0 50px 90px -46px rgba(8,30,20,.6)}
+  @media(min-width:900px){.calc-result{position:sticky;top:88px}}
+  .calc-result::before{content:"";position:absolute;inset:0;background:radial-gradient(80% 70% at 88% 6%,rgba(247,207,180,.16),transparent 60%);pointer-events:none}
+  .calc-res-eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55);font-weight:600}
+  .calc-big{margin-top:10px;display:flex;align-items:baseline;gap:10px;font-weight:600;letter-spacing:-.03em;line-height:1;
+    font-size:clamp(3.2rem,7vw,4.6rem);color:#fff;font-variant-numeric:tabular-nums}
+  .calc-big .calc-unit{font-size:clamp(1.1rem,2vw,1.5rem);font-weight:500;color:rgba(255,255,255,.62);letter-spacing:0}
+  .calc-bar{margin-top:22px;height:9px;border-radius:6px;background:rgba(255,255,255,.12);overflow:hidden}
+  .calc-bar-fill{height:100%;width:22%;border-radius:6px;background:linear-gradient(90deg,var(--mint-bright),var(--peach));transition:width .8s var(--ease)}
+  .calc-bar-labels{margin-top:9px;display:flex;justify-content:space-between;font-size:12.5px;color:rgba(255,255,255,.6)}
+  .calc-bar-labels b{color:#fff;font-weight:600;font-variant-numeric:tabular-nums}
+  .calc-metrics{margin-top:26px;display:grid;grid-template-columns:1fr 1fr;gap:18px;border-top:1px solid rgba(255,255,255,.12);padding-top:22px}
+  .calc-m-num{font-size:clamp(1.5rem,2.6vw,2rem);font-weight:600;letter-spacing:-.02em;color:#fff;font-variant-numeric:tabular-nums;line-height:1}
+  .calc-m-lbl{margin-top:6px;font-size:12.5px;color:rgba(255,255,255,.58);line-height:1.35}
+  .calc-cta{margin-top:26px;display:flex;align-items:center;justify-content:center;gap:9px;height:52px;border-radius:13px;
+    background:#fff;color:var(--forest);font-size:15.5px;font-weight:600;text-decoration:none;transition:transform .3s var(--ease),background .3s var(--ease)}
+  .calc-cta:hover{transform:translateY(-1px)}
+  .calc-disclaimer{margin-top:14px;font-size:12px;color:rgba(255,255,255,.5);line-height:1.45;text-align:center}
+
+  /* ===================== REVIEWS ===================== */
+  .rev{position:relative;z-index:2;background:var(--paper);padding:clamp(56px,8vh,104px) 0 clamp(64px,10vh,120px);overflow:hidden}
+  .rev-head{max-width:var(--frame);margin:0 auto clamp(30px,4vh,48px);padding:0 24px}
+  @media(min-width:1024px){.rev-head{padding:0 40px}}
+  .rev-eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint-deep);font-weight:600}
+  .rev-head h2{margin:14px 0 0;font-weight:400;letter-spacing:-.025em;line-height:1.06;color:var(--ink);font-size:clamp(2rem,4.3vw,3.3rem)}
+  .rev-head h2 em{font-style:normal;color:var(--mint-deep)}
+  .rev-vp{position:relative}
+  .rev-vp::before,.rev-vp::after{content:"";position:absolute;top:0;bottom:0;width:8%;z-index:3;pointer-events:none}
+  .rev-vp::before{left:0;background:linear-gradient(90deg,var(--paper),transparent)}
+  .rev-vp::after{right:0;background:linear-gradient(270deg,var(--paper),transparent)}
+  @media(max-width:1023px){.rev-vp::before,.rev-vp::after{display:none}}
+  .rev-track{display:flex;flex-direction:column;gap:16px;padding:0 24px}
+  @media(min-width:1024px){.rev-track{flex-direction:row;width:max-content;gap:24px;padding:0;will-change:transform}}
+  .rv2{flex:none;width:100%;background:#fff;border-radius:20px;padding:clamp(26px,2.4vw,34px);
+    box-shadow:0 30px 60px -38px rgba(8,30,20,.4);border:1px solid rgba(22,48,43,.06)}
+  @media(min-width:1024px){.rv2{width:440px}}
+  .rv2-stars{display:flex;gap:4px;color:var(--mint);margin-bottom:16px}
+  .rv2-stars svg{width:17px;height:17px}
+  .rv2-quote{font-family:Georgia,"Times New Roman",serif;font-size:3.2rem;line-height:.5;color:rgba(31,156,132,.18);display:block;height:24px}
+  .rv2-text{margin-top:8px;font-size:clamp(15px,1.15vw,16.5px);line-height:1.6;color:rgba(30,29,26,.82)}
+  .rv2-by{margin-top:22px;padding-top:16px;border-top:1px solid rgba(22,48,43,.08)}
+  .rv2-name{font-weight:600;font-size:15px;color:var(--ink)}
+  .rv2-role{margin-top:3px;font-size:12.5px;color:rgba(30,29,26,.55);line-height:1.35}
+  .rev-pause{display:none}
+  @media(min-width:1024px){.rev-pause{display:inline-flex;align-items:center;gap:8px;margin-left:auto;height:38px;padding:0 16px;border-radius:999px;
+    border:1px solid rgba(22,48,43,.14);background:#fff;color:rgba(30,29,26,.62);font-size:13px;cursor:pointer;font-family:inherit;transition:color .25s var(--ease)}}
+  .rev-pause:hover{color:var(--ink)}
+  .rev-head-row{display:flex;align-items:flex-end;gap:20px}
+
+  /* ===================== FOOTER ===================== */
+  .ft{position:relative;z-index:2;background:var(--forest);color:#fff;overflow:hidden;padding:clamp(64px,9vh,120px) 24px 0}
+  @media(min-width:1024px){.ft{padding-left:40px;padding-right:40px}}
+  .ft-in{max-width:var(--frame);margin:0 auto;position:relative;z-index:2}
+  .ft-top{display:grid;grid-template-columns:1fr;gap:clamp(34px,5vw,72px);padding-bottom:clamp(48px,7vh,84px);border-bottom:1px solid rgba(255,255,255,.1)}
+  @media(min-width:900px){.ft-top{grid-template-columns:1.05fr .95fr}}
+  .ft-eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint-bright);font-weight:600}
+  .ft-top h2{margin:14px 0 0;font-weight:400;letter-spacing:-.025em;line-height:1.07;color:#fff;font-size:clamp(2rem,4.3vw,3.3rem);max-width:14ch}
+  .ft-pitch{margin:18px 0 0;max-width:46ch;color:rgba(255,255,255,.62);font-size:clamp(15px,1.4vw,17px);line-height:1.6}
+  .ft-trust{margin-top:26px;display:flex;flex-wrap:wrap;gap:10px 26px}
+  .ft-trust div{display:flex;flex-direction:column}
+  .ft-trust .v{font-size:clamp(1.3rem,2vw,1.7rem);font-weight:600;color:#fff;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1}
+  .ft-trust .k{margin-top:5px;font-size:12px;color:rgba(255,255,255,.5)}
+  .ft-form{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:clamp(22px,2.6vw,32px)}
+  .ft-field{margin-bottom:14px}
+  .ft-field label{display:block;font-size:12.5px;color:rgba(255,255,255,.6);margin-bottom:7px}
+  .ft-field input{width:100%;height:48px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+    padding:0 15px;color:#fff;font-size:15px;font-family:inherit;outline:none;transition:border-color .25s var(--ease),background .25s var(--ease)}
+  .ft-field input::placeholder{color:rgba(255,255,255,.34)}
+  .ft-field input:focus{border-color:var(--mint-bright);background:rgba(255,255,255,.09)}
+  .ft-consent{display:flex;align-items:flex-start;gap:10px;margin:4px 0 16px;font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.45;cursor:pointer}
+  .ft-consent input{margin-top:2px;width:16px;height:16px;flex:none;accent-color:var(--mint)}
+  .ft-submit{width:100%;height:54px;border-radius:13px;border:none;cursor:pointer;background:var(--mint);color:#fff;font-size:15.5px;font-weight:600;font-family:inherit;
+    transition:transform .3s var(--ease),background .3s var(--ease)}
+  .ft-submit:hover{transform:translateY(-1px);background:var(--mint-bright)}
+  .ft-note{margin-top:12px;font-size:12px;color:rgba(255,255,255,.45);text-align:center}
+  .ft-success{display:none;text-align:center;padding:14px 0}
+  .ft-success.on{display:block}
+  .ft-success .ic{width:48px;height:48px;border-radius:50%;background:rgba(31,156,132,.2);display:grid;place-items:center;margin:0 auto 14px}
+  .ft-success h3{margin:0;font-weight:500;font-size:1.3rem}
+  .ft-success p{margin:10px auto 0;max-width:36ch;color:rgba(255,255,255,.6);font-size:14px;line-height:1.5}
+  .ft-form.sent .ft-fields{display:none}
+
+  .ft-cols{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:34px;padding:clamp(40px,5vh,60px) 0}
+  @media(max-width:760px){.ft-cols{grid-template-columns:1fr 1fr;gap:30px}}
+  @media(max-width:480px){.ft-cols{grid-template-columns:1fr}}
+  .ft-col h4{margin:0 0 16px;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.4);font-weight:600}
+  .ft-col a,.ft-col .line{display:block;color:rgba(255,255,255,.72);text-decoration:none;font-size:14.5px;line-height:1.5;margin-bottom:9px;transition:color .25s var(--ease)}
+  .ft-col a:hover{color:#fff}
+  .ft-contact a{font-size:16px;font-weight:500;color:#fff}
+  .ft-req{font-size:13px;color:rgba(255,255,255,.5);line-height:1.7}
+  .ft-nav-grid{columns:2;column-gap:18px}
+
+  .ft-bottom{padding:24px 0 30px;border-top:1px solid rgba(255,255,255,.1);display:flex;flex-wrap:wrap;align-items:center;gap:14px 26px}
+  .ft-docs{display:flex;flex-wrap:wrap;gap:8px 18px}
+  .ft-docs a{display:inline-flex;align-items:center;gap:7px;color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;transition:color .25s var(--ease)}
+  .ft-docs a:hover{color:#fff}
+  .ft-docs svg{width:14px;height:14px;opacity:.7;flex:none}
+  .ft-copy{margin-left:auto;font-size:12.5px;color:rgba(255,255,255,.4)}
+  @media(max-width:760px){.ft-copy{margin-left:0;width:100%}}
+  .ft-watermark{position:absolute;left:0;right:0;bottom:-2.5vw;z-index:1;text-align:center;pointer-events:none;
+    font-weight:700;letter-spacing:-.02em;font-size:18vw;line-height:.8;color:transparent;
+    -webkit-text-stroke:1px rgba(255,255,255,.06);white-space:nowrap}
+</style>
+
+<!-- ============ TEAM ============ -->
+<section class="team" id="team">
+  <div class="team-head reveal">
+    <span class="team-eyebrow">Команда</span>
+    <h2>Кто стоит за <em>результатом</em></h2>
+    <p class="team-lede">Управленческая команда с опытом в технологиях, финансах и крупном бизнесе — от Mercedes-Benz и Yandex до глобальных финансовых рынков.</p>
+  </div>
+  <div class="team-grid">
+    <article class="tm-card reveal">
+      <div class="tm-photo"><img src="team/andrey-semenov-640.webp" alt="Андрей Семёнов" loading="lazy"></div>
+      <div class="tm-meta"><div class="tm-name">Андрей Семёнов</div><div class="tm-role">Генеральный директор</div>
+        <p class="tm-bio">8 лет в маркетинговом департаменте Mercedes-Benz Russia.</p></div>
+    </article>
+    <article class="tm-card reveal">
+      <div class="tm-photo"><img src="team/razvan-kreanga-640.webp" alt="Разван Креанга" loading="lazy"></div>
+      <div class="tm-meta"><div class="tm-name">Разван Креанга</div><div class="tm-role">Основатель · управляющий партнёр</div>
+        <p class="tm-bio">Реализовал проекты на глобальных финансовых рынках — банки, биржи, инвестфонды.</p></div>
+    </article>
+    <article class="tm-card reveal">
+      <div class="tm-photo"><img src="team/pavel-trusov-640.webp" alt="Павел Трусов" loading="lazy"></div>
+      <div class="tm-meta"><div class="tm-name">Павел Трусов</div><div class="tm-role">Технический директор</div>
+        <p class="tm-bio">IT-эксперт с 25-летним опытом технологических решений в Canon и Yandex.</p></div>
+    </article>
+    <article class="tm-card reveal">
+      <div class="tm-photo"><img src="team/kirill-suhomlinov-640.webp" alt="Кирилл Сухомлинов" loading="lazy"></div>
+      <div class="tm-meta"><div class="tm-name">Кирилл Сухомлинов</div><div class="tm-role">Коммерческий директор</div>
+        <p class="tm-bio">10 лет в разработке ценностных предложений, стратегическом консалтинге и развитии компаний.</p></div>
+    </article>
+    <article class="tm-card reveal">
+      <div class="tm-photo"><img src="team/ruslan-talipov-640.webp" alt="Руслан Талипов" loading="lazy"></div>
+      <div class="tm-meta"><div class="tm-name">Руслан Талипов</div><div class="tm-role">Директор по развитию и цифровизации</div>
+        <p class="tm-bio">Отвечает за то, чтобы у команды оставалось время на решения, которые важны.</p></div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ CALCULATOR ============ -->
+<section class="calc" id="calculator">
+  <div class="calc-head reveal">
+    <span class="calc-eyebrow">Окупаемость</span>
+    <h2>Посчитайте окупаемость автоматизации</h2>
+    <p class="calc-sub">Ответьте на три вопроса — и увидите срок окупаемости, возврат часов и бюджет проекта. Считаем по реальным внедрениям.</p>
+  </div>
+  <div class="calc-grid reveal">
+    <div class="calc-form">
+      <div class="calc-q">
+        <div class="calc-q-label"><span class="qn">1</span>Размер вашей компании?</div>
+        <div class="calc-opts" data-q="size">
+          <button class="calc-opt" data-i="0" type="button"><span class="t">50–200 человек</span></button>
+          <button class="calc-opt is-on" data-i="1" type="button"><span class="t">200–500 человек</span></button>
+          <button class="calc-opt" data-i="2" type="button"><span class="t">500+ человек</span></button>
+        </div>
+      </div>
+      <div class="calc-q">
+        <div class="calc-q-label"><span class="qn">2</span>Где больше всего ручной работы?</div>
+        <div class="calc-opts" data-q="area">
+          <button class="calc-opt" data-i="0" type="button"><span class="t">Документы и данные</span><span class="s">Договоры, акты, счета, переносы данных</span></button>
+          <button class="calc-opt is-on" data-i="1" type="button"><span class="t">Заявки и операции</span><span class="s">CRM, ERP, статусы, проверки, согласования</span></button>
+          <button class="calc-opt" data-i="2" type="button"><span class="t">Клиентские коммуникации</span><span class="s">Поддержка, продажи, ответы, сегментация</span></button>
+        </div>
+      </div>
+      <div class="calc-q">
+        <div class="calc-q-label"><span class="qn">3</span>Какой масштаб хотите автоматизировать?</div>
+        <div class="calc-opts" data-q="scale">
+          <button class="calc-opt" data-i="0" type="button"><span class="t">Пилотный проект</span><span class="s">1–2 операции — проверка технологии</span><span class="free">бесплатно</span></button>
+          <button class="calc-opt" data-i="1" type="button"><span class="t">Локальная задача</span><span class="s">Один участок: документы, отчёты, заявки</span></button>
+          <button class="calc-opt is-on" data-i="2" type="button"><span class="t">Процесс отдела</span><span class="s">Повторяющаяся работа команды</span></button>
+          <button class="calc-opt" data-i="3" type="button"><span class="t">Сквозной контур</span><span class="s">Несколько систем, отделов или сценариев</span></button>
+        </div>
+      </div>
+    </div>
+    <div class="calc-result">
+      <div class="calc-res-eyebrow">Срок окупаемости</div>
+      <div class="calc-big"><span id="calcMonths">2,6</span><span class="calc-unit" id="calcUnit">мес</span></div>
+      <div class="calc-bar"><div class="calc-bar-fill" id="calcBar"></div></div>
+      <div class="calc-bar-labels"><span>Окупаемость · <b id="calcMonths2">2,6</b> мес</span><span>дальше — выгода</span></div>
+      <div class="calc-metrics">
+        <div><div class="calc-m-num" id="calcHours">3 800</div><div class="calc-m-lbl">часов в год вернём команде</div></div>
+        <div><div class="calc-m-num" id="calcBudget">~750 тыс. ₽</div><div class="calc-m-lbl">бюджет проекта</div></div>
+      </div>
+      <a class="calc-cta" href="#contacts">Получить точный расчёт →</a>
+      <p class="calc-disclaimer">Предварительная оценка по консервативному сценарию · точный расчёт под ваши процессы — после аудита</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REVIEWS ============ -->
+<section class="rev" id="reviews">
+  <div class="rev-head reveal">
+    <div class="rev-head-row">
+      <div>
+        <span class="rev-eyebrow">Отзывы</span>
+        <h2>Что говорят <em>наши клиенты</em></h2>
+      </div>
+      <button class="rev-pause" id="revPause" type="button" aria-pressed="false">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M6 5h4v14H6V5zm8 0h4v14h-4V5z"/></svg><span>Пауза</span>
+      </button>
+    </div>
+  </div>
+  <div class="rev-vp" id="revVp">
+    <div class="rev-track" id="revTrack"></div>
+  </div>
+</section>
+
+<!-- ============ FOOTER / CONTACTS ============ -->
+<footer class="ft" id="contacts">
+  <div class="ft-in">
+    <div class="ft-top reveal">
+      <div>
+        <span class="ft-eyebrow">Контакты</span>
+        <h2>Начните с бесплатного пилота</h2>
+        <p class="ft-pitch">Расскажите о задачах бизнеса — предложим решение с конкретными цифрами и сроками. Начните с одного процесса и оцените ROI уже через 3 недели.</p>
+        <div class="ft-trust">
+          <div><span class="v">1,2 млн ч</span><span class="k">ручного труда автоматизировано в год</span></div>
+          <div><span class="v">99,3%</span><span class="k">точность выполнения</span></div>
+          <div><span class="v">3 недели</span><span class="k">до первого результата</span></div>
+        </div>
+      </div>
+      <div class="ft-form" id="ftForm">
+        <div class="ft-fields">
+          <div class="ft-field"><label for="ftName">Имя</label><input id="ftName" type="text" placeholder="Как к вам обращаться" autocomplete="name"></div>
+          <div class="ft-field"><label for="ftMail">Корпоративный e-mail</label><input id="ftMail" type="email" placeholder="you@company.ru" autocomplete="email"></div>
+          <label class="ft-consent"><input type="checkbox" id="ftConsent"><span>Согласен на обработку персональных данных в соответствии с 152-ФЗ.</span></label>
+          <button class="ft-submit" id="ftSubmit" type="button">Запустить бесплатный пилот</button>
+          <p class="ft-note">Архитектор свяжется в течение 2 часов. Без обязательств.</p>
+        </div>
+        <div class="ft-success" id="ftSuccess">
+          <div class="ic"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#27B499" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg></div>
+          <h3>Заявка отправлена</h3>
+          <p>Архитектор изучит задачу и свяжется с вами в течение 2 часов в рабочее время.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="ft-cols">
+      <div class="ft-col ft-contact">
+        <h4>Связь</h4>
+        <a href="mailto:info@hyperpartner.io">info@hyperpartner.io</a>
+        <a href="tel:+79858239815">+7 (985) 823-98-15</a>
+        <span class="line">Москва-Сити · 2-я Магистральная ул., 18, стр. 22, 123290</span>
+      </div>
+      <div class="ft-col">
+        <h4>Навигация</h4>
+        <div class="ft-nav-grid">
+          <a href="#top">Главная</a>
+          <a href="#tech">Технологии</a>
+          <a href="#experience">Результат</a>
+          <a href="#roles">По отделам</a>
+          <a href="#team">Команда</a>
+          <a href="#calculator">Калькулятор</a>
+          <a href="#reviews">Отзывы</a>
+          <a href="#contacts">Контакты</a>
+        </div>
+      </div>
+      <div class="ft-col">
+        <h4>Реквизиты</h4>
+        <p class="ft-req">ООО «Хайперпартнер»<br>123290, г. Москва, 2-я Магистральная ул., 18, стр. 22<br>ИНН 9714079940 · ОКВЭД 62.01</p>
+      </div>
+    </div>
+
+    <div class="ft-bottom">
+      <div class="ft-docs">
+        <a href="docs/privacy-policy.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Политика обработки персональных данных</a>
+        <a href="docs/mincifry-requirements.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Требования Минцифры к ИТ-сайтам</a>
+        <a href="docs/it-accreditation.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Выписка из реестра аккредитованных ИТ-компаний</a>
+      </div>
+      <div class="ft-copy">© 2026 HYPERPARTNER. Все права защищены.</div>
+    </div>
+  </div>
+  <div class="ft-watermark" aria-hidden="true">HYPERPARTNER</div>
+</footer>
+
+<script>
+(function(){
+  var G=window.gsap, reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(G&&window.ScrollTrigger)G.registerPlugin(ScrollTrigger);
+
+  /* ---- reveal on scroll ---- */
+  var revs=[].slice.call(document.querySelectorAll(".team .reveal,.calc .reveal,.rev .reveal,.ft .reveal"));
+  if(reduce||!window.ScrollTrigger){revs.forEach(function(e){e.classList.add("in");});}
+  else{revs.forEach(function(el){ScrollTrigger.create({trigger:el,start:"top 86%",once:true,onEnter:function(){el.classList.add("in");}});});}
+
+  /* ---- TEAM stagger ---- */
+  if(!reduce&&window.ScrollTrigger){
+    var cards=[].slice.call(document.querySelectorAll(".tm-card"));
+    cards.forEach(function(c,i){c.style.transitionDelay=(i*0.06)+"s";});
+  }
+
+  /* ---- CALCULATOR ---- */
+  (function(){
+    var SIZE=[3500,7000,12000];
+    var AREA=[{h:1.0,b:1.0},{h:1.2,b:1.1},{h:1.4,b:1.2}];
+    var SCALE=[{h:0.4,bb:0,free:true},{h:0.7,bb:300000},{h:1.0,bb:700000},{h:1.35,bb:1100000}];
+    var HOUR=900, AUTO=0.45;
+    var st={size:1,area:1,scale:2};
+    var elM=document.getElementById("calcMonths"),elM2=document.getElementById("calcMonths2"),
+        elU=document.getElementById("calcUnit"),elBar=document.getElementById("calcBar"),
+        elH=document.getElementById("calcHours"),elB=document.getElementById("calcBudget");
+    if(!elM)return;
+    function ruNum(n){return Math.round(n).toLocaleString("ru-RU");}
+    function monthsFmt(n){return (Math.round(n*10)/10).toFixed(1).replace(".",",");}
+    function compute(){
+      var s=SCALE[st.scale];
+      var potential=SIZE[st.size]*AREA[st.area].h*s.h;
+      var saved=potential*AUTO;
+      var hours=Math.round(saved/100)*100;
+      var valueRub=Math.round(saved*HOUR);
+      if(s.free)return{free:true,hours:hours,valueRub:valueRub,budgetK:0,months:0};
+      var rawB=s.bb*AREA[st.area].b;
+      var budget=Math.min(1500000,Math.max(300000,Math.round(rawB/50000)*50000));
+      var monthly=(saved*HOUR)/12;
+      var months=Math.min(6,Math.max(1,budget/monthly));
+      return{free:false,hours:hours,valueRub:valueRub,budgetK:Math.round(budget/1000),months:months};
+    }
+    var cur={months:0,hours:0};
+    function render(animate){
+      var r=compute();
+      // months
+      if(r.free){elM.textContent="сразу";elU.style.display="none";elM2.textContent="0";}
+      else{elU.style.display="";}
+      var barPct=r.free?0:Math.min(100,(r.months/12)*100);
+      elBar.style.width=barPct+"%";
+      // budget
+      elB.textContent=r.free?"бесплатно":("~"+ruNum(r.budgetK)+" тыс. ₽");
+      // odometer for hours + months
+      if(reduce||!G||!animate){
+        if(!r.free){elM.textContent=monthsFmt(r.months);elM2.textContent=monthsFmt(r.months);}
+        elH.textContent=ruNum(r.hours);cur.months=r.months;cur.hours=r.hours;return;
+      }
+      var o={m:cur.months,h:cur.hours};
+      G.to(o,{m:r.months,h:r.hours,duration:.7,ease:"expo.out",onUpdate:function(){
+        if(!r.free){elM.textContent=monthsFmt(o.m);elM2.textContent=monthsFmt(o.m);}
+        elH.textContent=ruNum(o.h);
+      },onComplete:function(){cur.months=r.months;cur.hours=r.hours;}});
+      cur.months=r.months;cur.hours=r.hours;
+    }
+    [].slice.call(document.querySelectorAll(".calc-opts")).forEach(function(grp){
+      var q=grp.getAttribute("data-q");
+      grp.addEventListener("click",function(e){
+        var btn=e.target.closest(".calc-opt");if(!btn)return;
+        [].slice.call(grp.children).forEach(function(b){b.classList.remove("is-on");});
+        btn.classList.add("is-on");
+        st[q]=parseInt(btn.getAttribute("data-i"),10);
+        render(true);
+      });
+    });
+    render(false);
+  })();
+
+  /* ---- REVIEWS ---- */
+  (function(){
+    var DATA=[
+      {t:"Нас убедила не теория, а демонстрация рабочих сценариев. За 5 дней собрали пилот на наших данных. Вскоре мы на 1/4 сократили зарплатный фонд отдела — при росте всех показателей.",a:"Илья Пьянов",r:"Директор направления кредитования и страхования"},
+      {t:"Мы относились скептически — нас уже не раз пытались убедить во «внедрении ИИ». Но за 90 дней финансовая команда сократила ежемесячное закрытие отчётности с 12 до 4 дней.",a:"Анна Л.",r:"Финансовый директор, производственная компания (выручка 400 млн ₽)"},
+      {t:"Боялись, что от роботов прибавится головной боли. По факту — рутина ушла, а ИИ подсказывает следующие шаги по каждому клиенту.",a:"Дарья Семенюта",r:"Руководитель отдела поддержки продаж"},
+      {t:"Опасались «бездушного» сервиса. Вышло наоборот: обращения не висят часами, человечность сохранили, а персонализации добавилось.",a:"Александр Макаров",r:"Директор по качеству обслуживания"}
+    ];
+    var track=document.getElementById("revTrack");if(!track)return;
+    var STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.9 6.16 20.97l1.11-6.5-4.72-4.6 6.53-.95L12 2.5z" fill="currentColor"/></svg>';
+    function card(d,dup){return '<article class="rv2"'+(dup?' aria-hidden="true"':'')+'><div class="rv2-stars">'+STAR+STAR+STAR+STAR+STAR+'</div>'+
+      '<span class="rv2-quote" aria-hidden="true">&ldquo;</span><p class="rv2-text">'+d.t+'</p>'+
+      '<div class="rv2-by"><div class="rv2-name">'+d.a+'</div><div class="rv2-role">'+d.r+'</div></div></article>';}
+    var isDesk=matchMedia("(min-width:1024px)").matches;
+    var html=DATA.map(function(d){return card(d,false);}).join("");
+    if(isDesk)html+=DATA.map(function(d){return card(d,true);}).join("");
+    track.innerHTML=html;
+
+    if(reduce||!isDesk||!G)return;
+    var loop=G.to(track,{xPercent:-50,duration:42,ease:"none",repeat:-1,paused:true});
+    var pos=0,DRIFT=1,onScreen=false,hover=false,sticky=false;
+    var vp=document.getElementById("revVp");
+    var io=new IntersectionObserver(function(e){onScreen=e[0].isIntersecting;},{rootMargin:"200px"});io.observe(vp);
+    function tick(){if(document.hidden||!onScreen||hover||sticky)return;pos+=DRIFT*(G.ticker.deltaRatio()/60);loop.totalTime(pos);}
+    G.ticker.add(tick);
+    vp.addEventListener("pointerenter",function(){hover=true;});
+    vp.addEventListener("pointerleave",function(){hover=false;});
+    var pb=document.getElementById("revPause");
+    pb.addEventListener("click",function(){sticky=!sticky;pb.setAttribute("aria-pressed",sticky);
+      pb.querySelector("span").textContent=sticky?"Продолжить":"Пауза";
+      pb.querySelector("path").setAttribute("d",sticky?"M8 5v14l11-7L8 5z":"M6 5h4v14H6V5zm8 0h4v14h-4V5z");});
+  })();
+
+  /* ---- FOOTER form ---- */
+  (function(){
+    var btn=document.getElementById("ftSubmit");if(!btn)return;
+    btn.addEventListener("click",function(){
+      var name=document.getElementById("ftName"),mail=document.getElementById("ftMail"),cons=document.getElementById("ftConsent");
+      var ok=true;
+      [name,mail].forEach(function(f){if(!f.value.trim()){f.style.borderColor="#C56A4F";ok=false;}else{f.style.borderColor="";}});
+      if(!cons.checked){cons.parentNode.style.color="#e0a48c";ok=false;}else{cons.parentNode.style.color="";}
+      if(!ok)return;
+      document.getElementById("ftForm").classList.add("sent");
+      document.getElementById("ftSuccess").classList.add("on");
+    });
+  })();
+})();
+</script>
+
+<script>
+(function(){
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var G = window.gsap;
+  if(G && window.ScrollTrigger) G.registerPlugin(ScrollTrigger);
+  var panels = [].slice.call(document.querySelectorAll(".rn-panel"));
+  var items  = [].slice.call(document.querySelectorAll(".roles .rv-item"));
+  function fitMocks(){items.forEach(function(it){var m=it.querySelector(".mk");if(m){var c=it.querySelector(".rv-card");if(c)m.style.transform="scale("+(c.clientWidth/1000)+")";}});}
+  fitMocks();window.addEventListener("resize",fitMocks);window.addEventListener("load",fitMocks);
+  var cur = -1;
+  function setActive(i){
+    if(i===cur) return; cur=i;
+    panels.forEach(function(p,j){
+      var on=j===i;
+      if(!reduce && G){ G.to(p,{opacity:on?1:0, y:on?0:(j<i?-10:10), duration:.42, ease:"power2.out", overwrite:true}); }
+      else { p.style.opacity=on?1:0; p.style.transform="none"; }
+      p.classList.toggle("is-active",on);
+    });
+  }
+  function buildDesktop(){
+    // switch EXACTLY when a card's centre crosses the viewport centre (perfect text↔visual sync)
+    items.forEach(function(item,i){
+      ScrollTrigger.create({ trigger:item, start:"center center",
+        onEnter:function(){ setActive(i); }, onEnterBack:function(){ setActive(i); } });
+    });
+    // peak-at-centre liveliness, scrub-smoothed (0.6s lag) so it feels weighted, never clicky
+    items.forEach(function(item){
+      var card=item.querySelector(".rv-card");
+      ScrollTrigger.create({ trigger:item, start:"top bottom", end:"bottom top", scrub:0.6,
+        onUpdate:function(self){
+          var k=1-Math.min(1,Math.abs(self.progress-0.5)*2);
+          card.style.transform="scale("+(0.9+0.1*k).toFixed(4)+")";
+          card.style.opacity=(0.5+0.5*k).toFixed(3);
+        } });
+    });
+    setActive(0);
+  }
+  function buildMobile(){
+    panels.concat(items).forEach(function(el){
+      ScrollTrigger.create({ trigger:el, start:"top 82%", once:true, onEnter:function(){ el.classList.add("rv-in"); } });
+    });
+  }
+  if(reduce || !G || !window.ScrollTrigger){
+    panels.forEach(function(p){p.style.opacity=1;p.classList.add("rv-in","is-active");});
+    items.forEach(function(it){it.classList.add("rv-in");});
+  } else {
+    var mm = G.matchMedia();
+    mm.add("(min-width:1024px)", function(){ buildDesktop(); return function(){}; });
+    mm.add("(max-width:1023px)", function(){ buildMobile();  return function(){}; });
+    window.addEventListener("load", function(){ ScrollTrigger.refresh(); });
+  }
+})();
+</script>
+
+<script>
+(function(){var s=document.querySelector(".exp");if(!s)return;
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){s.classList.add("in");return;}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){s.classList.add("in");io.disconnect();}});},{threshold:0.15});io.observe(s);})();
+</script>
+
+<script>
+/* chat — glass feed, height-unfurl reveal + age-dimming, scenario rotation, alternating sides */
+(function(){
+  var feed=document.getElementById("chat");
+  var feedInner=document.createElement("div");feedInner.id="feedInner";feed.appendChild(feedInner);
+  var reduce=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var AGENT_AVA='<span class="ava ava-agent"><img src="brand/logo-mark-cream.png" alt=""></span>';
+  var ARROW='<svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 12h14M12 5l7 7-7 7" stroke="#1E1D1A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  function custBub(name,text){return '<div class="bub"><div class="hd"><span class="ava ava-cust">'+name.charAt(0)+'</span>'+name+'</div><div class="tx">'+text+'</div></div>';}
+  function agentBub(text){return '<div class="bub"><div class="hd">'+AGENT_AVA+'Цифровой сотрудник</div><div class="tx">'+text+'</div></div>';}
+  function typingBub(){return '<div class="bub"><div class="hd">'+AGENT_AVA+'Цифровой сотрудник</div><div class="typing"><i></i><i></i><i></i></div></div>';}
+  function widgetBub(w){var rows="";for(var i=0;i<w.rows.length;i++){rows+='<div class="wrow"><span class="k">'+w.rows[i][0]+'</span><span class="v">'+w.rows[i][1]+'</span></div>';}
+    return '<div class="bub wide"><div class="hd">'+AGENT_AVA+'Цифровой сотрудник</div><div class="wtitle"><span class="dot"></span>'+w.title+'</div>'+rows+'<button class="wbtn">'+w.btn+ARROW+'</button></div>';}
+
+  /* 3 department scenarios — internally-consistent numbers.
+     custSide ALWAYS "right" => the assistant's replies are ALWAYS on the LEFT. No typing turn:
+     the reply shows immediately (the dwell after a cust message is the "thinking" pause). */
+  var SCENARIOS=[
+    { custSide:"right", who:"Марина", turns:[
+      {k:"cust",   t:"Сведи отчёт по продажам за май",                   d:1700},
+      {k:"agent",  t:"Готово. 142 сделки на 8,4 млн ₽.",                  d:1600},
+      {k:"widget", w:{title:"Отчёт · Продажи · Май 2026", btn:"Открыть в CRM",
+        rows:[["Сделок закрыто","142"],["Выручка","8,4 млн ₽"],["Средний чек","59 200 ₽"]]}, d:3700},
+      {k:"cust",   t:"Как к апрелю?",                                     d:1700},
+      {k:"agent",  t:"Выручка +18%, чек +6%. Отчёт у вас на почте.",       d:4200}
+    ]},
+    { custSide:"right", who:"Игорь", turns:[
+      {k:"cust",   t:"Проведи счёт от поставщика в 1С",                   d:1700},
+      {k:"agent",  t:"Распознал счёт, провёл в 1С. К оплате до 25 июня.",  d:1600},
+      {k:"widget", w:{title:"Счёт № 4471 · ООО «Стройдвор»", btn:"Открыть в 1С",
+        rows:[["Сумма","312 400 ₽"],["в т.ч. НДС 20%","52 067 ₽"],["Оплатить до","25.06"]]}, d:3700},
+      {k:"cust",   t:"Сверь с договором",                                 d:1700},
+      {k:"agent",  t:"Сверил с договором — суммы совпадают.",             d:4200}
+    ]},
+    { custSide:"right", who:"Лена", turns:[
+      {k:"cust",   t:"Сколько обращений поддержка закрыла за неделю?",     d:1700},
+      {k:"agent",  t:"318 обращений, 94% без оператора.",                 d:1600},
+      {k:"widget", w:{title:"Поддержка · Неделя 24", btn:"Открыть дашборд",
+        rows:[["Обращений","318"],["Решено ботом","94%"],["Ср. время ответа","2,4 мин"]]}, d:3700},
+      {k:"cust",   t:"Сколько ушло на людей?",                           d:1700},
+      {k:"agent",  t:"19 диалогов (6%) — передал операторам со сводкой.",  d:4200}
+    ]}
+  ];
+
+  var G=window.gsap;
+  var EASE="power3.out";          // buttery entrance
+  var SLIDE=0.62;                 // duration of the continuous stack slide-up (one motion)
+  var GAP=40;                     // px: red(edge) -> yellow(rest) — MUST match .chat padding-bottom
+  var DWELL=1;                    // cadence multiplier (slow-down already baked into dwells)
+  /* opacity by age (newest -> older). Positions 1 & 2 are FULLY bright; ONLY the 3rd (topmost)
+     goes transparent; the 4th dissolves out. Opacity is never a birth fade-in (born bright). */
+  var OPS=[1, 1, 0.4];
+
+  function el(html){var d=document.createElement("div");d.innerHTML=html.trim();return d.firstChild;}
+
+  /* SINGLE owner of opacity: every call re-asserts the whole ladder, so the newest is ALWAYS
+     tweened to 1 (no message can get stuck dim) and older ones step down by age. Oldest fade
+     to 0 and are removed from the TOP (bottom-anchored feed => removing the top never shifts
+     visible ones — no "falling"; they just thin out and drift up into the mist). */
+  function restack(){
+    var rows=feedInner.children,n=rows.length;
+    for(var i=0;i<n;i++){
+      var age=n-1-i,b=rows[i].querySelector(".bub");if(!b)continue;
+      if(rows[i]._leaving)continue;
+      /* SINGLE owner of opacity. The CSS transition on .bub (0.5s cubic-bezier(.4,0,.2,1) = Sierra)
+         animates EVERY change with Sierra's exact curve: birth 0->1 fade-in, age dimming, leaving 0. */
+      var op=age===0?1:(age<OPS.length?OPS[age]:0);
+      b.style.opacity=op;
+      if(age>=OPS.length){
+        rows[i]._leaving=true;
+        (function(row){var rm=function(){if(row.parentNode)row.parentNode.removeChild(row);};
+          if(G)G.delayedCall(0.55,rm);else setTimeout(rm,550);})(rows[i]);
+      }
+    }
+  }
+
+  /* THE mechanic (matches the reference frame-by-frame):
+     append the new message (it instantly takes its full height, which would shove the stack up).
+     Counteract that by translating the WHOLE inner stack DOWN by exactly that height (set y=H),
+     so on screen nothing has moved yet and the new message is parked just BELOW the video edge
+     (clipped). Then slide the inner stack UP to y:0 in ONE continuous motion — the new message
+     rises out of the edge and every older message rises with it, together. Born fully bright. */
+  function addRow(side,inner){
+    var row=el('<div class="row '+side+'"><div class="cell">'+inner+"</div></div>");
+    feedInner.appendChild(row);
+    restack();                                   // newest born BRIGHT (age 0 -> opacity 1), older aged
+    if(!G) return row;
+    var H=row.getBoundingClientRect().height;    // height the new message just added
+    G.set(feedInner,{y:H});                       // park: stack looks unmoved, new row pushed below the edge
+    G.to(feedInner,{y:0,duration:SLIDE,ease:"power2.out",overwrite:true}); // ONE continuous slide-up (no blur)
+    return row;
+  }
+
+  /* assistant reply (agent always LEFT) shows immediately — no typing indicator. */
+
+  if(reduce){
+    var built=[];
+    SCENARIOS[0].turns.forEach(function(t){
+      var inner;
+      if(t.k==="cust")        inner=custBub(SCENARIOS[0].who,t.t);
+      else if(t.k==="agent")  inner=agentBub(t.t);
+      else                    inner=widgetBub(t.w);
+      var side=(t.k==="cust")?"right":"left";   // cust right, assistant left
+      var row=el('<div class="row '+side+'"><div class="cell">'+inner+"</div></div>");
+      feedInner.appendChild(row);built.push(row);
+    });
+    var n=built.length;
+    built.forEach(function(r,i){var age=n-1-i,b=r.querySelector(".bub");b.style.opacity=age<OPS.length?OPS[age]:0;});
+    return;
+  }
+
+  var scIdx=0;
+  function run(){
+    var sc=SCENARIOS[scIdx];                     // custSide always "right" => assistant LEFT
+    feedInner.innerHTML="";
+    var i=0;
+    function next(){
+      if(i>=sc.turns.length){
+        // dissolve the whole feed (fade only — no collapse), then start next scenario
+        var rows=feedInner.querySelectorAll(".row");
+        for(var j=0;j<rows.length;j++){var b=rows[j].querySelector(".bub");
+          if(b)b.style.opacity=0;}              // CSS transition (0.5s, Sierra ease) dissolves the feed
+        setTimeout(function(){scIdx=(scIdx+1)%SCENARIOS.length;run();},900);
+        return;
+      }
+      var turn=sc.turns[i];
+      if(turn.k==="cust")        addRow("right",custBub(sc.who,turn.t));
+      else if(turn.k==="agent")  addRow("left",agentBub(turn.t));
+      else if(turn.k==="widget") addRow("left",widgetBub(turn.w));
+      i++;
+      setTimeout(next,turn.d*DWELL);
+    }
+    next();
+  }
+  setTimeout(run,1400);
+})();
+
+/* liquid-metal button — click ripple (ripple is a CHILD of the glass button, so its transform
+   does NOT touch the button's own backdrop-filter) */
+(function(){
+  document.querySelectorAll(".pill-metal").forEach(function(btn){
+    btn.addEventListener("click",function(e){
+      var r=btn.getBoundingClientRect();
+      var s=document.createElement("span");s.className="rip";
+      s.style.left=(e.clientX-r.left)+"px";s.style.top=(e.clientY-r.top)+"px";
+      btn.appendChild(s);setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s);},600);
+    });
+  });
+})();
+
+/* tech-stack — reveal the colored logo constellation on scroll-in (staggered via CSS --i) */
+(function(){
+  var s=document.querySelector(".tech");if(!s)return;
+  if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){s.classList.add("in");return;}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){
+    if(e.isIntersecting){s.classList.add("in");io.disconnect();}});},{threshold:0.16});
+  io.observe(s);
+})();
+
+/* full header — transparent over hero, dark frosted bar once scrolled */
+(function(){
+  var h=document.querySelector("header");if(!h)return;
+  var onScroll=function(){h.classList.toggle("scrolled",window.scrollY>40);};
+  onScroll();window.addEventListener("scroll",onScroll,{passive:true});
+})();
+
+
+
+</script>
+</body>
+</html>
