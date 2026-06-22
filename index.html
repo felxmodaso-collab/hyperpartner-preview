@@ -364,7 +364,7 @@
         <div class="exp-txt"><div><span class="label">Экономика</span><h3>Окупается за квартал</h3></div><p>До <b>25%</b> ФОТ · <b>1–6 мес</b>.</p></div>
       </article>
       <article class="exp-card exp-sm c-sec">
-        <video class="exp-bg" src="gen3/sec-anim2.mp4" muted loop playsinline preload="auto"></video>
+        <video class="exp-bg" src="gen3/sec-anim.mp4" muted loop playsinline preload="auto"></video>
         <div class="exp-txt"><div><span class="label">Контроль</span><h3>Безопасность и единый контур</h3></div><p>Закрытый контур · наружу только токены.</p></div>
       </article>
       <article class="exp-card exp-sm c-pers">
@@ -379,23 +379,6 @@
   (function(){var io=new IntersectionObserver(function(es){es.forEach(function(e){var v=e.target.querySelector('video.exp-bg');if(!v)return;
     if(e.isIntersecting){try{v.currentTime=0;}catch(x){}v.play().catch(function(){});}else{v.pause();try{v.currentTime=0;}catch(x){}}});},{threshold:0.4});
   document.querySelectorAll('.exp .exp-card').forEach(function(c){io.observe(c);});})();
-</script>
-<script>
-  // Масштаб card: count 0→609 + cycle department names while the card is in view
-  (function(){
-    var card=document.querySelector('.exp .c-fte'); if(!card)return;
-    var cEl=document.getElementById('fte609'), wrap=document.getElementById('fteDepts');
-    if(!cEl||!wrap)return;
-    var depts=['Бухгалтерия','HR','Поддержка','Продажи','Логистика','Закупки'];
-    var di=0,timer=null,raf=null,running=false;
-    function countUp(target,dur){var s=null;function f(t){if(s===null)s=t;var p=Math.min((t-s)/dur,1);cEl.textContent=Math.round((1-Math.pow(1-p,3))*target);if(p<1)raf=requestAnimationFrame(f);}raf=requestAnimationFrame(f);}
-    function showDept(){var d=document.createElement('div');d.className='dept';d.textContent=depts[di%depts.length];wrap.appendChild(d);
-      requestAnimationFrame(function(){requestAnimationFrame(function(){d.classList.add('in');});});
-      setTimeout(function(){d.classList.add('out');},1500);setTimeout(function(){if(d.parentNode)d.parentNode.removeChild(d);},2400);di++;}
-    function start(){if(running)return;running=true;di=0;cEl.textContent='0';countUp(609,1700);showDept();timer=setInterval(showDept,2000);}
-    function stop(){running=false;if(timer)clearInterval(timer);if(raf)cancelAnimationFrame(raf);wrap.innerHTML='';cEl.textContent='0';}
-    new IntersectionObserver(function(es){es.forEach(function(e){e.isIntersecting?start():stop();});},{threshold:0.45}).observe(card);
-  })();
 </script>
 
 <!-- ===== «Кем станет робот в вашей компании» — sticky-narrative scrollytelling (retool «Build powerful apps» mechanic) ===== -->
@@ -979,7 +962,7 @@
   /* location: office photo + map */
   .ft-loc{display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:0 0 clamp(40px,5vh,60px)}
   @media(max-width:760px){.ft-loc{grid-template-columns:1fr;gap:14px}}
-  .ft-tile{position:relative;display:block;border-radius:18px;overflow:hidden;aspect-ratio:16/11;
+  .ft-tile{position:relative;display:block;margin:0;width:100%;min-width:0;border-radius:18px;overflow:hidden;aspect-ratio:16/11;
     background:#0d1f1b;border:1px solid rgba(255,255,255,.1);box-shadow:0 34px 64px -40px rgba(0,0,0,.7);
     text-decoration:none}
   .ft-tile img{width:100%;height:100%;object-fit:cover;object-position:50% 42%;display:block;
