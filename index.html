@@ -245,7 +245,7 @@
 <body>
 
 <section class="stage">
-  <video id="vid" autoplay muted loop playsinline preload="auto"><source src="hero-a.mp4" type="video/mp4" /></video>
+  <video id="vid" autoplay muted loop playsinline preload="auto"><source src="gen3/hero-new2.mp4" type="video/mp4" /></video>
   <div class="grain"></div>
   <div class="scrim top"></div>
   <div class="scrim text"></div>
@@ -331,6 +331,14 @@
   .exp-big{aspect-ratio:16/9}
   .exp-big h3{font-size:clamp(1.9rem,3.2vw,2.7rem);max-width:15ch}
   .exp-big .exp-txt p{font-size:15px;max-width:34ch}
+  /* «609» under the FTE lettering inside the video illustration */
+  .c-fte .fte609{position:absolute;left:45%;top:70%;transform:translate(-50%,-50%);z-index:1;
+    font-weight:800;font-size:clamp(24px,4.4vw,56px);letter-spacing:.03em;line-height:1;
+    color:transparent;-webkit-text-stroke:2px rgba(214,255,236,.9);
+    mix-blend-mode:screen;pointer-events:none;font-variant-numeric:tabular-nums;
+    animation:p609 3.4s ease-in-out infinite}
+  @keyframes p609{0%,100%{opacity:.82;text-shadow:0 0 8px rgba(150,255,220,.45)}50%{opacity:1;text-shadow:0 0 16px rgba(150,255,220,.72)}}
+  @media(max-width:759px){.c-fte .fte609{top:64%}}
   .exp-row{display:grid;grid-template-columns:1fr;gap:clamp(16px,1.8vw,22px)}
   @media(min-width:760px){.exp-row{grid-template-columns:repeat(3,1fr)}}
   .exp-sm{aspect-ratio:4/5}
@@ -351,7 +359,7 @@
   </div>
   <div class="exp-wrap">
     <article class="exp-card exp-big c-fte">
-      <video class="exp-bg" src="exp-vid/exp-fte.mp4" muted loop playsinline preload="auto"></video>
+      <video class="exp-bg" src="gen3/fte-anim3.mp4" muted loop playsinline preload="auto" autoplay></video>
       <div class="exp-scrim"></div>
       <div class="exp-txt">
         <div><span class="label">Масштаб</span><h3>Снимаем рутину целыми отделами</h3></div>
@@ -360,15 +368,15 @@
     </article>
     <div class="exp-row">
       <article class="exp-card exp-sm c-roi">
-        <video class="exp-bg" src="exp-vid/exp-roi.mp4" muted loop playsinline preload="auto"></video>
+        <video class="exp-bg" src="gen3/roi-anim.mp4" muted loop playsinline preload="auto"></video>
         <div class="exp-txt"><div><span class="label">Экономика</span><h3>Окупается за квартал</h3></div><p>До <b>25%</b> ФОТ · <b>1–6 мес</b>.</p></div>
       </article>
       <article class="exp-card exp-sm c-sec">
-        <video class="exp-bg" src="exp-vid/exp-sec.mp4" muted loop playsinline preload="auto"></video>
+        <video class="exp-bg" src="gen3/sec-anim.mp4" muted loop playsinline preload="auto"></video>
         <div class="exp-txt"><div><span class="label">Контроль</span><h3>Безопасность и единый контур</h3></div><p>Закрытый контур · наружу только токены.</p></div>
       </article>
       <article class="exp-card exp-sm c-pers">
-        <video class="exp-bg" src="exp-vid/exp-pers.mp4" muted loop playsinline preload="auto"></video>
+        <video class="exp-bg" src="gen3/pers-anim.mp4" muted loop playsinline preload="auto"></video>
         <div class="exp-txt"><div><span class="label">Сервис</span><h3>Персональный сервис каждому</h3></div><p>Клиент чувствует личное внимание.</p></div>
       </article>
     </div>
@@ -826,10 +834,10 @@
   .tm-photo{position:relative;aspect-ratio:4/5;border-radius:16px;overflow:hidden;background:#e7e6e0;
     box-shadow:0 26px 50px -32px rgba(8,30,20,.4)}
   .tm-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 20%;display:block;
-    filter:grayscale(.9) contrast(1.05) brightness(.98);transition:filter .6s var(--ease),transform .9s var(--ease)}
+    filter:saturate(1.04) contrast(1.02);transition:filter .6s var(--ease),transform .9s var(--ease)}
   .tm-photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 52%,rgba(22,48,43,.42) 100%);
     opacity:.7;transition:opacity .6s var(--ease)}
-  .tm-card:hover .tm-photo img{filter:grayscale(.15) contrast(1.03) brightness(1);transform:scale(1.035)}
+  .tm-card:hover .tm-photo img{filter:saturate(1.08) contrast(1.03) brightness(1.02);transform:scale(1.035)}
   .tm-card:hover .tm-photo::after{opacity:.5}
   .tm-meta{padding:16px 2px 0}
   .tm-name{font-size:clamp(16px,1.25vw,18.5px);font-weight:600;letter-spacing:-.01em;color:var(--ink);line-height:1.2}
