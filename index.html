@@ -331,20 +331,6 @@
   .exp-big{aspect-ratio:16/9}
   .exp-big h3{font-size:clamp(1.9rem,3.2vw,2.7rem);max-width:15ch}
   .exp-big .exp-txt p{font-size:15px;max-width:34ch}
-  /* «609» count-up + department names overlay inside the FTE video illustration */
-  .c-fte .fte609{position:absolute;left:44%;top:71%;transform:translate(-50%,-50%);z-index:1;
-    font-weight:800;font-size:clamp(46px,8vw,108px);letter-spacing:.02em;line-height:1;
-    color:transparent;-webkit-text-stroke:2.5px rgba(220,255,238,.96);
-    text-shadow:0 0 18px rgba(150,255,220,.55),0 0 4px rgba(255,255,255,.4);
-    mix-blend-mode:screen;pointer-events:none;font-variant-numeric:tabular-nums}
-  .c-fte .depts{position:absolute;inset:0;z-index:1;pointer-events:none}
-  .c-fte .dept{position:absolute;left:63%;top:46%;transform:translate(-50%,12px);opacity:0;
-    font-size:clamp(13px,1.55vw,18px);font-weight:600;letter-spacing:.01em;white-space:nowrap;
-    color:#eafff6;text-shadow:0 0 12px rgba(150,255,220,.7),0 0 2px rgba(255,255,255,.5);
-    mix-blend-mode:screen;transition:opacity .5s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1)}
-  .c-fte .dept.in{opacity:1;transform:translate(-50%,-6px)}
-  .c-fte .dept.out{opacity:0;transform:translate(-50%,-48px);transition:opacity .6s ease,transform .9s ease}
-  @media(max-width:759px){.c-fte .fte609{top:64%}.c-fte .dept{top:42%}}
   .exp-row{display:grid;grid-template-columns:1fr;gap:clamp(16px,1.8vw,22px)}
   @media(min-width:760px){.exp-row{grid-template-columns:repeat(3,1fr)}}
   .exp-sm{aspect-ratio:4/5}
@@ -365,10 +351,8 @@
   </div>
   <div class="exp-wrap">
     <article class="exp-card exp-big c-fte">
-      <video class="exp-bg" src="gen3/fte-anim2.mp4" muted loop playsinline preload="auto" autoplay></video>
+      <video class="exp-bg" src="gen3/fte-anim3.mp4" muted loop playsinline preload="auto" autoplay></video>
       <div class="exp-scrim"></div>
-      <div class="fte609" id="fte609">0</div>
-      <div class="depts" id="fteDepts"></div>
       <div class="exp-txt">
         <div><span class="label">Масштаб</span><h3>Снимаем рутину целыми отделами</h3></div>
         <p><b>609 FTE</b> ручного труда — на автономных агентах.</p>
@@ -1155,6 +1139,18 @@
       </div>
     </div>
 
+    <div class="ft-loc">
+      <figure class="ft-tile">
+        <img src="gen3/office.webp" alt="Офис HyperPartner — бизнес-центр на 2-й Магистральной улице, Москва" loading="lazy">
+        <figcaption class="cap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-5h6v5"/></svg>Офис · Москва, 2-я Магистральная, 18</figcaption>
+      </figure>
+      <a class="ft-tile ft-map" href="https://yandex.ru/maps/?text=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0%2C%202-%D1%8F%20%D0%9C%D0%B0%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F%20%D1%83%D0%BB%D0%B8%D1%86%D0%B0%2C%2018%2C%20%D1%81%D1%82%D1%80.%2022" target="_blank" rel="noopener" aria-label="Открыть адрес офиса в Яндекс.Картах">
+        <img src="gen3/map.webp" alt="Карта расположения офиса: 2-я Магистральная улица, рядом с Москва-Сити" loading="lazy">
+        <span class="cap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>Рядом с <b>Москва-Сити</b> · маршрут</span>
+        <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></span>
+      </a>
+    </div>
+
     <div class="ft-cols">
       <div class="ft-col ft-contact">
         <h4>Связь</h4>
@@ -1179,18 +1175,6 @@
         <h4>Реквизиты</h4>
         <p class="ft-req">ООО «Хайперпартнер»<br>123290, г. Москва, 2-я Магистральная ул., 18, стр. 22<br>ИНН 9714079940 · ОКВЭД 62.01</p>
       </div>
-    </div>
-
-    <div class="ft-loc">
-      <figure class="ft-tile">
-        <img src="gen3/office.webp" alt="Офис HyperPartner — бизнес-центр на 2-й Магистральной улице, Москва" loading="lazy">
-        <figcaption class="cap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-5h6v5"/></svg>Офис · Москва, 2-я Магистральная, 18</figcaption>
-      </figure>
-      <a class="ft-tile ft-map" href="https://yandex.ru/maps/?text=%D0%9C%D0%BE%D1%81%D0%BA%D0%B2%D0%B0%2C%202-%D1%8F%20%D0%9C%D0%B0%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B0%D0%BB%D1%8C%D0%BD%D0%B0%D1%8F%20%D1%83%D0%BB%D0%B8%D1%86%D0%B0%2C%2018%2C%20%D1%81%D1%82%D1%80.%2022" target="_blank" rel="noopener" aria-label="Открыть адрес офиса в Яндекс.Картах">
-        <img src="gen3/map.webp" alt="Карта расположения офиса: 2-я Магистральная улица, рядом с Москва-Сити" loading="lazy">
-        <span class="cap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 1118 0z"/><circle cx="12" cy="10" r="3"/></svg>Рядом с <b>Москва-Сити</b> · маршрут</span>
-        <span class="arr"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></span>
-      </a>
     </div>
 
     <div class="ft-bottom">
