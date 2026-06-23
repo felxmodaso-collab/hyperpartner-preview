@@ -374,17 +374,27 @@
   .exp-sm h3{font-size:clamp(1.25rem,1.8vw,1.5rem)}
   .exp-sm .exp-txt p{font-size:13px}
   @media(max-width:759px){
-    .exp-big{aspect-ratio:5/6}
     .exp-big .exp-bg{object-position:64% center}
     .exp-big h3{font-size:clamp(1.7rem,7vw,2.3rem);max-width:13ch}
     .exp-big .exp-txt p{font-size:14px}
+  }
+  /* dept chips: Anton's floating % layout works on the wide desktop card; below 960px the
+     fixed-size chips collide/overflow, so reflow into a clean static row (desktop layout untouched) */
+  .exp-big .depts-row{display:none;flex-wrap:wrap;gap:7px;margin-top:16px}
+  .exp-big .depts-row .dr{display:inline-flex;align-items:center;gap:.5em;padding:.42em .82em;border-radius:999px;
+    border:1px solid rgba(180,255,220,.38);background:rgba(10,30,22,.5);font-size:13px;font-weight:500;color:#eafff6;white-space:nowrap}
+  .exp-big .depts-row .dr::before{content:"";width:.38em;height:.38em;border-radius:50%;background:#bdf5dd;box-shadow:0 0 7px rgba(150,255,220,.9);flex:none}
+  @media(max-width:960px){
+    .exp-big{aspect-ratio:auto;min-height:clamp(440px,62vw,560px)}
+    .exp-big .depts{display:none}
+    .exp-big .depts-row{display:flex}
   }
   @media(prefers-reduced-motion:reduce){.exp-card{opacity:1;transform:none;transition:none}}
 </style>
 <section class="exp" id="experience">
   <div class="exp-head">
     <span class="exp-eyebrow">Результат</span>
-    <h2>Результат, измеримый в деньгах и часах</h2>
+    <h2>Совершенно новый опыт ведения бизнеса</h2>
   </div>
   <div class="exp-wrap">
     <article class="exp-card exp-big c-fte">
@@ -400,6 +410,7 @@
       <div class="exp-txt">
         <div><span class="label">Масштаб</span><h3>Снимаем рутину целыми отделами</h3></div>
         <p><b>609 ставок</b> ручной работы уже перевели на цифровых сотрудников.</p>
+        <div class="depts-row"><span class="dr">Бухгалтерия</span><span class="dr">HR</span><span class="dr">Поддержка</span><span class="dr">Продажи</span><span class="dr">Логистика</span><span class="dr">Закупки</span></div>
       </div>
     </article>
     <div class="exp-row">
