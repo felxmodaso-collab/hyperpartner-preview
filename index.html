@@ -1225,9 +1225,6 @@
         <span class="rev-eyebrow">Отзывы</span>
         <h2>Что говорят <em>наши клиенты</em></h2>
       </div>
-      <button class="rev-pause" id="revPause" type="button" aria-pressed="false">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M6 5h4v14H6V5zm8 0h4v14h-4V5z"/></svg><span>Пауза</span>
-      </button>
     </div>
   </div>
   <div class="rev-vp" id="revVp">
@@ -1468,7 +1465,7 @@
     vp.addEventListener("pointerenter",function(){hover=true;});
     vp.addEventListener("pointerleave",function(){hover=false;});
     var pb=document.getElementById("revPause");
-    pb.addEventListener("click",function(){sticky=!sticky;pb.setAttribute("aria-pressed",sticky);
+    if(pb)pb.addEventListener("click",function(){sticky=!sticky;pb.setAttribute("aria-pressed",sticky);
       pb.querySelector("span").textContent=sticky?"Продолжить":"Пауза";
       pb.querySelector("path").setAttribute("d",sticky?"M8 5v14l11-7L8 5z":"M6 5h4v14H6V5zm8 0h4v14h-4V5z");});
   })();
