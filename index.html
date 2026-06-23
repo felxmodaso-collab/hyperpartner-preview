@@ -999,7 +999,11 @@
   .rev-head-row{display:flex;align-items:flex-end;gap:20px}
 
   /* ===================== FOOTER ===================== */
-  .ft{position:relative;z-index:2;background:var(--forest);color:#fff;overflow:hidden;padding:clamp(64px,9vh,120px) 24px 0}
+  .ft{position:relative;z-index:2;color:#fff;overflow:hidden;padding:clamp(64px,9vh,120px) 24px 0;
+    background:
+      radial-gradient(95% 62% at 10% 4%, rgba(39,180,153,.20) 0%, transparent 56%),
+      radial-gradient(80% 70% at 98% 92%, rgba(247,207,180,.10) 0%, transparent 55%),
+      linear-gradient(176deg, #18362A 0%, #122a21 52%, #0b1d17 100%)}
   @media(min-width:1024px){.ft{padding-left:40px;padding-right:40px}}
   .ft-in{max-width:var(--frame);margin:0 auto;position:relative;z-index:2}
   .ft-top{display:grid;grid-template-columns:1fr;gap:clamp(34px,5vw,72px);padding-bottom:clamp(48px,7vh,84px);border-bottom:1px solid rgba(255,255,255,.1)}
