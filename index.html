@@ -892,16 +892,16 @@
   .tm-bio{margin-top:10px;font-size:13.5px;line-height:1.5;color:rgba(30,29,26,.6)}
 
   /* ===================== CALCULATOR ===================== */
-  .calc{position:relative;z-index:2;background:var(--paper);padding:clamp(56px,8vh,104px) 24px clamp(64px,10vh,130px)}
+  .calc{position:relative;z-index:5;background:var(--paper);padding:clamp(56px,8vh,104px) 24px clamp(64px,10vh,130px)}
   @media(min-width:1024px){.calc{padding-left:40px;padding-right:40px}}
   .calc-head{max-width:var(--frame);margin:0 auto clamp(34px,5vh,54px);text-align:center}
   .calc-eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--mint-deep);font-weight:600}
   .calc-head h2{margin:14px auto 0;max-width:20ch;font-weight:400;letter-spacing:-.025em;line-height:1.06;color:var(--ink);font-size:clamp(2rem,4.3vw,3.3rem)}
   .calc-head .calc-sub{margin:16px auto 0;max-width:52ch;color:rgba(30,29,26,.6);font-size:clamp(15px,1.5vw,17px);line-height:1.55}
   .calc-grid{max-width:1120px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:clamp(20px,2.5vw,34px)}
-  @media(min-width:900px){.calc-grid{grid-template-columns:1.05fr .95fr;align-items:start}}
-  .calc-form{display:flex;flex-direction:column;gap:clamp(22px,3vh,34px)}
-  .calc-q-label{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:13px;display:flex;align-items:center;gap:10px}
+  @media(min-width:900px){.calc-grid{grid-template-columns:1.05fr .95fr;align-items:stretch}}
+  .calc-form{display:flex;flex-direction:column;justify-content:space-between;gap:clamp(22px,3vh,30px)}
+  .calc-q-label{font-size:17px;font-weight:600;color:var(--ink);margin-bottom:14px;display:flex;align-items:center;gap:11px}
   .calc-q-label .qn{display:grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--forest);color:#fff;font-size:12px;font-weight:600;flex:none}
   .calc-opts{display:flex;flex-wrap:wrap;gap:9px}
   .calc-opt{position:relative;display:flex;flex-direction:column;align-items:flex-start;border:1px solid rgba(22,48,43,.16);background:#fff;border-radius:13px;
@@ -930,6 +930,7 @@
     box-shadow:0 36px 80px -30px rgba(8,30,20,.5),0 10px 24px -16px rgba(8,30,20,.34);
     display:none;flex-direction:column;gap:2px;transform-origin:top center}
   .calc-sel.open .calc-sel-panel{display:flex}
+  .calc-sel.up .calc-sel-panel{top:auto;bottom:calc(100% + 8px);transform-origin:bottom center}
   .calc-sel-panel .calc-opt{position:relative;width:100%;border:1px solid transparent;background:transparent;border-radius:11px;
     padding:11px 40px 11px 14px;box-shadow:none;transition:background .2s var(--ease)}
   .calc-sel-panel .calc-opt:hover{background:rgba(22,48,43,.05);border-color:transparent}
@@ -1018,7 +1019,14 @@
   .ft-field input::placeholder{color:rgba(255,255,255,.34)}
   .ft-field input:focus{border-color:var(--mint-bright);background:rgba(255,255,255,.09)}
   .ft-consent{display:flex;align-items:flex-start;gap:10px;margin:4px 0 16px;font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.45;cursor:pointer}
-  .ft-consent input{margin-top:2px;width:16px;height:16px;flex:none;accent-color:var(--mint)}
+  .ft-consent input{appearance:none;-webkit-appearance:none;margin:1px 0 0;width:20px;height:20px;flex:none;cursor:pointer;position:relative;
+    border:1.5px solid rgba(255,255,255,.30);border-radius:6px;background:rgba(255,255,255,.05);
+    transition:background .2s var(--ease),border-color .2s var(--ease)}
+  .ft-consent input:hover{border-color:rgba(255,255,255,.5)}
+  .ft-consent input:checked{background:var(--mint);border-color:var(--mint)}
+  .ft-consent input:checked::after{content:"";position:absolute;left:6px;top:2.5px;width:5px;height:9px;
+    border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .ft-consent input:focus-visible{outline:2px solid var(--mint-bright);outline-offset:2px}
   .ft-submit{width:100%;height:54px;border-radius:13px;border:none;cursor:pointer;background:var(--mint);color:#fff;font-size:15.5px;font-weight:600;font-family:inherit;
     transition:transform .3s var(--ease),background .3s var(--ease)}
   .ft-submit:hover{transform:translateY(-1px);background:var(--mint-bright)}
@@ -1402,6 +1410,9 @@
       var opts=[].slice.call(panel.querySelectorAll(".calc-opt"));
       function open(){
         closeAll(sel); sel.classList.add("open"); trig.setAttribute("aria-expanded","true");
+        // drop up when there's no room below the trigger but there is above (last/bottom selects)
+        var tr=trig.getBoundingClientRect(), ph=panel.offsetHeight;
+        sel.classList.toggle("up", (tr.bottom+ph+24>window.innerHeight) && (tr.top-ph-24>0));
         if(G && !reduce){
           G.fromTo(panel,{opacity:0,y:-8,scaleY:.96},{opacity:1,y:0,scaleY:1,duration:.34,ease:"power3.out",overwrite:true});
           G.fromTo(opts,{opacity:0,y:-5},{opacity:1,y:0,duration:.3,stagger:.035,ease:"power3.out",delay:.03,overwrite:true});
