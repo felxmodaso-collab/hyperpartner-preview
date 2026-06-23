@@ -416,7 +416,7 @@
     <div class="exp-row">
       <article class="exp-card exp-sm c-roi">
         <video class="exp-bg" src="gen3/roi-anim2.mp4" muted loop playsinline preload="auto"></video>
-        <div class="exp-txt"><div><span class="label">Экономика</span><h3>Окупается за квартал</h3></div><p><b>−25%</b> расходов на ФОТ.</p></div>
+        <div class="exp-txt"><div><span class="label">Экономика</span><h3>Окупается за квартал</h3></div><p><b>25%</b> экономии на ФОТ.</p></div>
       </article>
       <article class="exp-card exp-sm c-sec">
         <video class="exp-bg" src="gen3/sec-anim.mp4" muted loop playsinline preload="auto"></video>
@@ -452,7 +452,7 @@
   .rn-panel .label{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--mint-deep)}
   .rn-panel h3{margin:13px 0 0;font-weight:500;letter-spacing:-.02em;line-height:1.1;color:var(--ink);font-size:clamp(1.7rem,2.6vw,2.5rem);max-width:15ch}
   .rn-panel p{margin:16px 0 0;color:rgba(30,29,26,.66);font-size:clamp(15px,1.15vw,16.5px);line-height:1.55;max-width:42ch}
-  .rn-stats{display:flex;flex-wrap:wrap;gap:14px 30px;margin-top:clamp(22px,3vh,34px)}
+  .rn-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:18px 16px;align-items:start;margin-top:clamp(22px,3vh,34px)}
   .rn-stat{display:flex;flex-direction:column;gap:3px}
   .rn-stat .v{font-size:clamp(1.35rem,2vw,1.85rem);font-weight:600;letter-spacing:-.02em;color:var(--forest);font-variant-numeric:tabular-nums;line-height:1}
   .rn-stat .v.mint{color:var(--mint)}
@@ -569,8 +569,8 @@
             <p>Разбирает и проводит документы из почты, 1С, SAP и Excel. Человек подключается только там, где есть спор или исключение.</p>
             <div class="rn-stats">
               <div class="rn-stat"><span class="v mint">×12</span><span class="k">быстрее обработка</span></div>
-              <div class="rn-stat"><span class="v">−65%</span><span class="k">ручной работы</span></div>
-              <div class="rn-stat"><span class="v">&lt;1%</span><span class="k">ошибок</span></div>
+              <div class="rn-stat"><span class="v">65%</span><span class="k">меньше ручного труда</span></div>
+              <div class="rn-stat"><span class="v">99,3%</span><span class="k">точность</span></div>
             </div>
           </article>
           <article class="rn-panel" data-i="2">
@@ -578,9 +578,9 @@
             <h3>Рекрутёр видит только заинтересованных кандидатов</h3>
             <p>Берёт на себя первичный отбор и отвечает сотрудникам из базы знаний. Незаинтересованные отсеиваются сами, а найм идёт заметно быстрее.</p>
             <div class="rn-stats">
-              <div class="rn-stat"><span class="v mint">Ниже</span><span class="k">текучесть кадров</span></div>
-              <div class="rn-stat"><span class="v">Быстрее</span><span class="k">закрытие вакансий</span></div>
-              <div class="rn-stat"><span class="v">0 рутины</span><span class="k">первичный отбор берёт ИИ</span></div>
+              <div class="rn-stat"><span class="v mint">40%</span><span class="k">быстрее закрытие вакансий</span></div>
+              <div class="rn-stat"><span class="v">100%</span><span class="k">откликов на ИИ-скрининге</span></div>
+              <div class="rn-stat"><span class="v">24/7</span><span class="k">ответы кандидатам</span></div>
             </div>
           </article>
           <article class="rn-panel" data-i="3">
@@ -588,9 +588,9 @@
             <h3>Отчёты собираются без вас</h3>
             <p>Сводит данные из CRM, рекламы и финансов, сам обновляет дашборды и присылает руководителям короткий AI-дайджест — без ручных выгрузок.</p>
             <div class="rn-stats">
-              <div class="rn-stat"><span class="v mint">−80%</span><span class="k">ручной отчётности</span></div>
+              <div class="rn-stat"><span class="v mint">80%</span><span class="k">меньше ручной отчётности</span></div>
               <div class="rn-stat"><span class="v">×8</span><span class="k">быстрее аналитика</span></div>
-              <div class="rn-stat"><span class="v">Каждое утро</span><span class="k">свежие цифры на столе</span></div>
+              <div class="rn-stat"><span class="v">Каждое утро</span><span class="k">свежий AI-дайджест</span></div>
             </div>
           </article>
           <article class="rn-panel" data-i="4">
@@ -600,7 +600,7 @@
             <div class="rn-stats">
               <div class="rn-stat"><span class="v mint">2 мин</span><span class="k">цикл анализа цен</span></div>
               <div class="rn-stat"><span class="v">+12%</span><span class="k">маржа</span></div>
-              <div class="rn-stat"><span class="v">−85%</span><span class="k">ручной нагрузки</span></div>
+              <div class="rn-stat"><span class="v">85%</span><span class="k">меньше ручной нагрузки</span></div>
             </div>
           </article>
         </div>
@@ -745,7 +745,7 @@
       </div>
     </div>
   </div>
-  <div class="chip" style="left:614px;top:618px"><span class="n">−33 ставки</span> рутины</div>
+  <div class="chip" style="left:614px;top:618px"><span class="n">33 ставки</span> рутины закрыто</div>
   <div class="chip" style="left:600px;top:700px"><span class="n">×12</span> быстрее</div>
 </div></div></div>
       <div class="rv-item" data-i="2"><div class="rv-card"><div class="mk"><div class="bg bg-warm"></div>
@@ -766,7 +766,7 @@
         <div class="kpirow">
           <div class="card2 kpi"><div class="lbl">Открыто вакансий</div><div class="num tnum">18</div><span class="pill mut" style="margin-top:6px">6 отделов</span></div>
           <div class="card2 kpi"><div class="lbl">Кандидатов в работе</div><div class="num tnum">1 240</div><span class="delta" style="margin-top:6px">↑ за неделю</span></div>
-          <div class="card2 kpi"><div class="lbl">Срок закрытия</div><div class="num tnum">−40%</div><span class="pill mut" style="margin-top:6px">меньше рутины</span></div>
+          <div class="card2 kpi"><div class="lbl">Срок закрытия</div><div class="num tnum">40%</div><span class="pill mut" style="margin-top:6px">короче</span></div>
         </div>
         <div style="display:grid;grid-template-columns:1.35fr 1fr;gap:12px;flex:1;min-height:0">
           <div class="card2" style="display:flex;flex-direction:column;justify-content:center;gap:14px">
@@ -798,7 +798,7 @@
       </div>
     </div>
   </div>
-  <div class="chip" style="left:560px;top:30px"><span class="dot"></span>−40% срок найма</div>
+  <div class="chip" style="left:560px;top:30px"><span class="dot"></span>найм на 40% быстрее</div>
 </div></div></div>
       <div class="rv-item" data-i="3"><div class="rv-card mk-img"><img src="gen3/marketing-real.webp" alt="Дашборд: маркетинг и аналитика" loading="lazy"></div></div>
       <div class="rv-item" data-i="4"><div class="rv-card"><div class="mk"><div class="bg bg-warm"></div>
@@ -837,7 +837,7 @@
           <svg width="160" height="160" viewBox="0 0 200 200" style="margin-top:4px">
             <circle cx="100" cy="100" r="78" fill="none" stroke="#EFE8DE" stroke-width="16"/>
             <circle cx="100" cy="100" r="78" fill="none" stroke="#CB7A52" stroke-width="16" stroke-linecap="round" pathLength="100" stroke-dasharray="85 100" transform="rotate(-90 100 100)"/>
-            <text x="100" y="94" text-anchor="middle" fill="#211E1A" font-size="36" font-weight="600" font-family="IBM Plex Sans">−85%</text>
+            <text x="100" y="94" text-anchor="middle" fill="#211E1A" font-size="36" font-weight="600" font-family="IBM Plex Sans">85%</text>
             <text x="100" y="118" text-anchor="middle" fill="#8B847A" font-size="13" font-family="IBM Plex Sans">на аналитиков</text>
           </svg>
         </div>
