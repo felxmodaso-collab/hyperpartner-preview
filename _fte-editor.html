@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FTE — редактор плашек</title><style>
+  :root{--ease:cubic-bezier(.16,1,.3,1)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0b0d0c;min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:18px;padding:24px;font-family:'Onest',system-ui,sans-serif;color:#e8f5ef}
+  .bar{width:min(96vw,1040px);display:flex;align-items:center;gap:16px;flex-wrap:wrap;font-size:13px;color:#9fb6ad}
+  .bar b{color:#dffff0;font-weight:600}
+  .bar .save{margin-left:auto;padding:5px 12px;border-radius:8px;background:#16302b;border:1px solid #244a40;color:#bdf5dd;transition:opacity .3s}
+  .bar button{font:inherit;font-size:12px;color:#cdeede;background:#13201c;border:1px solid #244a40;border-radius:8px;padding:6px 12px;cursor:pointer}
+  .bar button:hover{border-color:#3a6e5d}
+  .hint{width:min(96vw,1040px);font-size:12px;color:#6f857c;line-height:1.5}
+  .hint kbd{background:#1a2722;border:1px solid #2c4339;border-radius:5px;padding:1px 6px;color:#bfe9d8;font-family:inherit;font-size:11px}
+  .exp-card{position:relative;overflow:hidden;border-radius:26px;color:#fff;isolation:isolate;width:min(96vw,1040px);aspect-ratio:16/9;box-shadow:0 34px 80px -40px rgba(0,30,18,.55);user-select:none}
+  .c-fte{background:radial-gradient(120% 130% at 82% 8%,#1f7a59 0%,transparent 52%),linear-gradient(155deg,#16302B,#0c3327)}
+  .exp-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;mix-blend-mode:screen}
+  .exp-txt{position:relative;z-index:3;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(24px,3vw,42px);pointer-events:none}
+  .label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.82)}
+  h3{margin:10px 0 0;font-weight:500;letter-spacing:-.02em;line-height:1.1;font-size:clamp(1.7rem,3vw,2.5rem);max-width:14ch}
+  p{margin-top:auto;padding-top:14px;font-size:15px;line-height:1.45;color:rgba(255,255,255,.78);max-width:34ch}
+  p b{color:#fff;font-weight:600}
+  .depts{position:absolute;inset:0;z-index:2}
+  .dept{position:absolute;display:inline-flex;align-items:center;gap:.58em;padding:.58em 1.1em;border-radius:999px;
+    border:1px solid rgba(180,255,220,.40);background:rgba(10,30,22,.34);
+    font-size:15.5px;font-weight:500;letter-spacing:.01em;color:#eafff6;white-space:nowrap;
+    box-shadow:0 0 18px rgba(120,230,180,.16),inset 0 0 12px rgba(120,230,180,.05);
+    cursor:grab;touch-action:none}
+  .dept::before{content:"";width:.42em;height:.42em;border-radius:50%;background:#bdf5dd;box-shadow:0 0 9px rgba(150,255,220,.95);flex:none}
+  .dept.sel{outline:2px dashed #6fe3b3;outline-offset:3px}
+  .dept.drag{cursor:grabbing}
+  /* tiny live coord tag */
+  .dept .co{position:absolute;left:50%;top:-1.55em;transform:translateX(-50%);font-size:9.5px;color:#7fd9b3;background:#0a1713cc;padding:1px 5px;border-radius:5px;opacity:0;transition:opacity .15s;pointer-events:none;white-space:nowrap}
+  .dept.sel .co,.dept.drag .co{opacity:1}
+  .json{width:min(96vw,1040px);font-family:ui-monospace,Menlo,monospace;font-size:11px;color:#6f857c;background:#0e1714;border:1px solid #1c2a25;border-radius:10px;padding:12px 14px;white-space:pre-wrap;word-break:break-all}
+</style></head><body>
+  <div class="bar">
+    <b>Редактор плашек</b> — двигай мышью, размер колесом
+    <span class="save" id="save">сохранено ✓</span>
+  </div>
+  <div class="hint">
+    <b style="color:#bfe9d8">Как редактировать:</b>
+    тащи плашку мышью · крути <kbd>колесо</kbd> над плашкой = размер ·
+    клик = выбрать, затем <kbd>стрелки</kbd> двигают точно (<kbd>Shift</kbd>=крупно), <kbd>+</kbd>/<kbd>−</kbd> размер ·
+    всё сохраняется автоматически. Когда закончишь — просто скажи мне, я применю на сайт.
+    <button id="reset" style="margin-left:8px">сбросить к исходному</button>
+  </div>
+
+  <article class="exp-card c-fte" id="card">
+    <video class="exp-bg" src="gen3/fte-h4-5.mp4" muted loop playsinline autoplay></video>
+    <div class="depts" id="depts">
+      <span class="dept" data-id="buh">Бухгалтерия<span class="co"></span></span>
+      <span class="dept" data-id="hr">HR<span class="co"></span></span>
+      <span class="dept" data-id="sup">Поддержка<span class="co"></span></span>
+      <span class="dept" data-id="sale">Продажи<span class="co"></span></span>
+      <span class="dept" data-id="log">Логистика<span class="co"></span></span>
+      <span class="dept" data-id="proc">Закупки<span class="co"></span></span>
+    </div>
+    <div class="exp-txt">
+      <div><span class="label">Масштаб</span><h3>Снимаем рутину целыми отделами</h3></div>
+      <p><b>609 FTE</b> ручного труда — на автономных агентах.</p>
+    </div>
+  </article>
+
+  <div class="json" id="json"></div>
+
+<script>
+const DEFAULTS={
+  buh:{l:38,t:7.5,fs:15.5}, hr:{l:70,t:6.5,fs:15.5},
+  sup:{l:2.5,t:49,fs:15.5}, sale:{l:2.5,t:64,fs:15.5},
+  log:{l:41,t:90,fs:15.5}, proc:{l:61,t:90,fs:15.5}
+};
+let layout=JSON.parse(JSON.stringify(DEFAULTS));
+const card=document.getElementById('card'), saveEl=document.getElementById('save'), jsonEl=document.getElementById('json');
+const els={}; document.querySelectorAll('.dept').forEach(e=>els[e.dataset.id]=e);
+let sel=null;
+
+function apply(){
+  for(const id in layout){const s=layout[id], e=els[id]; if(!e)continue;
+    e.style.left=s.l+'%'; e.style.top=s.t+'%'; e.style.fontSize=s.fs+'px';
+    e.querySelector('.co').textContent=`${s.l.toFixed(1)}% · ${s.t.toFixed(1)}% · ${s.fs.toFixed(1)}px`;}
+  jsonEl.textContent=JSON.stringify(layout,null,0);
+}
+let t=null;
+function save(){clearTimeout(t);saveEl.style.opacity=.4;saveEl.textContent='сохраняю…';
+  t=setTimeout(()=>{fetch('/save',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(layout)})
+    .then(()=>{saveEl.style.opacity=1;saveEl.textContent='сохранено ✓';})
+    .catch(()=>{saveEl.style.opacity=1;saveEl.textContent='ошибка сохранения';});},350);
+}
+function clampPlate(id){const e=els[id], r=card.getBoundingClientRect(), pr=e.getBoundingClientRect();
+  const wp=pr.width/r.width*100, hp=pr.height/r.height*100;
+  layout[id].l=Math.max(0,Math.min(100-wp,layout[id].l));
+  layout[id].t=Math.max(0,Math.min(100-hp,layout[id].t));}
+
+// drag
+let drag=null;
+card.addEventListener('pointerdown',e=>{const d=e.target.closest('.dept'); if(!d)return;
+  select(d.dataset.id); const r=card.getBoundingClientRect(), pr=d.getBoundingClientRect();
+  drag={id:d.dataset.id, offx:e.clientX-pr.left, offy:e.clientY-pr.top, r};
+  d.classList.add('drag'); d.setPointerCapture(e.pointerId); e.preventDefault();});
+card.addEventListener('pointermove',e=>{if(!drag)return; const r=drag.r;
+  layout[drag.id].l=(e.clientX-r.left-drag.offx)/r.width*100;
+  layout[drag.id].t=(e.clientY-r.top-drag.offy)/r.height*100;
+  clampPlate(drag.id); apply();});
+card.addEventListener('pointerup',e=>{if(!drag)return; els[drag.id].classList.remove('drag'); drag=null; save();});
+
+// wheel resize
+card.addEventListener('wheel',e=>{const d=e.target.closest('.dept'); if(!d)return; e.preventDefault();
+  const id=d.dataset.id; layout[id].fs=Math.max(9,Math.min(34,layout[id].fs+(e.deltaY<0?0.5:-0.5)));
+  select(id); clampPlate(id); apply(); save();},{passive:false});
+
+function select(id){sel=id; for(const k in els)els[k].classList.toggle('sel',k===id);}
+// keyboard nudge / resize
+addEventListener('keydown',e=>{if(!sel)return; const s=layout[sel]; const step=e.shiftKey?1:0.2; let used=true;
+  if(e.key==='ArrowLeft')s.l-=step; else if(e.key==='ArrowRight')s.l+=step;
+  else if(e.key==='ArrowUp')s.t-=step; else if(e.key==='ArrowDown')s.t+=step;
+  else if(e.key==='+'||e.key==='=')s.fs=Math.min(34,s.fs+0.5);
+  else if(e.key==='-'||e.key==='_')s.fs=Math.max(9,s.fs-0.5);
+  else used=false;
+  if(used){e.preventDefault(); clampPlate(sel); apply(); save();}});
+
+document.getElementById('reset').addEventListener('click',()=>{layout=JSON.parse(JSON.stringify(DEFAULTS)); apply(); save();});
+
+// load saved
+fetch('/load').then(r=>r.json()).then(d=>{if(d&&Object.keys(d).length){for(const id in DEFAULTS){if(d[id])layout[id]=Object.assign({},DEFAULTS[id],d[id]);}} apply();}).catch(apply);
+apply();
+</script>
+</body></html>

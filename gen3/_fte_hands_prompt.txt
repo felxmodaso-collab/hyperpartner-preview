@@ -1,0 +1,5 @@
+Keep this EXACT neon line-art illustration on pure black almost completely unchanged: the same large "FTE" letters and "609" number, the same seated person in the same pose and outfit, the same network of nodes, hexagons and gears on the right, the same small dots, the same sheet of paper and laptop on the desk, the same potted plant, the same composition, the same glowing white-and-mint line style.
+
+Change ONLY ONE thing: the person now has BOTH hands resting on the LAPTOP keyboard, as if typing with both hands. NEITHER hand is on the sheet of paper — move the hand that was on the paper onto the laptop keyboard next to the other hand. The sheet of paper still lies on the desk but nobody touches it.
+
+Everything else stays pixel-identical. No other changes, no extra elements, no text changes, no watermark.

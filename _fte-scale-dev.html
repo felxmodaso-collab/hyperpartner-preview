@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FTE / Масштаб — анимация (dev)</title>
+<style>
+  :root{--e:cubic-bezier(.16,1,.3,1)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0b0e0d;min-height:100vh;display:grid;place-items:center;padding:30px;
+    font-family:'Onest','Inter',system-ui,sans-serif;color:#fff}
+  /* ---- real card (c-fte) ---- */
+  .exp-card{position:relative;overflow:hidden;border-radius:26px;color:#fff;isolation:isolate;
+    width:min(94vw,1060px);aspect-ratio:16/9;box-shadow:0 34px 80px -40px rgba(0,30,18,.55)}
+  .c-fte{background:radial-gradient(120% 130% at 82% 8%,#1f7a59 0%,transparent 52%),linear-gradient(155deg,#16302B,#0c3327)}
+  /* center illustration (light-on-black -> screen keys out black) */
+  .fte-center{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;mix-blend-mode:screen}
+  .schemes{display:none}
+  /* text (corners) */
+  .exp-txt{position:relative;z-index:3;height:100%;display:flex;flex-direction:column;justify-content:space-between;
+    padding:clamp(24px,3vw,42px)}
+  .exp-txt .label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.82)}
+  .exp-txt h3{margin:10px 0 0;font-weight:500;letter-spacing:-.02em;line-height:1.1;font-size:clamp(1.9rem,3.2vw,2.7rem);max-width:14ch}
+  .exp-txt p{margin-top:auto;padding-top:14px;font-size:15px;line-height:1.45;color:rgba(255,255,255,.78);max-width:30ch}
+  .exp-txt p b{color:#fff;font-weight:600;font-variant-numeric:tabular-nums}
+
+  /* ---- scheme layer ---- */
+  .schemes{position:absolute;inset:0;z-index:2;pointer-events:none}
+  .scheme{position:absolute;width:var(--w,120px);transform:translate(-50%,-50%) scale(1);
+    opacity:.16;filter:none;transition:opacity .55s var(--e),filter .55s var(--e),transform .55s var(--e)}
+  .scheme svg{display:block;width:100%;height:auto;overflow:visible;stroke:#eafff6;fill:none;stroke-width:2.4}
+  .scheme .dot{fill:#eafff6;stroke:none}
+  .scheme.is-active{opacity:1;transform:translate(-50%,-50%) scale(1.08);
+    filter:drop-shadow(0 0 9px rgba(150,255,220,.7)) drop-shadow(0 0 2px rgba(255,255,255,.55))}
+
+  /* positions (avoid left text column) */
+  /* schemes ring the centered illustration in clear margins (left third reserved for text) */
+  .s1{left:47%;top:12%;--w:150px}   /* pipeline — top center */
+  .s2{left:85%;top:18%;--w:118px}   /* bars — top right */
+  .s3{left:91%;top:48%;--w:136px}   /* network — right edge */
+  .s4{left:86%;top:78%;--w:132px}   /* checklist — lower right */
+  .s5{left:58%;top:88%;--w:122px}   /* gears — bottom center */
+  .s6{left:35%;top:89%;--w:108px}   /* gauge — bottom, right of text */
+
+  /* ============ scheme animations (only while .is-active) ============ */
+  /* 1 pipeline: dot travels, nodes pulse */
+  .s1 .dot{opacity:0}
+  .s1.is-active .dot{animation:s1dot 1.8s var(--e) infinite}
+  @keyframes s1dot{0%{transform:translateX(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateX(96px);opacity:0}}
+  .s1.is-active .nd{animation:ndp 1.8s var(--e) infinite}
+  .s1.is-active .nd:nth-of-type(2){animation-delay:.5s}
+  .s1.is-active .nd:nth-of-type(3){animation-delay:1s}
+  @keyframes ndp{0%,100%{transform:scale(1);opacity:.55}30%{transform:scale(1.5);opacity:1}}
+
+  /* 2 bars grow */
+  .s2 .bar{transform:scaleY(.06);transform-origin:bottom;transform-box:fill-box}
+  .s2.is-active .bar{animation:grow 1.6s var(--e) infinite}
+  .s2.is-active .bar:nth-of-type(2){animation-delay:.12s}
+  .s2.is-active .bar:nth-of-type(3){animation-delay:.24s}
+  .s2.is-active .bar:nth-of-type(4){animation-delay:.36s}
+  @keyframes grow{0%{transform:scaleY(.06)}45%{transform:scaleY(1)}80%{transform:scaleY(1)}100%{transform:scaleY(.06)}}
+
+  /* 3 agent network: spokes draw, satellites pop, center pulse */
+  .s3 .spoke{stroke-dasharray:60;stroke-dashoffset:60}
+  .s3.is-active .spoke{animation:draw 1.8s var(--e) infinite}
+  .s3.is-active .spoke:nth-of-type(2){animation-delay:.15s}
+  .s3.is-active .spoke:nth-of-type(3){animation-delay:.3s}
+  .s3.is-active .spoke:nth-of-type(4){animation-delay:.45s}
+  @keyframes draw{0%{stroke-dashoffset:60}40%{stroke-dashoffset:0}85%{stroke-dashoffset:0}100%{stroke-dashoffset:60}}
+  .s3 .sat{transform:scale(0);transform-origin:center;transform-box:fill-box}
+  .s3.is-active .sat{animation:pop 1.8s var(--e) infinite}
+  .s3.is-active .sat:nth-of-type(2){animation-delay:.15s}.s3.is-active .sat:nth-of-type(3){animation-delay:.3s}.s3.is-active .sat:nth-of-type(4){animation-delay:.45s}
+  @keyframes pop{0%,18%{transform:scale(0)}38%{transform:scale(1.25)}50%,85%{transform:scale(1)}100%{transform:scale(0)}}
+  .s3.is-active .hub{animation:ndp 1.8s var(--e) infinite;transform-origin:center;transform-box:fill-box}
+
+  /* 4 checklist: checks draw in sequence */
+  .s4 .ck{stroke-dasharray:22;stroke-dashoffset:22}
+  .s4.is-active .ck{animation:drawck 1.8s var(--e) infinite}
+  .s4.is-active .ck:nth-of-type(2){animation-delay:.4s}
+  .s4.is-active .ck:nth-of-type(3){animation-delay:.8s}
+  @keyframes drawck{0%,8%{stroke-dashoffset:22}26%{stroke-dashoffset:0}88%{stroke-dashoffset:0}100%{stroke-dashoffset:22}}
+
+  /* 5 gears spin */
+  .s5 .g{transform-origin:center;transform-box:fill-box}
+  .s5.is-active .g1{animation:spin 3.2s linear infinite}
+  .s5.is-active .g2{animation:spin 3.2s linear infinite reverse}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* 6 gauge arc fills + needle */
+  .s6 .arc{stroke-dasharray:126;stroke-dashoffset:126}
+  .s6.is-active .arc{animation:fillarc 1.8s var(--e) infinite}
+  @keyframes fillarc{0%{stroke-dashoffset:126}50%{stroke-dashoffset:24}82%{stroke-dashoffset:24}100%{stroke-dashoffset:126}}
+  .s6 .ndl{transform-origin:48px 46px;transform:rotate(-90deg)}
+  .s6.is-active .ndl{animation:swing 1.8s var(--e) infinite}
+  @keyframes swing{0%{transform:rotate(-90deg)}50%{transform:rotate(58deg)}82%{transform:rotate(58deg)}100%{transform:rotate(-90deg)}}
+
+  @media(prefers-reduced-motion:reduce){.scheme{opacity:.7}.scheme *{animation:none!important}}
+</style>
+</head>
+<body>
+  <article class="exp-card c-fte">
+    <video class="fte-center" src="gen3/fte-anim.mp4" muted loop autoplay playsinline preload="auto"></video>
+    <div class="schemes">
+      <!-- 1 pipeline -->
+      <div class="scheme s1"><svg viewBox="0 0 110 28" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="7" y1="14" x2="103" y2="14"/>
+        <circle class="nd" cx="7" cy="14" r="5"/><circle class="nd" cx="55" cy="14" r="5"/><circle class="nd" cx="103" cy="14" r="5"/>
+        <circle class="dot" cx="7" cy="14" r="3" stroke="none"/>
+      </svg></div>
+      <!-- 2 bars -->
+      <div class="scheme s2"><svg viewBox="0 0 80 56" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="6" y1="50" x2="74" y2="50"/>
+        <rect class="bar" x="12" y="14" width="9" height="36" rx="2"/>
+        <rect class="bar" x="29" y="14" width="9" height="36" rx="2"/>
+        <rect class="bar" x="46" y="14" width="9" height="36" rx="2"/>
+        <rect class="bar" x="63" y="14" width="9" height="36" rx="2"/>
+      </svg></div>
+      <!-- 3 agent network -->
+      <div class="scheme s3"><svg viewBox="0 0 96 96" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line class="spoke" x1="48" y1="48" x2="14" y2="18"/>
+        <line class="spoke" x1="48" y1="48" x2="84" y2="20"/>
+        <line class="spoke" x1="48" y1="48" x2="18" y2="80"/>
+        <line class="spoke" x1="48" y1="48" x2="82" y2="78"/>
+        <circle class="sat" cx="14" cy="18" r="6"/><circle class="sat" cx="84" cy="20" r="6"/>
+        <circle class="sat" cx="18" cy="80" r="6"/><circle class="sat" cx="82" cy="78" r="6"/>
+        <circle class="hub" cx="48" cy="48" r="9"/>
+      </svg></div>
+      <!-- 4 checklist -->
+      <div class="scheme s4"><svg viewBox="0 0 100 64" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="6" y="6" width="16" height="16" rx="4"/><line x1="32" y1="14" x2="92" y2="14"/>
+        <rect x="6" y="28" width="16" height="16" rx="4"/><line x1="32" y1="36" x2="84" y2="36"/>
+        <rect x="6" y="50" width="16" height="16" rx="4" transform="translate(0,-8)"/><line x1="32" y1="50" x2="78" y2="50"/>
+        <path class="ck" d="M9 13 l4 4 l7 -9"/>
+        <path class="ck" d="M9 35 l4 4 l7 -9"/>
+        <path class="ck" d="M9 49 l4 4 l7 -9"/>
+      </svg></div>
+      <!-- 5 gears -->
+      <div class="scheme s5"><svg viewBox="0 0 96 64" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <g class="g g1"><circle cx="34" cy="32" r="13"/><circle cx="34" cy="32" r="4"/>
+          <g stroke-width="3"><line x1="34" y1="14" x2="34" y2="19"/><line x1="34" y1="45" x2="34" y2="50"/><line x1="16" y1="32" x2="21" y2="32"/><line x1="47" y1="32" x2="52" y2="32"/><line x1="21" y1="19" x2="24" y2="22"/><line x1="44" y1="42" x2="47" y2="45"/><line x1="47" y1="19" x2="44" y2="22"/><line x1="24" y1="42" x2="21" y2="45"/></g></g>
+        <g class="g g2"><circle cx="66" cy="40" r="9"/><circle cx="66" cy="40" r="3"/>
+          <g stroke-width="3"><line x1="66" y1="27" x2="66" y2="31"/><line x1="66" y1="49" x2="66" y2="53"/><line x1="53" y1="40" x2="57" y2="40"/><line x1="75" y1="40" x2="79" y2="40"/></g></g>
+      </svg></div>
+      <!-- 6 gauge -->
+      <div class="scheme s6"><svg viewBox="0 0 96 60" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M8 50 A40 40 0 0 1 88 50" opacity="0.35"/>
+        <path class="arc" d="M8 50 A40 40 0 0 1 88 50"/>
+        <line class="ndl" x1="48" y1="46" x2="48" y2="18" stroke-width="2.4"/>
+        <circle cx="48" cy="46" r="3.5"/>
+      </svg></div>
+    </div>
+    <div class="exp-txt">
+      <div><span class="label">Масштаб</span><h3>Снимаем рутину целыми отделами</h3></div>
+      <p><b>609 FTE</b> ручного труда — на автономных агентах.</p>
+    </div>
+  </article>
+
+<script>
+  const schemes=[...document.querySelectorAll('.scheme')];
+  // sequence order = scatter order around the illustration (not strictly index)
+  const order=[0,2,4,1,3,5];
+  let k=0;
+  function tick(){
+    schemes.forEach(s=>s.classList.remove('is-active'));
+    schemes[order[k]].classList.add('is-active');
+    k=(k+1)%order.length;
+  }
+  tick(); setInterval(tick,2200);
+</script>
+</body>
+</html>

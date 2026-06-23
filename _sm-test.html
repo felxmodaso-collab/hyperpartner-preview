@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>sm cards test</title><style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0b0e0d;min-height:100vh;display:grid;place-items:center;padding:30px;font-family:system-ui,sans-serif}
+  .row{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;width:min(96vw,1160px)}
+  .exp-card{position:relative;overflow:hidden;border-radius:26px;color:#fff;isolation:isolate;aspect-ratio:4/5;
+    box-shadow:0 34px 80px -40px rgba(0,30,18,.55)}
+  .exp-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;mix-blend-mode:screen}
+  .c-roi {background:radial-gradient(120% 120% at 85% 12%,#27b499 0%,transparent 55%),linear-gradient(155deg,#1f9c84,#11574a)}
+  .c-sec {background:radial-gradient(120% 120% at 18% 8%,#22463a 0%,transparent 55%),linear-gradient(155deg,#1E2723,#121d18)}
+  .c-pers{background:radial-gradient(120% 120% at 20% 12%,#dc7d52 0%,transparent 55%),linear-gradient(155deg,#c25e3e,#8c3a20)}
+  .exp-txt{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:24px}
+  .label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.82)}
+  h3{margin:10px 0 0;font-weight:500;letter-spacing:-.02em;line-height:1.1;font-size:1.4rem}
+  p{margin-top:auto;padding-top:14px;font-size:13px;line-height:1.45;color:rgba(255,255,255,.78)}
+  p b{color:#fff}
+</style></head><body>
+  <div class="row">
+    <article class="exp-card c-roi"><img class="exp-bg" src="gen3/roi.png">
+      <div class="exp-txt"><div><span class="label">Экономика</span><h3>Окупается за квартал</h3></div><p>До <b>25%</b> ФОТ · <b>1–6 мес</b>.</p></div></article>
+    <article class="exp-card c-sec"><img class="exp-bg" src="gen3/sec.png">
+      <div class="exp-txt"><div><span class="label">Контроль</span><h3>Безопасность и единый контур</h3></div><p>Закрытый контур · наружу только токены.</p></div></article>
+    <article class="exp-card c-pers"><img class="exp-bg" src="gen3/pers.png">
+      <div class="exp-txt"><div><span class="label">Сервис</span><h3>Персональный сервис каждому</h3></div><p>Клиент чувствует личное внимание.</p></div></article>
+  </div>
+</body></html>

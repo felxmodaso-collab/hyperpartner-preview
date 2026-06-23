@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FTE — варианты Veo</title><style>
+  :root{--ease:cubic-bezier(.16,1,.3,1)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0b0d0c;min-height:100vh;display:flex;flex-direction:column;align-items:center;gap:26px;padding:30px;font-family:'Onest',system-ui,sans-serif;color:#e8f5ef}
+  .hd{width:min(94vw,1000px);font-size:13px;color:#8aa39a}
+  .hd b{color:#dffff0}
+  .wrap{width:min(94vw,1000px);display:flex;flex-direction:column;gap:10px}
+  .tag{font-size:13px;color:#bfe9d8;font-weight:600;letter-spacing:.02em}
+  .tag span{color:#7d908a;font-weight:400}
+  .exp-card{position:relative;overflow:hidden;border-radius:26px;color:#fff;isolation:isolate;width:100%;aspect-ratio:16/9;box-shadow:0 34px 80px -40px rgba(0,30,18,.55)}
+  .c-fte{background:radial-gradient(120% 130% at 82% 8%,#1f7a59 0%,transparent 52%),linear-gradient(155deg,#16302B,#0c3327)}
+  .exp-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;mix-blend-mode:screen}
+  .exp-txt{position:relative;z-index:3;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(24px,3vw,42px)}
+  .label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.82)}
+  h3{margin:10px 0 0;font-weight:500;letter-spacing:-.02em;line-height:1.1;font-size:clamp(1.7rem,3vw,2.5rem);max-width:14ch}
+  p{margin-top:auto;padding-top:14px;font-size:15px;line-height:1.45;color:rgba(255,255,255,.78);max-width:34ch}
+  p b{color:#fff;font-weight:600}
+  .depts{position:absolute;inset:0;z-index:2;pointer-events:none}
+  .dept{position:absolute;display:inline-flex;align-items:center;gap:.58em;padding:.58em 1.1em;border-radius:999px;
+    border:1px solid rgba(180,255,220,.40);background:rgba(10,30,22,.30);
+    font-size:15.5px;font-weight:500;letter-spacing:.01em;color:#eafff6;white-space:nowrap;
+    box-shadow:0 0 18px rgba(120,230,180,.16),inset 0 0 12px rgba(120,230,180,.05);
+    animation:deptPulse 4.2s var(--ease) infinite}
+  .dept::before{content:"";width:.42em;height:.42em;border-radius:50%;background:#bdf5dd;box-shadow:0 0 9px rgba(150,255,220,.95);flex:none}
+  .dept:nth-child(1){animation-delay:0s}.dept:nth-child(2){animation-delay:.7s}.dept:nth-child(3){animation-delay:1.4s}
+  .dept:nth-child(4){animation-delay:2.1s}.dept:nth-child(5){animation-delay:2.8s}.dept:nth-child(6){animation-delay:3.5s}
+  @keyframes deptPulse{0%,100%{box-shadow:0 0 12px rgba(120,230,180,.10),inset 0 0 8px rgba(120,230,180,.04);border-color:rgba(180,255,220,.32)}
+    50%{box-shadow:0 0 22px rgba(140,245,200,.30),inset 0 0 14px rgba(140,245,200,.10);border-color:rgba(190,255,225,.62)}}
+</style></head><body>
+  <div class="hd"><b>3 варианта Veo (cinemagraph)</b> — одна картинка np3, одни плашки, разные сиды. Сейчас в проде стоит <b>seed 14</b>. Скажи, какой берём.</div>
+  <div class="wrap">
+    <div class="tag">seed 14 <span>— в проде сейчас (точки спокойнее всего)</span></div>
+    <article class="exp-card c-fte" data-v="14"></article>
+    <div class="tag">seed 3 <span>— точки заметнее дрейфуют</span></div>
+    <article class="exp-card c-fte" data-v="3"></article>
+    <div class="tag">seed 42 <span>— промежуточный</span></div>
+    <article class="exp-card c-fte" data-v="42"></article>
+  </div>
+<script>
+  const PLATES=[['Бухгалтерия',4.83,58.44,19.5],['HR',83.56,14.53,17.5],['Поддержка',71.73,65.92,17],['Продажи',58.46,13.06,23],['Логистика',39.46,76.50,18.5],['Закупки',60.13,89.83,18.5]];
+  document.querySelectorAll('.exp-card').forEach(card=>{
+    const v=card.dataset.v;
+    const vid=document.createElement('video');vid.className='exp-bg';vid.src='gen3/fte-cine-'+v+'.mp4';vid.muted=true;vid.loop=true;vid.playsInline=true;vid.autoplay=true;card.appendChild(vid);
+    const d=document.createElement('div');d.className='depts';
+    PLATES.forEach(([t,l,tp,fs])=>{const s=document.createElement('span');s.className='dept';s.textContent=t;s.style.cssText='left:'+l+'%;top:'+tp+'%;font-size:'+fs+'px';d.appendChild(s);});
+    card.appendChild(d);
+    const tx=document.createElement('div');tx.className='exp-txt';
+    tx.innerHTML='<div><span class="label">Масштаб</span><h3>Снимаем рутину целыми отделами</h3></div><p><b>609 FTE</b> ручного труда — на автономных агентах.</p>';
+    card.appendChild(tx);
+  });
+</script>
+</body></html>

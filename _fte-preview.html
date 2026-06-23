@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FTE — анимация v8c, варианты вёрстки</title><style>
+  :root{--ease:cubic-bezier(.16,1,.3,1)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0b0d0c;color:#e8f5ef;font-family:'Onest',system-ui,sans-serif;padding:30px;display:flex;flex-direction:column;gap:30px;align-items:center}
+  .cap{align-self:flex-start;max-width:980px;margin:0 auto;font-size:13px;color:#8aa39a;letter-spacing:.01em}
+  .exp-card{position:relative;overflow:hidden;border-radius:26px;color:#fff;isolation:isolate;width:min(94vw,980px);aspect-ratio:16/9;box-shadow:0 34px 80px -40px rgba(0,30,18,.55)}
+  .c-fte{background:radial-gradient(120% 130% at 82% 8%,#1f7a59 0%,transparent 52%),linear-gradient(155deg,#16302B,#0c3327)}
+  .exp-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;mix-blend-mode:screen}
+  .exp-txt{position:relative;z-index:2;height:100%;display:flex;flex-direction:column;justify-content:space-between;padding:clamp(24px,3vw,42px)}
+  .label{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.82)}
+  h3{margin:10px 0 0;font-weight:500;letter-spacing:-.02em;line-height:1.1;font-size:clamp(1.7rem,3vw,2.5rem);max-width:14ch}
+  p{margin-top:auto;padding-top:14px;font-size:15px;line-height:1.45;color:rgba(255,255,255,.78);max-width:34ch}
+  p b{color:#fff;font-weight:600}
+  .tag{position:absolute;top:10px;left:14px;z-index:5;font-size:12px;color:#bfe9d8;background:#0009;padding:3px 9px;border-radius:8px}
+  /* variant tweaks */
+  .v-min h3,.v-min p{display:none}
+  .v-split .exp-bg{transform:scale(.9);transform-origin:75% 50%}
+  .v-split .exp-txt{justify-content:flex-start;gap:0}
+  .v-split h3{max-width:11ch}
+  .v-split p{margin-top:18px}
+  .v-scale .exp-bg{transform:scale(.8)}
+  .v-scale p{display:none}
+</style></head><body>
+  <div class="cap">Видео одно и то же (fte-v8c-veo.mp4, чистый Veo). Отличается только текст карточки. Скажи номер.</div>
+
+  <article class="exp-card c-fte v-full"><span class="tag">1 · видео + весь текущий текст (видно наложение)</span>
+    <video class="exp-bg" src="gen3/fte-v8c-veo.mp4" muted loop playsinline autoplay></video>
+    <div class="exp-txt"><div><span class="label">Масштаб</span><h3>Снимаем рутину целыми отделами</h3></div><p><b>609 FTE</b> ручного труда — на автономных агентах.</p></div>
+  </article>
+
+  <article class="exp-card c-fte v-min"><span class="tag">2 · видео-герой, только метка «Масштаб» (графика говорит сама)</span>
+    <video class="exp-bg" src="gen3/fte-v8c-veo.mp4" muted loop playsinline autoplay></video>
+    <div class="exp-txt"><div><span class="label">Масштаб</span><h3>x</h3></div><p>x</p></div>
+  </article>
+
+  <article class="exp-card c-fte v-split"><span class="tag">3 · текст слева, графика чуть сжата вправо, подпись 609 убрана</span>
+    <video class="exp-bg" src="gen3/fte-v8c-veo.mp4" muted loop playsinline autoplay></video>
+    <div class="exp-txt"><div><span class="label">Масштаб</span><h3>Снимаем рутину целыми отделами</h3></div></div>
+  </article>
+
+  <article class="exp-card c-fte v-scale"><span class="tag">4 · видео сжато к центру (как Экономика), метка + заголовок сверху</span>
+    <video class="exp-bg" src="gen3/fte-v8c-veo.mp4" muted loop playsinline autoplay></video>
+    <div class="exp-txt"><div><span class="label">Масштаб</span><h3>Снимаем рутину целыми отделами</h3></div></div>
+  </article>
+</body></html>
