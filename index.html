@@ -877,7 +877,12 @@
   .team-lede{margin:18px 0 0;max-width:60ch;color:rgba(30,29,26,.6);font-size:clamp(15px,1.5vw,17.5px);line-height:1.55}
   .team-grid{max-width:var(--frame);margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(14px,1.6vw,24px)}
   @media(max-width:1100px){.team-grid{grid-template-columns:repeat(3,1fr)}}
-  @media(max-width:680px){.team-grid{grid-template-columns:repeat(2,1fr);gap:16px}}
+  @media(max-width:680px){
+    .team-grid{display:flex;grid-template-columns:none;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+      margin-left:-24px;margin-right:-24px;padding:6px 24px 12px;scroll-padding:0 24px;scrollbar-width:none;-ms-overflow-style:none}
+    .team-grid::-webkit-scrollbar{display:none}
+    .tm-card{flex:0 0 70%;max-width:280px;scroll-snap-align:start}
+  }
   .tm-card{position:relative}
   .tm-photo{position:relative;aspect-ratio:4/5;border-radius:16px;overflow:hidden;background:#e7e6e0;
     box-shadow:0 26px 50px -32px rgba(8,30,20,.4)}
@@ -1180,9 +1185,11 @@
 #process .proc-in{position:relative;max-width:1320px;margin:0 auto}
 #process .proc-head{position:absolute;top:0;left:0;max-width:clamp(360px,40%,560px);z-index:3;pointer-events:none}
 #process .proc-eyebrow{display:inline-block;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#27B499;font-weight:600}
-#process h2{margin:14px 0 0;font-weight:500;letter-spacing:-.025em;line-height:1.06;font-size:clamp(2rem,4.3vw,3.3rem);max-width:18ch;color:#F5F4F0}
-#process h2 em{font-style:normal;font-weight:500;color:transparent;-webkit-text-stroke:1.4px #F7CFB4;paint-order:stroke}
-#process .proc-lede{margin:18px 0 0;max-width:46ch;font-size:clamp(15px,1.5vw,17px);line-height:1.55;color:rgba(245,244,240,.62)}
+#process h2{margin:14px 0 0;font-weight:400;letter-spacing:-.025em;line-height:1.06;font-size:clamp(2rem,4.3vw,3.3rem);max-width:18ch;color:#F5F4F0}
+#process h2 em{font-style:normal;color:#27B499}
+#process .proc-points{list-style:none;margin:24px 0 0;display:flex;flex-direction:column;gap:13px}
+#process .proc-points li{position:relative;padding-left:24px;font-size:clamp(16px,1.6vw,19px);font-weight:500;letter-spacing:-.01em;color:#F5F4F0;line-height:1.2}
+#process .proc-points li::before{content:"";position:absolute;left:0;top:.46em;width:8px;height:8px;border-radius:50%;background:#27B499;box-shadow:0 0 9px 1px rgba(39,180,153,.6)}
 #process .iso{position:relative;margin-top:0;width:100%;aspect-ratio:16/9.4}
 #process .streak{position:absolute;left:6%;right:6%;top:48%;height:42%;transform:rotate(-19deg);transform-origin:center;background:radial-gradient(60% 60% at 50% 50%,rgba(39,180,153,.18),transparent 70%);filter:blur(22px);pointer-events:none}
 #process .step{position:absolute;width:calc(33% * var(--bs,1));transform:translate(-50%,-50%);pointer-events:none;will-change:transform;transition:transform .5s var(--pe),filter .5s var(--pe)}
@@ -1223,14 +1230,26 @@
 #process .comet.on{opacity:1}
 #process .comet.done{opacity:0;transition:opacity .7s var(--pe)}
 @media(max-width:900px){
-  #process .proc-head{position:static;max-width:none}
-  #process .iso{aspect-ratio:auto;display:flex;flex-direction:column;gap:14px;margin-top:24px}
+  #process{padding:clamp(54px,8vh,88px) clamp(14px,4.5vw,30px) clamp(74px,10vh,118px)}
+  #process .proc-head{position:static;max-width:none;margin-bottom:clamp(28px,5vh,44px)}
+  #process h2{font-size:clamp(1.95rem,7.4vw,2.7rem);max-width:none}
+  #process .proc-lede{max-width:none}
+  #process .iso{position:relative;aspect-ratio:auto;display:flex;flex-direction:column;gap:clamp(22px,4.6vh,40px);margin-top:6px}
   #process .streak{display:none}
-  #process .step{position:relative;width:100%;left:auto!important;top:auto!important;transform:none;display:grid;grid-template-columns:120px 1fr;align-items:center;gap:14px}
-  #process .block{width:120px;aspect-ratio:1/1}
-  #process .iso:hover .step{filter:none}
-  #process .label{position:static;left:auto;top:auto;background:transparent;border:none;box-shadow:none;backdrop-filter:none;padding:0}
-  #process .step:hover{transform:none}
+  #process .glow{display:none}
+  /* vertical zig-zag timeline: odd blocks left, even blocks right -> the runner through their centers becomes a wide serpentine */
+  #process .step{position:relative;display:grid;grid-template-columns:clamp(86px,27vw,118px) minmax(0,1fr);align-items:center;column-gap:clamp(10px,3.4vw,18px);
+    width:100%;left:auto!important;top:auto!important;transform:none;pointer-events:auto}
+  #process .step[data-i="1"],#process .step[data-i="3"],#process .step[data-i="5"]{grid-template-columns:minmax(0,1fr) clamp(86px,27vw,118px)}
+  #process .step[data-i="1"] .block,#process .step[data-i="3"] .block,#process .step[data-i="5"] .block{grid-column:2}
+  #process .step[data-i="1"] .label,#process .step[data-i="3"] .label,#process .step[data-i="5"] .label{grid-column:1;justify-self:end}
+  #process .block{width:100%;aspect-ratio:1/1;clip-path:none;-webkit-mask:none!important;mask:none!important;grid-column:1}
+  #process .block .poster,#process .block video{transform:scale(1.08)!important;-webkit-mask:none!important;mask:none!important;object-fit:cover!important;width:100%!important;height:100%!important;inset:0!important;left:auto!important}
+  /* keep the glass plaque (caption) like desktop, just placed next to its block */
+  #process .label{position:static;left:auto;top:auto;justify-self:start;white-space:normal;max-width:100%;padding:11px 15px}
+  #process .iso:hover .step,#process .step:hover{filter:none;transform:none}
+  #process .runner-svg .p-trail{stroke-width:2.6}
+  #process .comet{width:13px;height:13px}
 }
 </style>
 <section class="proc" id="process">
@@ -1238,7 +1257,11 @@
     <div class="proc-head">
       <span class="proc-eyebrow">Процесс</span>
       <h2>От первой встречи до <em>запуска</em></h2>
-      <p class="proc-lede">Шесть понятных этапов с фиксированными сроками. Бесплатный пилот в начале: вы убеждаетесь на своих данных, прежде чем платить за разработку.</p>
+      <ul class="proc-points">
+        <li>Снижайте издержки</li>
+        <li>Ускоряйте процессы</li>
+        <li>Опережайте рынок</li>
+      </ul>
     </div>
     <div class="iso"><div class="streak"></div></div>
   </div>
@@ -1292,7 +1315,13 @@
     var fracs=pts.map(function(pt){ var b=0,bd=1e12; for(var k=0;k<=N;k++){ var dx=samp[k].x-pt.x,dy=samp[k].y-pt.y,dd=dx*dx+dy*dy; if(dd<bd){bd=dd;b=k;} } return b/N; });
     return {raw:raw,len:len,trail:trail,comet:comet,fracs:fracs};
   }
-  function runRunner(){
+  function applyRunnerProgress(R,p){
+    var pos=MotionPathPlugin.getPositionOnPath(R.raw,p);
+    R.comet.style.transform='translate('+pos.x+'px,'+pos.y+'px) translate(-50%,-50%)';
+    R.trail.style.strokeDashoffset=R.len*(1-p);
+    R.fracs.forEach(function(f,i){ if(p>=f) revealStep(i); });
+  }
+  function runRunner(){            // desktop: one timed pass when the section enters
     if(!window.MotionPathPlugin) return;
     if(runTween) runTween.kill();
     steps.forEach(function(s,i){ if(i===0)return;
@@ -1304,21 +1333,29 @@
     iso.classList.add('armed'); revealStep(0);
     var R=buildRunner(); R.comet.classList.remove('done'); R.comet.classList.add('on');
     var o={p:0};
-    runTween=gsap.to(o,{p:1,duration:4.4,ease:'none',onUpdate:function(){
-      var pos=MotionPathPlugin.getPositionOnPath(R.raw,o.p);
-      R.comet.style.transform='translate('+pos.x+'px,'+pos.y+'px) translate(-50%,-50%)';
-      R.trail.style.strokeDashoffset=R.len*(1-o.p);
-      R.fracs.forEach(function(f,i){ if(o.p>=f) revealStep(i); });
-    },onComplete:function(){ steps.forEach(function(s,i){revealStep(i);}); R.comet.classList.remove('on'); R.comet.classList.add('done'); }});
+    runTween=gsap.to(o,{p:1,duration:4.4,ease:'none',onUpdate:function(){ applyRunnerProgress(R,o.p); },
+      onComplete:function(){ steps.forEach(function(s,i){revealStep(i);}); R.comet.classList.remove('on'); R.comet.classList.add('done'); }});
+  }
+  function runRunnerScrub(){       // mobile: comet is driven by scroll so each stage ignites as it comes into view (tall section, no hidden content below the fold)
+    if(!window.MotionPathPlugin) return;
+    iso.classList.add('armed'); revealStep(0);
+    var R=buildRunner(); R.comet.classList.add('on');
+    ScrollTrigger.create({trigger:iso,start:'top 70%',end:'bottom 78%',scrub:0.5,
+      onUpdate:function(self){ applyRunnerProgress(R,self.progress); },
+      onLeave:function(){ steps.forEach(function(s,i){revealStep(i);}); }});
   }
   if(window.ScrollTrigger && !reduce){
     gsap.registerPlugin(ScrollTrigger); if(window.MotionPathPlugin) gsap.registerPlugin(MotionPathPlugin);
     var head=root.querySelector('.proc-head');
     if(head){ gsap.set(head,{opacity:0,y:24}); ScrollTrigger.create({trigger:head,start:'top 86%',once:true,onEnter:function(){ gsap.to(head,{opacity:1,y:0,duration:.9,ease:'power3.out'}); }}); }
     steps.forEach(function(s){ gsap.set([s.querySelector('.block'),s.querySelector('.label')],{opacity:0}); });
-    ScrollTrigger.create({trigger:iso,start:'top 76%',once:true,onEnter:function(){
-      iso.classList.add('armed'); revealStep(0); setTimeout(runRunner,640);
-    }});
+    if(matchMedia('(max-width:900px)').matches){
+      ScrollTrigger.create({trigger:iso,start:'top 94%',once:true,onEnter:runRunnerScrub});
+    } else {
+      ScrollTrigger.create({trigger:iso,start:'top 76%',once:true,onEnter:function(){
+        iso.classList.add('armed'); revealStep(0); setTimeout(runRunner,640);
+      }});
+    }
   } else {
     steps.forEach(function(s){ s.classList.add('shown','lit'); var v=s.querySelector('video'),p=s.querySelector('.poster'); if(p)p.style.opacity='0'; if(v){v.style.opacity='1';} });
   }
