@@ -390,6 +390,18 @@
     .exp-big .depts{display:none}
     .exp-big .depts-row{display:flex}
   }
+  /* phones: the screen-blended bg video reads broken on iOS (black corners) + loads slowly + clutters the text.
+     Drop it, let the card gradient carry the look, and size cards to their content (no tall empty boxes). */
+  @media(max-width:760px){
+    .exp-bg,.fte-pulse{display:none}
+    .exp-card{min-height:0}
+    .exp-big{aspect-ratio:auto;min-height:0}
+    .exp-sm{aspect-ratio:auto;min-height:0}
+    .exp-txt{height:auto;justify-content:flex-start;gap:14px;padding:26px 24px}
+    .exp-txt h3{margin:8px 0 0}
+    .exp-txt p{margin-top:0;padding-top:0}
+    .exp-big .depts-row{margin-top:6px}
+  }
   @media(prefers-reduced-motion:reduce){.exp-card{opacity:1;transform:none;transition:none}}
 </style>
 <section class="exp" id="experience">
@@ -1972,6 +1984,20 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
     var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){map.resize();io.disconnect();}},{rootMargin:"120px"});
     io.observe(el);
   }
+})();
+</script>
+<script>
+/* iOS (esp. Low Power Mode) blocks video autoplay — videos then sit on their first frame. Kick every visible video on the first real user gesture (tap/click), which iOS does allow. One-shot. */
+(function(){
+  var done=false;
+  function kick(){ if(done)return; done=true;
+    document.querySelectorAll('video').forEach(function(v){
+      if(v.offsetParent===null) return;                 // skip hidden (display:none) videos
+      if(!v.paused) return;
+      try{ v.muted=true; v.setAttribute('playsinline',''); var p=v.play(); if(p&&p.catch)p.catch(function(){}); }catch(e){}
+    });
+  }
+  ['touchstart','pointerdown','click','keydown'].forEach(function(ev){ window.addEventListener(ev,kick,{passive:true,once:true}); });
 })();
 </script>
 </body>
