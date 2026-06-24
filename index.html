@@ -1270,16 +1270,20 @@
 (function(){
   var root=document.getElementById('process'); if(!root||!window.gsap) return;
   var iso=root.querySelector('.iso');
+  // iOS/Safari can't render VP9-alpha WebM transparency (it paints a black box). On Safari and on mobile show the alpha-webp poster only — runner + reveal carry the motion. Animated holograms run on desktop Chromium.
+  var isSafari=/^((?!chrome|crios|chromium|android).)*safari/i.test(navigator.userAgent);
+  var useVideo=!isSafari && !matchMedia('(max-width:900px)').matches;
   var STEPS=[["01","Аудит и стратегия","5 дней"],["02","Бесплатный пилот","10–14 дней"],["03","Договор и оплата","1 неделя"],["04","Разработка","3–6 недель"],["05","Тестирование","2 недели"],["06","Запуск и поддержка",""]];
   STEPS.forEach(function(a,i){ var n=a[0],t=a[1],d=a[2];
     var el=document.createElement('div'); el.className='step'; el.dataset.i=i;
-    el.innerHTML='<div class="glow"></div><div class="block"><img class="poster" src="process/a-pad-'+n+'.webp" alt=""><video src="process/a-anim-'+n+'.webm" muted playsinline preload="auto"></video></div><div class="label"><div class="head"><span class="n">'+n+'</span>'+(d?'<span class="d">'+d+'</span>':'')+'</div><span class="t">'+t+'</span></div>';
+    var vid=useVideo?'<video src="process/a-anim-'+n+'.webm" muted playsinline preload="auto"></video>':'';
+    el.innerHTML='<div class="glow"></div><div class="block"><img class="poster" src="process/a-pad-'+n+'.webp" alt="">'+vid+'</div><div class="label"><div class="head"><span class="n">'+n+'</span>'+(d?'<span class="d">'+d+'</span>':'')+'</div><span class="t">'+t+'</span></div>';
     iso.appendChild(el);
   });
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   var steps=[].slice.call(root.querySelectorAll('.step'));
-  steps.forEach(function(s){ var v=s.querySelector('video'); v.loop=false; v.pause(); });
-  window.addEventListener('load',function(){ steps.forEach(function(s,i){ var v=s.querySelector('video'); setTimeout(function(){ v.play().then(function(){ v.pause(); try{v.currentTime=0;}catch(x){} }).catch(function(){}); }, 280+i*220); }); });
+  steps.forEach(function(s){ var v=s.querySelector('video'); if(v){v.loop=false; v.pause();} });
+  if(useVideo) window.addEventListener('load',function(){ steps.forEach(function(s,i){ var v=s.querySelector('video'); if(!v)return; setTimeout(function(){ v.play().then(function(){ v.pause(); try{v.currentTime=0;}catch(x){} }).catch(function(){}); }, 280+i*220); }); });
   function settleVideo(v){
     function begin(){ var dur=v.duration; if(!dur||isNaN(dur))return; var win=Math.min(1.6,dur*0.4); var armed=false;
       function onTime(){ if(!armed && v.currentTime>=dur-win){ armed=true; v.removeEventListener('timeupdate',onTime);
@@ -1291,12 +1295,11 @@
   function revealStep(i){
     var s=steps[i]; if(!s||s.classList.contains('shown'))return; s.classList.add('shown','lit');
     var block=s.querySelector('.block'),glow=s.querySelector('.glow'),label=s.querySelector('.label'),v=s.querySelector('video'),p=s.querySelector('.poster');
-    if(p)p.style.opacity='0';
     gsap.killTweensOf([block,glow,label]);
     gsap.fromTo(block,{opacity:0,yPercent:5,'--lit':1.4},{opacity:1,yPercent:0,'--lit':1,duration:1.15,ease:'power3.out'});
     gsap.timeline().fromTo(glow,{opacity:0},{opacity:.95,duration:.24,ease:'power2.out'}).to(glow,{opacity:.4,duration:1.0,ease:'power2.out',onComplete:function(){gsap.set(glow,{clearProps:'opacity'});}});
     gsap.fromTo(label,{opacity:0,y:10},{opacity:1,y:0,duration:.7,ease:'power3.out',delay:.22,onComplete:function(){gsap.set(label,{clearProps:'transform'});}});
-    if(v){ v.style.opacity='1'; v.loop=false; v.playbackRate=1; v.play().catch(function(){}); settleVideo(v); }
+    if(v){ if(p)p.style.opacity='0'; v.style.opacity='1'; v.loop=false; v.playbackRate=1; v.play().catch(function(){}); settleVideo(v); }   // poster stays visible when there's no video (mobile/Safari) — alpha-webp is clean
   }
   var runTween=null;
   function buildRunner(){
