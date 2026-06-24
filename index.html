@@ -1253,13 +1253,16 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   #process .streak{display:none}
   #process .glow{display:none}
   /* vertical zig-zag timeline: odd blocks left, even blocks right -> the runner through their centers becomes a wide serpentine */
-  #process .step{position:relative;display:grid;grid-template-columns:clamp(86px,27vw,118px) minmax(0,1fr);align-items:center;column-gap:clamp(10px,3.4vw,18px);
+  #process .step{position:relative;display:grid;grid-template-columns:clamp(132px,42vw,184px) minmax(0,1fr);align-items:center;column-gap:clamp(10px,3.4vw,18px);
     width:100%;left:auto!important;top:auto!important;transform:none;pointer-events:auto}
-  #process .step[data-i="1"],#process .step[data-i="3"],#process .step[data-i="5"]{grid-template-columns:minmax(0,1fr) clamp(86px,27vw,118px)}
+  #process .step[data-i="1"],#process .step[data-i="3"],#process .step[data-i="5"]{grid-template-columns:minmax(0,1fr) clamp(132px,42vw,184px)}
   #process .step[data-i="1"] .block,#process .step[data-i="3"] .block,#process .step[data-i="5"] .block{grid-column:2}
   #process .step[data-i="1"] .label,#process .step[data-i="3"] .label,#process .step[data-i="5"] .label{grid-column:1;justify-self:end}
-  #process .block{width:100%;aspect-ratio:1/1;clip-path:none;-webkit-mask:none!important;mask:none!important;grid-column:1}
-  #process .block .poster,#process .block video{transform:scale(1.08)!important;-webkit-mask:none!important;mask:none!important;object-fit:cover!important;width:100%!important;height:100%!important;inset:0!important;left:auto!important}
+  /* soft radial feather instead of a hard rectangle — the object floats with no visible square edge / "it's a video" contour */
+  #process .block{width:100%;aspect-ratio:1/1;clip-path:none!important;grid-column:1;
+    -webkit-mask:radial-gradient(ellipse 76% 68% at 50% 52%,#000 48%,transparent 82%)!important;
+    mask:radial-gradient(ellipse 76% 68% at 50% 52%,#000 48%,transparent 82%)!important}
+  #process .block .poster,#process .block video{transform:scale(1.12)!important;-webkit-mask:none!important;mask:none!important;object-fit:cover!important;width:100%!important;height:100%!important;inset:0!important;left:auto!important}
   /* keep the glass plaque (caption) like desktop, just placed next to its block */
   #process .label{position:static;left:auto;top:auto;justify-self:start;white-space:normal;max-width:100%;padding:11px 15px}
   #process .iso:hover .step,#process .step:hover{filter:none;transform:none}
