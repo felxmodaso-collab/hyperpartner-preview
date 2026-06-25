@@ -112,6 +112,59 @@
   @keyframes pillripple{to{transform:translate(-50%,-50%) scale(5);opacity:0}}
   @media(prefers-reduced-motion:reduce){.pill-metal::before{animation:none}}
 
+  /* ===== Mobile nav: minimal header (logo + burger) -> fullscreen overlay menu.
+     Top-studio pattern (Linear/Stripe): the desktop link bar never appears on phones. ===== */
+  .nav-burger{display:none;flex:none;width:44px;height:44px;margin-right:-8px;
+    border:0;background:transparent;cursor:pointer;-webkit-tap-highlight-color:transparent;
+    flex-direction:column;align-items:center;justify-content:center;gap:6px}
+  .nav-burger span{display:block;width:24px;height:2px;border-radius:2px;background:#fff;
+    transition:transform .4s var(--ease),opacity .3s var(--ease)}
+  body.nav-open .nav-burger span:nth-child(1){transform:translateY(4px) rotate(45deg)}
+  body.nav-open .nav-burger span:nth-child(2){transform:translateY(-4px) rotate(-45deg)}
+  @media(max-width:919px){
+    .nav-burger{display:inline-flex}
+    .right .pill-metal{display:none}            /* CTA moves into the overlay menu */
+  }
+  body.nav-open{overflow:hidden}
+  body.nav-open header{transform:none!important}
+  .nav-menu{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;justify-content:center;
+    gap:clamp(26px,5vh,48px);padding:max(96px,15vh) 30px clamp(40px,7vh,72px);
+    background:radial-gradient(120% 90% at 82% -4%, color-mix(in oklab,var(--mint) 18%, transparent), transparent 58%),
+      linear-gradient(180deg, color-mix(in oklab,var(--forest) 97%, #000), var(--forest));
+    opacity:0;visibility:hidden;transform:translateY(-6px);
+    transition:opacity .5s var(--ease),transform .5s var(--ease),visibility 0s linear .5s}
+  body.nav-open .nav-menu{opacity:1;visibility:visible;transform:none;
+    transition:opacity .5s var(--ease),transform .5s var(--ease)}
+  @media(min-width:920px){.nav-menu{display:none}}
+  .nav-menu-links{display:flex;flex-direction:column;gap:clamp(4px,1.6vh,14px)}
+  .nav-menu-links a{display:flex;align-items:baseline;gap:16px;text-decoration:none;color:#fff;
+    font-size:clamp(1.9rem,8.4vw,2.7rem);font-weight:500;letter-spacing:-.02em;line-height:1.12;
+    opacity:0;transform:translateY(16px);
+    transition:opacity .55s var(--ease),transform .55s var(--ease),color .25s var(--ease)}
+  body.nav-open .nav-menu-links a{opacity:1;transform:none}
+  .nav-menu-links a:active{color:var(--mint-bright)}
+  .nav-menu-links .nm-i{font-size:.4em;font-weight:600;color:var(--mint-bright);letter-spacing:.04em;
+    font-variant-numeric:tabular-nums;opacity:.85}
+  body.nav-open .nav-menu-links a:nth-child(1){transition-delay:.10s}
+  body.nav-open .nav-menu-links a:nth-child(2){transition-delay:.14s}
+  body.nav-open .nav-menu-links a:nth-child(3){transition-delay:.18s}
+  body.nav-open .nav-menu-links a:nth-child(4){transition-delay:.22s}
+  body.nav-open .nav-menu-links a:nth-child(5){transition-delay:.26s}
+  body.nav-open .nav-menu-links a:nth-child(6){transition-delay:.30s}
+  body.nav-open .nav-menu-links a:nth-child(7){transition-delay:.34s}
+  .nav-menu-cta{display:inline-flex;align-items:center;justify-content:center;align-self:flex-start;
+    margin-top:clamp(20px,4vh,36px);height:54px;padding:0 32px;border-radius:100px;text-decoration:none;
+    color:#fff;font-size:16px;font-weight:600;background:linear-gradient(120deg,var(--mint-bright),var(--mint-deep));
+    box-shadow:0 20px 44px -18px color-mix(in oklab,var(--mint) 75%,#000);
+    opacity:0;transform:translateY(16px);
+    transition:opacity .55s var(--ease) .42s,transform .55s var(--ease) .42s,filter .25s var(--ease)}
+  body.nav-open .nav-menu-cta{opacity:1;transform:none}
+  .nav-menu-cta:active{filter:brightness(1.08)}
+  @media(prefers-reduced-motion:reduce){
+    .nav-menu,.nav-menu-links a,.nav-menu-cta{transition:opacity .2s linear!important;transform:none!important}
+    .nav-burger span{transition:none}
+  }
+
   .copy{max-width:min(720px,90%);margin-top:clamp(120px,23vh,230px)}
   h1{margin:0;color:#fff;font-weight:400;letter-spacing:-0.03em;line-height:1.06;
     font-size:clamp(2.1rem,4.6vw,3.85rem);text-shadow:0 2px 34px rgba(0,0,0,.22);white-space:nowrap}
@@ -294,9 +347,22 @@
         <a href="#team">Команда</a>
         <a href="#reviews">Отзывы</a>
       </nav>
-      <div class="right"><a class="pill-metal" href="#contacts"><span>Узнать больше</span></a></div>
+      <div class="right"><a class="pill-metal" href="#contacts"><span>Узнать больше</span></a><button class="nav-burger" id="navBurger" type="button" aria-label="Открыть меню" aria-expanded="false" aria-controls="navMenu"><span></span><span></span></button></div>
     </nav>
   </header>
+
+  <div class="nav-menu" id="navMenu" aria-hidden="true">
+    <nav class="nav-menu-links" aria-label="Мобильное меню">
+      <a href="#experience"><span class="nm-i">01</span>Ценность</a>
+      <a href="#calculator"><span class="nm-i">02</span>Окупаемость</a>
+      <a href="#roles"><span class="nm-i">03</span>Применение</a>
+      <a href="#process"><span class="nm-i">04</span>Ход проекта</a>
+      <a href="#tech"><span class="nm-i">05</span>Технологии</a>
+      <a href="#team"><span class="nm-i">06</span>Команда</a>
+      <a href="#reviews"><span class="nm-i">07</span>Отзывы</a>
+    </nav>
+    <a class="nav-menu-cta" href="#contacts">Узнать больше</a>
+  </div>
 
   <div class="frame">
     <div class="frame-in">
@@ -2089,6 +2155,23 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   }
   window.addEventListener("scroll",function(){ if(!ticking){ ticking=true; requestAnimationFrame(update); } },{passive:true});
   update();
+})();
+
+/* mobile nav — burger toggles a fullscreen overlay; scroll-locked, ESC/link/resize close it */
+(function(){
+  var burger=document.getElementById("navBurger");
+  var menu=document.getElementById("navMenu");
+  if(!burger||!menu)return;
+  function setOpen(o){
+    document.body.classList.toggle("nav-open",o);
+    burger.setAttribute("aria-expanded",o?"true":"false");
+    burger.setAttribute("aria-label",o?"Закрыть меню":"Открыть меню");
+    menu.setAttribute("aria-hidden",o?"false":"true");
+  }
+  burger.addEventListener("click",function(){ setOpen(!document.body.classList.contains("nav-open")); });
+  menu.querySelectorAll("a").forEach(function(a){ a.addEventListener("click",function(){ setOpen(false); }); });
+  document.addEventListener("keydown",function(e){ if(e.key==="Escape"||e.key==="Esc") setOpen(false); });
+  window.addEventListener("resize",function(){ if(window.innerWidth>=920) setOpen(false); });
 })();
 
 
