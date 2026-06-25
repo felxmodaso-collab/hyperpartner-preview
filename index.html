@@ -34,11 +34,11 @@
   /* ===== full-bleed cinematic banner — ONE clean clip (no cross-fade ghosting) ===== */
   .stage{position:relative;z-index:10;width:100%;height:min(92svh,920px);overflow:hidden;background:#0e1413}
   .stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 46%;
-    filter:brightness(.74) saturate(.8) contrast(1.07);
+    filter:brightness(.88) saturate(.86) contrast(1.05);
     opacity:0;animation:vidIn 1.3s var(--ease-std) .1s forwards}
   /* cool the warm-beige clip toward the brand's dark forest gamma (multiply teal veil + vignette) */
   .stage::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
-    background:radial-gradient(126% 104% at 50% 38%, rgba(20,58,49,.20) 0%, rgba(7,19,15,.5) 100%);
+    background:radial-gradient(126% 104% at 50% 38%, rgba(20,58,49,.13) 0%, rgba(7,19,15,.34) 100%);
     mix-blend-mode:multiply}
   @keyframes vidIn{to{opacity:1}}
   /* film grain — filmic texture + dithers any 8-bit gradient banding (the bright window) */
@@ -1308,6 +1308,13 @@
     transform:translate(-50%,-50%);animation:pinPulse 2.6s var(--ease) infinite}
   @keyframes pinPulse{0%{transform:translate(-50%,-50%) scale(1);opacity:.7}70%{transform:translate(-50%,-50%) scale(3.6);opacity:0}100%{opacity:0}}
   @media(prefers-reduced-motion:reduce){.hp-pin b{animation:none}}
+  /* orientation chip — Moscow-City landmark so the map is readable at a glance */
+  .hp-city{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 11px;border-radius:999px;
+    background:rgba(11,24,21,.8);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+    border:1px solid rgba(255,255,255,.18);color:rgba(255,255,255,.92);font-size:11.5px;font-weight:600;
+    letter-spacing:.01em;white-space:nowrap;box-shadow:0 4px 14px rgba(0,0,0,.45);cursor:default}
+  .hp-city svg{width:12px;height:12px;opacity:.85;flex:none}
+  .hp-city b{font-weight:400;opacity:.55;font-size:10.5px}
 
   /* giant wordmark as a background behind the columns, per-letter clip-rise reveal */
   .ft-colswrap{position:relative}
@@ -1353,7 +1360,7 @@
     <article class="tm-card reveal">
       <div class="tm-photo"><img src="team/ruslan-talipov-640.webp" alt="Руслан Талипов" loading="lazy"></div>
       <div class="tm-meta"><div class="tm-name">Руслан Талипов</div><div class="tm-role">Директор по развитию</div>
-        <p class="tm-bio">Отвечает за внешние связи, цифровизацию бизнеса и ключевые партнёрства.</p></div>
+        <p class="tm-bio">13 лет отвечает за внешние связи, цифровизацию бизнеса и ключевые партнёрства в корпорациях.</p></div>
     </article>
   </div>
 </section>
@@ -1452,7 +1459,7 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   <div class="proc-in">
     <div class="proc-head">
       <span class="proc-eyebrow">Ход проекта</span>
-      <h2>Понятный результат <em>уже через 3 недели</em></h2>
+      <h2>Понятный результат <br class="br-m"><em>уже через 3 недели</em></h2>
     </div>
     <div class="iso"><div class="streak"></div></div>
   </div>
@@ -1629,6 +1636,20 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   .cb-ic{flex:0 0 auto;width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:color-mix(in oklab,var(--mint) 12%,transparent);color:var(--mint-deep)}
   .cb-ic svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
   @media(max-width:760px){.calc-ben-list{grid-template-columns:1fr;gap:18px;max-width:460px;margin:0 auto}}
+  /* gentle levitation + glow on the three "intangible" icons (staggered) */
+  @keyframes cbFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+  @keyframes cbGlow{0%,100%{box-shadow:0 0 0 0 rgba(31,156,132,0)}50%{box-shadow:0 10px 24px -6px rgba(31,156,132,.4)}}
+  .cb-ic{animation:cbFloat 3.6s var(--ease) infinite, cbGlow 3.6s var(--ease) infinite}
+  .calc-ben-list li:nth-child(2) .cb-ic{animation-delay:.6s}
+  .calc-ben-list li:nth-child(3) .cb-ic{animation-delay:1.2s}
+  @media(prefers-reduced-motion:reduce){.cb-ic{animation:none}}
+  /* process heading: break "уже" to the next line on phones only */
+  .proc-head h2 .br-m{display:none}
+  @media(max-width:760px){.proc-head h2 .br-m{display:inline}}
+  /* footer: reference-visit invite above the office/map */
+  .ft-loc-intro{text-align:center;max-width:640px;margin:0 auto clamp(22px,3.4vh,36px)}
+  .ft-loc-intro h3{margin:0;font-size:clamp(1.35rem,2.7vw,2rem);font-weight:500;letter-spacing:-.022em;line-height:1.14;color:#fff}
+  .ft-loc-intro p{margin:12px auto 0;max-width:520px;font-size:15px;line-height:1.55;color:rgba(255,255,255,.6)}
   </style>
   <div class="calc-benefits">
     <div class="calc-ben-head">И то, что не измеришь деньгами</div>
@@ -1686,6 +1707,10 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
     </div>
 
     <div class="ft-loc">
+      <div class="ft-loc-intro reveal">
+        <h3>Приглашаем на референс-визит в наш офис</h3>
+        <p>Покажем цифровых сотрудников в действии. Напишите нам — забронируем удобный слот для встречи.</p>
+      </div>
       <div class="ft-tile ft-map ft-map-full">
         <div class="ft-map-canvas" id="mapCanvas" role="img" aria-label="Карта: офис HyperPartner — 2-я Магистральная улица, 18, строение 22, Москва"></div>
         <figure class="ft-office">
@@ -1857,9 +1882,10 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   /* ---- REVIEWS ---- */
   (function(){
     var DATA=[
-      {t:"За 5 дней собрали пилот на наших данных — и убедились, что это не пустые обещания. За пару месяцев операционные расходы отдела упали почти на четверть, а продажи при этом выросли.",a:"Илья Пьянов",r:"Директор направления кредитования и страхования",c:"БорисХоф Холдинг"},
-      {t:"Боялись, что от роботов прибавится головной боли. По факту — рутина ушла, а ИИ подсказывает следующие шаги по каждому клиенту.",a:"Дарья Семенюта",r:"Руководитель отдела поддержки продаж",c:"БорисХоф Холдинг"},
-      {t:"Боялись получить бездушного робота. Вышло наоборот: клиенты перестали ждать ответа часами, а каждый диалог стал персональнее.",a:"Александр Макаров",r:"Директор по качеству обслуживания",c:"БорисХоф Холдинг"}
+      {t:"Боялись, что из-за введённой роботизации менеджер столкнётся с большим рядом технических ошибок, что приведёт к увеличению рабочего процесса. Но по факту программа избавила от рутины, а ИИ стал отлично подсказывать следующие шаги по каждому клиенту.",a:"Дарья Семенюта",r:"Руководитель отдела поддержки продаж",c:"БорисХоф Холдинг"},
+      {t:"Ценны скорость и достоверность данных. Сквозная аналитика рынка в дашбордах позволяет нам более точно прогнозировать спрос и системно реагировать на изменения.",a:"Александр Захаров",r:"Руководитель корпоративных продаж",c:"БорисХоф Холдинг"},
+      {t:"Нас убедила не теория, а демонстрация рабочих сценариев. HyperPartner показали готовые кейсы и за 5 дней собрали пилот на наших данных. Вскоре мы на 1/4 сократили ФОТ отдела при росте всех KPI.",a:"Илья Пьянов",r:"Директор направления кредитования и страхования",c:"БорисХоф Холдинг"},
+      {t:"Опасались «бездушного» сервиса. Но вышло наоборот: обращения больше не висят часами, в ответах удалось сохранить человечность, плюсом добавилась мощная персонализация — клиенты в восторге!",a:"Александр Макаров",r:"Директор по качеству обслуживания",c:"БорисХоф Холдинг"}
     ];
     var track=document.getElementById("revTrack");if(!track)return;
     var STAR='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.92 5.92 6.53.95-4.72 4.6 1.11 6.5L12 17.9 6.16 20.97l1.11-6.5-4.72-4.6 6.53-.95L12 2.5z" fill="currentColor"/></svg>';
@@ -2198,7 +2224,16 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   new maplibregl.Marker({element:pin,anchor:"center"}).setLngLat([LON,LAT]).addTo(map);
   new maplibregl.Popup({closeButton:false,closeOnClick:false,offset:14,className:"hp-pop",focusAfterOpen:false})
     .setLngLat([LON,LAT]).setHTML('HyperPartner<span>2-я Магистральная, 18, стр. 22</span>').addTo(map);
-  map.on("load",function(){ map.resize(); });
+  // orientation landmark — Moscow-City towers (~15 min on foot) so the district is recognisable at a glance
+  var CITY=[37.5379,55.7497];
+  var cityEl=document.createElement("div"); cityEl.className="hp-city";
+  cityEl.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l4-2v13M9 21V5l5-2v18M16 21V11l5 2v8M2 21h20"/></svg>Москва-Сити<b>· 15 мин</b>';
+  new maplibregl.Marker({element:cityEl,anchor:"center"}).setLngLat(CITY).addTo(map);
+  map.on("load",function(){
+    map.fitBounds([[Math.min(LON,CITY[0]),Math.min(LAT,CITY[1])],[Math.max(LON,CITY[0]),Math.max(LAT,CITY[1])]],
+      {padding:{top:64,right:56,bottom:64,left:56},duration:0,maxZoom:14.4});
+    map.resize();
+  });
   if("IntersectionObserver" in window){
     var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){map.resize();io.disconnect();}},{rootMargin:"120px"});
     io.observe(el);
