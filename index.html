@@ -2230,8 +2230,8 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   cityEl.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l4-2v13M9 21V5l5-2v18M16 21V11l5 2v8M2 21h20"/></svg>Москва-Сити<b>· 15 мин</b>';
   new maplibregl.Marker({element:cityEl,anchor:"center"}).setLngLat(CITY).addTo(map);
   map.on("load",function(){
-    map.fitBounds([[Math.min(LON,CITY[0]),Math.min(LAT,CITY[1])],[Math.max(LON,CITY[0]),Math.max(LAT,CITY[1])]],
-      {padding:{top:64,right:56,bottom:64,left:56},duration:0,maxZoom:14.4});
+    // city framing — office sits west, central Moscow + ring in view (not far suburbs)
+    map.fitBounds([[37.505,55.715],[37.76,55.805]],{padding:18,duration:0});
     map.resize();
   });
   if("IntersectionObserver" in window){
