@@ -316,20 +316,24 @@
 <style>
   /* 11 tools, grouped into 4 sectors as horizontal rows (label left, logos right) — even visual
      rhythm regardless of how many logos a sector has (2 vs 3). Accent is on the brand-tinted logos. */
-  /* Tech stack — bare brand logos (no tiles), big, name captioned below; categories
-     packed into a compact 2x2 grid so the block stays tight even on desktop. */
-  .tech-rows{max-width:1080px;margin:clamp(40px,5.5vh,68px) auto 0;
-    display:grid;grid-template-columns:1fr 1fr;gap:clamp(34px,4.4vh,56px) clamp(40px,5vw,84px)}
-  .tech-row2{display:flex;flex-direction:column;gap:clamp(20px,2.6vh,28px)}
-  .tg-label{display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
-    font-weight:600;color:var(--mint-deep)}
-  .tg-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(22,48,43,.18),transparent)}
-  .tg-items{display:flex;flex-wrap:wrap;align-items:flex-start;gap:clamp(20px,2.6vw,40px)}
-  .tg-item{display:flex;flex-direction:column;align-items:center;gap:13px;min-width:80px;
+  /* Tech stack — bare brand logos (no tiles), big, name below. Two category columns
+     sized to content and centered as one tight block → even under the centered head,
+     no empty middle channel. Compact on desktop, single centered column on phones. */
+  .tech-rows{max-width:1100px;margin:clamp(36px,5vh,62px) auto 0;
+    display:grid;grid-template-columns:repeat(2,auto);justify-content:center;
+    gap:clamp(34px,4.4vh,54px) clamp(52px,6vw,96px)}
+  .tech-row2{display:flex;flex-direction:column;align-items:center;gap:clamp(18px,2.3vh,26px)}
+  .tg-label{display:flex;align-items:center;justify-content:center;gap:14px;width:100%;
+    font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--mint-deep)}
+  .tg-label::before,.tg-label::after{content:"";flex:1;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(22,48,43,.18))}
+  .tg-label::after{background:linear-gradient(90deg,rgba(22,48,43,.18),transparent)}
+  .tg-items{display:flex;justify-content:center;align-items:flex-start;gap:clamp(20px,2.4vw,38px)}
+  .tg-item{display:flex;flex-direction:column;align-items:center;gap:13px;min-width:78px;
     opacity:0;transform:translateY(18px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
   .tech.in .tg-item{opacity:1;transform:translateY(0);transition-delay:calc(var(--i,0)*40ms)}
   .tg-items .tg-item:nth-child(2){--i:1}.tg-items .tg-item:nth-child(3){--i:2}
-  .tg-ic{width:clamp(64px,6.4vw,88px);height:clamp(64px,6.4vw,88px);display:grid;place-items:center;
+  .tg-ic{width:clamp(64px,6.2vw,86px);height:clamp(64px,6.2vw,86px);display:grid;place-items:center;
     color:var(--c,var(--ink))}
   .tg-ic svg{width:100%;height:100%;fill:currentColor;
     filter:drop-shadow(0 10px 20px color-mix(in oklab,var(--c,#16302B) 24%,transparent));
@@ -342,12 +346,12 @@
     transition:color .35s var(--ease)}
   .tg-item:hover .tg-nm{color:var(--ink)}
   @media(prefers-reduced-motion:reduce){.tg-item{opacity:1;transform:none;transition:none}}
-  @media(max-width:760px){
-    .tech-rows{grid-template-columns:1fr;gap:30px;max-width:460px}
-    .tg-items{gap:26px;justify-content:flex-start}
-    .tg-item{min-width:72px}
-    .tg-ic{width:clamp(58px,17vw,74px);height:clamp(58px,17vw,74px)}
-    .tg-nm{font-size:13px}
+  @media(max-width:720px){
+    .tech-rows{grid-template-columns:auto;justify-content:center;gap:clamp(24px,3.6vh,32px);max-width:440px}
+    .tg-items{gap:clamp(16px,5vw,30px)}
+    .tg-item{min-width:0}
+    .tg-ic{width:clamp(52px,15vw,68px);height:clamp(52px,15vw,68px)}
+    .tg-nm{font-size:12.5px}
   }
 </style>
 <section class="tech" id="tech">
