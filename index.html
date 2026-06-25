@@ -207,7 +207,7 @@
   /* ===== Tech stack — «Работаем с лидерами рынка»: large COLORED logos, organic balanced constellation
      (not rows/columns). Lives on the warm paper body below the hero. ===== */
   .tech{position:relative;z-index:2;background:var(--paper);
-    padding:clamp(86px,12vh,150px) 24px clamp(98px,14vh,166px)}
+    padding:clamp(58px,8vh,104px) 24px clamp(64px,9vh,114px)}
   @media(min-width:1024px){.tech{padding-left:40px;padding-right:40px}}
   .tech::before{content:"";position:absolute;inset:0;pointer-events:none;
     background:radial-gradient(58% 46% at 50% 20%, color-mix(in oklab,var(--mint) 9%, transparent), transparent 72%)}
@@ -316,41 +316,37 @@
 <style>
   /* 11 tools, grouped into 4 sectors as horizontal rows (label left, logos right) — even visual
      rhythm regardless of how many logos a sector has (2 vs 3). Accent is on the brand-tinted logos. */
-  /* Tech stack — large brand logos in uniform tiles with the name captioned below,
-     grouped by category (centered eyebrow flanked by hairlines). Revives the original
-     big-logo size, normalized into a considered grid. */
-  .tech-rows{max-width:1000px;margin:clamp(48px,7vh,86px) auto 0;display:flex;flex-direction:column;gap:clamp(40px,5.4vh,66px)}
-  .tech-row2{display:flex;flex-direction:column;align-items:center;gap:clamp(22px,3.2vh,34px)}
-  .tg-label{display:flex;align-items:center;justify-content:center;gap:18px;width:100%;max-width:560px;
-    font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--mint-deep)}
-  .tg-label::before,.tg-label::after{content:"";flex:1;height:1px;
-    background:linear-gradient(90deg,transparent,rgba(22,48,43,.16))}
-  .tg-label::after{background:linear-gradient(90deg,rgba(22,48,43,.16),transparent)}
-  .tg-items{display:flex;flex-wrap:wrap;justify-content:center;gap:clamp(16px,2.2vw,30px)}
-  .tg-item{display:flex;flex-direction:column;align-items:center;gap:14px;width:clamp(108px,11.5vw,144px);
-    opacity:0;transform:translateY(20px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
-  .tech.in .tg-item{opacity:1;transform:translateY(0);transition-delay:calc(var(--i,0)*45ms)}
+  /* Tech stack — bare brand logos (no tiles), big, name captioned below; categories
+     packed into a compact 2x2 grid so the block stays tight even on desktop. */
+  .tech-rows{max-width:1080px;margin:clamp(40px,5.5vh,68px) auto 0;
+    display:grid;grid-template-columns:1fr 1fr;gap:clamp(34px,4.4vh,56px) clamp(40px,5vw,84px)}
+  .tech-row2{display:flex;flex-direction:column;gap:clamp(20px,2.6vh,28px)}
+  .tg-label{display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+    font-weight:600;color:var(--mint-deep)}
+  .tg-label::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,rgba(22,48,43,.18),transparent)}
+  .tg-items{display:flex;flex-wrap:wrap;align-items:flex-start;gap:clamp(20px,2.6vw,40px)}
+  .tg-item{display:flex;flex-direction:column;align-items:center;gap:13px;min-width:80px;
+    opacity:0;transform:translateY(18px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+  .tech.in .tg-item{opacity:1;transform:translateY(0);transition-delay:calc(var(--i,0)*40ms)}
   .tg-items .tg-item:nth-child(2){--i:1}.tg-items .tg-item:nth-child(3){--i:2}
-  .tg-ic{width:clamp(94px,9.2vw,118px);height:clamp(94px,9.2vw,118px);display:grid;place-items:center;border-radius:24px;
-    background:#fff;border:1px solid rgba(22,48,43,.09);box-shadow:0 2px 6px -2px rgba(8,30,20,.08);
-    color:var(--c,var(--ink));transition:transform .45s var(--ease),box-shadow .45s var(--ease),border-color .45s var(--ease)}
-  .tg-ic svg{width:clamp(48px,4.8vw,58px);height:clamp(48px,4.8vw,58px);fill:currentColor}
-  .tg-ic svg[data-stroke]{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-  .tg-ic .hp-use{width:clamp(54px,5.4vw,66px);height:clamp(48px,4.8vw,58px)}
-  .tg-item:hover .tg-ic{transform:translateY(-7px);
-    border-color:color-mix(in oklab,var(--c,#16302B) 32%,transparent);
-    box-shadow:0 30px 56px -30px color-mix(in oklab,var(--c,#16302B) 60%,rgba(8,30,20,.55))}
-  .tg-nm{font-size:14.5px;font-weight:600;letter-spacing:-.01em;color:rgba(30,29,26,.62);line-height:1.25;text-align:center;
+  .tg-ic{width:clamp(64px,6.4vw,88px);height:clamp(64px,6.4vw,88px);display:grid;place-items:center;
+    color:var(--c,var(--ink))}
+  .tg-ic svg{width:100%;height:100%;fill:currentColor;
+    filter:drop-shadow(0 10px 20px color-mix(in oklab,var(--c,#16302B) 24%,transparent));
+    transition:transform .42s var(--ease),filter .42s var(--ease)}
+  .tg-ic svg[data-stroke]{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+  .tg-ic .hp-use{width:100%;height:100%}
+  .tg-item:hover .tg-ic svg{transform:translateY(-6px) scale(1.07);
+    filter:drop-shadow(0 20px 34px color-mix(in oklab,var(--c,#16302B) 42%,transparent))}
+  .tg-nm{font-size:14px;font-weight:600;letter-spacing:-.01em;color:rgba(30,29,26,.6);line-height:1.2;text-align:center;
     transition:color .35s var(--ease)}
   .tg-item:hover .tg-nm{color:var(--ink)}
   @media(prefers-reduced-motion:reduce){.tg-item{opacity:1;transform:none;transition:none}}
   @media(max-width:760px){
-    .tech-rows{gap:38px}
-    .tg-label{gap:14px}
-    .tg-items{gap:12px}
-    .tg-item{width:clamp(86px,26vw,118px);gap:10px}
-    .tg-ic{width:clamp(80px,23vw,102px);height:clamp(80px,23vw,102px);border-radius:20px}
-    .tg-ic svg{width:clamp(40px,12vw,50px);height:clamp(40px,12vw,50px)}
+    .tech-rows{grid-template-columns:1fr;gap:30px;max-width:460px}
+    .tg-items{gap:26px;justify-content:flex-start}
+    .tg-item{min-width:72px}
+    .tg-ic{width:clamp(58px,17vw,74px);height:clamp(58px,17vw,74px)}
     .tg-nm{font-size:13px}
   }
 </style>
