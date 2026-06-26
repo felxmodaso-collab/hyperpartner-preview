@@ -4,46 +4,39 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>HyperPartner — превью hero (выбор)</title>
+<title>HyperPartner — превью нового hero-видео</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root{--forest:#16302B;--paper:#F5F4F0;--ink:#1E1D1A;--bronze:#C79A7E;--mint:#1F9C84}
+  :root{--bronze:#C79A7E;--paper:#F5F4F0}
   *{box-sizing:border-box}
-  body{margin:0;background:#0e1413;color:#F5F4F0;font-family:"IBM Plex Sans",system-ui,Segoe UI,sans-serif;line-height:1.5}
-  .wrap{max-width:1100px;margin:0 auto;padding:40px 20px 80px}
-  h1{font-weight:500;letter-spacing:-.02em;font-size:clamp(1.5rem,4vw,2.2rem);margin:0 0 6px}
-  .sub{color:rgba(245,244,240,.6);font-size:15px;margin:0 0 32px}
-  .note{background:rgba(199,154,126,.12);border:1px solid rgba(199,154,126,.3);border-radius:12px;padding:14px 16px;margin:0 0 30px;font-size:14px;color:rgba(245,244,240,.85)}
-  .card{margin:0 0 30px;border:1px solid rgba(255,255,255,.1);border-radius:16px;overflow:hidden;background:#141a19}
-  .card.ref{border-color:rgba(199,154,126,.45)}
-  .card img{display:block;width:100%;height:auto}
-  .cap{padding:14px 18px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-  .tag{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--bronze)}
-  .cap b{font-size:16px;font-weight:600}
-  .cap span{color:rgba(245,244,240,.6);font-size:14px}
+  html,body{margin:0}
+  body{background:#0e1413;color:#F5F4F0;font-family:"IBM Plex Sans",system-ui,Segoe UI,sans-serif;line-height:1.5}
+  .stage{position:relative;width:100%;height:100svh;overflow:hidden;background:#0e1413}
+  .stage video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 46%}
+  .scrim{position:absolute;inset:0;z-index:2;pointer-events:none;
+    background:linear-gradient(95deg, rgba(10,14,13,.62) 0%, rgba(10,14,13,.30) 34%, transparent 62%)}
+  .copy{position:absolute;z-index:3;left:clamp(20px,6vw,96px);top:50%;transform:translateY(-50%);max-width:680px}
+  h1{font-weight:500;letter-spacing:-.025em;line-height:1.04;margin:0;font-size:clamp(2.2rem,6vw,4.6rem);color:#fff;
+    text-shadow:0 2px 30px rgba(0,0,0,.35)}
+  .sub{margin:clamp(22px,3vh,34px) 0 0;padding:3px 0 3px 16px;border-left:2.5px solid var(--bronze);
+    color:rgba(247,231,214,.92);font-weight:400;font-size:clamp(16px,1.6vw,25px);letter-spacing:.004em}
+  .sub b{color:var(--bronze);font-weight:600;margin-left:.32em;font-size:1.05em;white-space:nowrap}
+  .banner{position:fixed;left:0;right:0;bottom:0;z-index:9;background:rgba(199,154,126,.16);
+    backdrop-filter:blur(8px);border-top:1px solid rgba(199,154,126,.35);padding:12px 18px;font-size:13.5px;
+    color:#F5F4F0;text-align:center}
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Hero — выбор девушки/гаммы</h1>
-    <p class="sub">Это превью, не основной сайт. Кадры (стиллы) — пока без анимации.</p>
-    <div class="note">Новое hero-видео ещё не собрано. Это 3 сгенерированных кадра-кандидата: славянки в тёплой золотой гамме «тёмной девушки» (референс сверху). Выбери номер — анимирую его через Veo и соберу видео. Волосы вышли пепельно-русыми; можно перегенерить теплее.</div>
-
-    <div class="card ref">
-      <img src="_preview/ref-darkgirl.jpg" alt="референс">
-      <div class="cap"><span class="tag">Референс</span><b>Прежняя «тёмная девушка»</b><span>— её гамму ты назвал идеальной (смуглая, не славянка)</span></div>
+  <section class="stage">
+    <video src="_preview/hero-slav.mp4" autoplay muted loop playsinline preload="auto"></video>
+    <div class="scrim"></div>
+    <div class="copy">
+      <h1>Рутину закрывают цифровые сотрудники.</h1>
+      <p class="sub">Первый результат за<b>3 недели</b>.</p>
     </div>
-    <div class="card">
-      <img src="_preview/cand1.jpg" alt="кандидат 1">
-      <div class="cap"><span class="tag">Кандидат 1</span><b>Славянка</b><span>— тёплая гамма</span></div>
-    </div>
-    <div class="card">
-      <img src="_preview/cand2.jpg" alt="кандидат 2">
-      <div class="cap"><span class="tag">Кандидат 2</span><b>Самая золотая гамма</b><span>— максимально тёплый свет</span></div>
-    </div>
-    <div class="card">
-      <img src="_preview/cand3.jpg" alt="кандидат 3">
-      <div class="cap"><span class="tag">Кандидат 3</span><b>Ближе к референсу</b><span>— то же окно с кирпичом, золотой ноут</span></div>
-    </div>
-  </div>
+  </section>
+  <div class="banner">Превью нового hero-видео (славянка, кандидат 3, гамма hero-a). Основной сайт не тронут. Если ок — поставлю в прод.</div>
 </body>
 </html>
