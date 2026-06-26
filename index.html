@@ -569,14 +569,14 @@
       </div>
       <div class="exp-txt">
         <div><span class="label">Наш кейс</span><h3>Роботизируем рутину в отделах</h3></div>
-        <p><b>1,2 млн часов</b> ручного труда перевели на агентов в рамках одного холдинга.</p>
+        <p>1,2 млн часов ручного труда перевели на агентов в рамках одного холдинга.</p>
         <div class="depts-row"><span class="dr">Бухгалтерия</span><span class="dr">HR</span><span class="dr">Поддержка</span><span class="dr">Продажи</span><span class="dr">Логистика</span><span class="dr">Закупки</span></div>
       </div>
     </article>
     <div class="exp-row">
       <article class="exp-card exp-sm c-roi">
         <video class="exp-bg" src="gen3/roi-anim2.mp4" muted loop playsinline preload="auto"></video>
-        <div class="exp-txt"><div><span class="label">Экономика</span><h3>Окупаемость 1–6 мес.</h3></div><p>Сокращение ФОТ на <b>20–50%</b>.</p></div>
+        <div class="exp-txt"><div><span class="label">Экономика</span><h3>Окупаемость 1–6 мес.</h3></div><p>Сокращение ФОТ на 20–50%.</p></div>
       </article>
       <article class="exp-card exp-sm c-sec">
         <video class="exp-bg" src="gen3/sec-anim.mp4" muted loop playsinline preload="auto"></video>
@@ -2215,8 +2215,12 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
     container:el,
     style:"https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
     center:[LON,LAT], zoom:15.4, attributionControl:false,
-    scrollZoom:false, dragRotate:false, pitchWithRotate:false, touchZoomRotate:false,
-    dragPan:!coarse, keyboard:false
+    cooperativeGestures:true, dragRotate:false, pitchWithRotate:false, keyboard:false,
+    locale:{
+      "CooperativeGesturesHandler.WindowsHelpText":"Ctrl + прокрутка, чтобы приблизить карту",
+      "CooperativeGesturesHandler.MacHelpText":"⌘ + прокрутка, чтобы приблизить карту",
+      "CooperativeGesturesHandler.MobileHelpText":"Двумя пальцами, чтобы двигать карту"
+    }
   });
   map.addControl(new maplibregl.AttributionControl({compact:true}),"bottom-right");
   map.addControl(new maplibregl.NavigationControl({showCompass:false,showZoom:true,visualizePitch:false}),"top-left");
