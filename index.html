@@ -1031,8 +1031,16 @@
   .team-head h2{margin:14px 0 0;max-width:16ch;font-weight:400;letter-spacing:-.025em;line-height:1.06;color:var(--ink);font-size:clamp(2rem,4.3vw,3.3rem)}
   .team-head h2 em{font-style:normal;color:var(--mint-deep)}
   .team-lede{margin:18px 0 0;max-width:60ch;color:rgba(30,29,26,.6);font-size:clamp(15px,1.5vw,17.5px);line-height:1.55}
-  .team-grid{max-width:var(--frame);margin:0 auto;display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(14px,1.6vw,24px)}
+  .team-grid{max-width:var(--frame);margin:0 auto;display:grid;grid-template-columns:repeat(6,1fr);gap:clamp(14px,1.6vw,24px)}
   @media(max-width:1100px){.team-grid{grid-template-columns:repeat(3,1fr)}}
+  /* operational-team card — real dev-office photo, brand-tinted, closes the team row */
+  .tm-photo.tm-unit{background:#16302B}
+  .tm-photo.tm-unit img{object-position:50% 50%}
+  .tm-photo.tm-unit::after{background:none}
+  .tm-unit-badge{position:absolute;left:12px;bottom:12px;z-index:2;display:inline-flex;align-items:baseline;gap:6px;
+    padding:8px 13px;border-radius:12px;background:rgba(11,24,21,.6);-webkit-backdrop-filter:blur(9px);backdrop-filter:blur(9px);
+    border:1px solid rgba(255,255,255,.16);color:rgba(255,255,255,.92);font-size:12.5px;font-weight:500;letter-spacing:-.005em}
+  .tm-unit-badge b{font-size:19px;font-weight:700;color:var(--mint-bright);letter-spacing:-.02em}
   @media(max-width:680px){
     .team-grid{display:flex;grid-template-columns:none;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
       margin-left:-24px;margin-right:-24px;padding:6px 24px 12px;scroll-padding:0 24px;scrollbar-width:none;-ms-overflow-style:none}
@@ -1237,6 +1245,18 @@
   /* one full-width map; the office photo lives ON the map as a small framed card by the geo point
      (Anton: two square tiles for one office felt overloaded and hid the lead form). */
   .ft-loc{display:block;padding:0 0 clamp(40px,5vh,60px)}
+  .ft-visit{display:grid;grid-template-columns:1fr;gap:clamp(26px,3.5vw,52px);align-items:stretch;margin-bottom:clamp(16px,2.4vh,26px)}
+  @media(min-width:900px){.ft-visit{grid-template-columns:1.06fr .94fr}.ft-visit-photo{height:auto}}
+  .ft-visit-photo{position:relative;margin:0;border-radius:18px;overflow:hidden;height:clamp(260px,56vw,340px);background:#16302B}
+  .ft-visit-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .9s var(--ease)}
+  .ft-visit-photo:hover img{transform:scale(1.04)}
+  .ft-visit-photo .vp-grad{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(13,28,23,.04) 42%,rgba(11,24,21,.62) 100%)}
+  .ft-visit-photo figcaption{position:absolute;left:0;bottom:0;z-index:2;padding:15px}
+  .vp-tag{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:600;color:#fff;
+    background:rgba(11,24,21,.5);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.16);border-radius:30px;padding:8px 14px}
+  .vp-tag svg{width:15px;height:15px;flex:none;color:var(--mint-bright)}
+  .ft-visit-text{display:flex;flex-direction:column;justify-content:center}
+  .ft-visit-text h2{margin:14px 0 0;font-weight:400;letter-spacing:-.025em;line-height:1.07;color:#fff;font-size:clamp(2rem,4.3vw,3.3rem);max-width:14ch}
   .ft-map-full{aspect-ratio:auto!important;height:clamp(330px,44vh,470px)}
   .ft-office{position:absolute;left:16px;bottom:16px;z-index:1200;margin:0;width:clamp(176px,22vw,248px);
     border-radius:14px;overflow:hidden;border:1px solid rgba(255,255,255,.16);box-shadow:0 20px 44px -20px rgba(0,0,0,.7)}
@@ -1358,6 +1378,14 @@
       <div class="tm-photo"><img src="team/ruslan-talipov-640.webp" alt="Руслан Талипов" loading="lazy"></div>
       <div class="tm-meta"><div class="tm-name">Руслан Талипов</div><div class="tm-role">Директор по развитию</div>
         <p class="tm-bio">13 лет отвечает за внешние связи, цифровизацию бизнеса и ключевые партнёрства в корпорациях.</p></div>
+    </article>
+    <article class="tm-card reveal">
+      <div class="tm-photo tm-unit">
+        <img src="team/dev-center.webp" alt="Центр разработки — операционная команда HyperPartner" loading="lazy">
+        <span class="tm-unit-badge"><b>20+</b> инженеров</span>
+      </div>
+      <div class="tm-meta"><div class="tm-name">Центр разработки</div><div class="tm-role">Операционная команда</div>
+        <p class="tm-bio">Более 20 штатных инженеров и аналитиков. Полный цикл разработки и внедрения ИТ-решений любой сложности — от пилота до продакшена.</p></div>
     </article>
   </div>
 </section>
@@ -1704,14 +1732,22 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
     </div>
 
     <div class="ft-loc">
-      <div class="ft-loc-intro reveal">
-        <h3>Приглашаем на референс-визит в наш офис</h3>
-        <p>Покажем цифровых сотрудников в действии. Напишите нам — забронируем удобный слот для встречи.</p>
+      <div class="ft-visit reveal">
+        <figure class="ft-visit-photo">
+          <img src="team/hp-lounge.webp" alt="Лаунж и зона встреч в офисе HyperPartner, Москва-Сити" loading="lazy">
+          <div class="vp-grad"></div>
+          <figcaption><span class="vp-tag"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-5h6v5"/></svg>Наш офис рядом с Москва-Сити</span></figcaption>
+        </figure>
+        <div class="ft-visit-text">
+          <span class="ft-eyebrow">Референс-визит</span>
+          <h2>Приглашаем в&nbsp;гости</h2>
+          <p class="ft-pitch">Покажем цифровых сотрудников в работе на ваших задачах. Заходите познакомиться — встретим, нальём кофе и вместе наметим, что автоматизировать первым.</p>
+        </div>
       </div>
       <div class="ft-tile ft-map ft-map-full">
         <div class="ft-map-canvas" id="mapCanvas" role="img" aria-label="Карта: офис HyperPartner — 2-я Магистральная улица, 18, строение 22, Москва"></div>
         <figure class="ft-office">
-          <img src="gen3/office.webp" alt="Офис HyperPartner — бизнес-центр на 2-й Магистральной улице, Москва" loading="lazy">
+          <img src="gen3/office.webp" alt="Бизнес-центр, где расположен офис HyperPartner — Москва-Сити" loading="lazy">
           <figcaption><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-5h6v5"/></svg>Офис · 2-я Магистральная, 18</figcaption>
         </figure>
         <a class="ft-map-route" href="https://yandex.ru/maps/?rtext=~55.762771%2C37.527024&rtt=auto" target="_blank" rel="noopener" aria-label="Построить маршрут до офиса в Яндекс.Картах">Проложить маршрут <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
@@ -2231,8 +2267,8 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   cityEl.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l4-2v13M9 21V5l5-2v18M16 21V11l5 2v8M2 21h20"/></svg>Москва-Сити<b>· 15 мин</b>';
   new maplibregl.Marker({element:cityEl,anchor:"center"}).setLngLat(CITY).addTo(map);
   map.on("load",function(){
-    // city framing — office sits west, central Moscow + ring in view (not far suburbs)
-    map.fitBounds([[37.505,55.715],[37.76,55.805]],{padding:18,duration:0});
+    // closer framing — office centred, central Moscow + river in view (not the far ring)
+    map.fitBounds([[37.498,55.736],[37.602,55.792]],{padding:18,duration:0});
     map.resize();
   });
   if("IntersectionObserver" in window){
