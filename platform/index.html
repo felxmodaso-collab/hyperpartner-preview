@@ -11,6 +11,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <style>
 :root{
   --paper:#F5F4F0;--paper-2:#FBFAF7;--ink:#1E1D1A;--ink-soft:#54524C;--ink-faint:#6E6A62;
@@ -87,7 +89,14 @@ body.menu .overlay{opacity:1;visibility:visible}
 .overlay .cta{margin-top:26px;border:0;justify-content:center;background:linear-gradient(120deg,var(--mint-bright),var(--mint-deep));color:#fff;border-radius:14px;font-weight:600;font-size:17px;border-bottom:0}
 
 .hero{position:relative;color:#fff;overflow:hidden;background:#0a1c15}
-.hero-photo{position:absolute;inset:0;background:url("img/office.webp") center 68%/cover;transform:scale(1.02)}
+.hero-photo{position:absolute;inset:0;transform:scale(1.02);
+  background:radial-gradient(62% 52% at 80% 14%,rgba(39,180,153,.30),transparent 62%),radial-gradient(46% 42% at 10% 84%,rgba(247,207,180,.15),transparent 60%),radial-gradient(85% 72% at 46% 104%,rgba(22,115,95,.38),transparent 65%),linear-gradient(165deg,#0e2620 0%,#0a1c15 62%,#081712 100%)}
+.hero-photo::after{content:"";position:absolute;inset:0;opacity:.5;
+  background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+  background-size:64px 64px;-webkit-mask-image:radial-gradient(70% 60% at 62% 30%,#000,transparent 75%);mask-image:radial-gradient(70% 60% at 62% 30%,#000,transparent 75%)}
+.hero-motif{position:absolute;right:-8%;top:-6%;width:min(760px,74%);opacity:.16;pointer-events:none;filter:drop-shadow(0 0 40px rgba(39,180,153,.35))}
+.hero-motif svg{width:100%;height:auto;display:block}
+@media(max-width:760px){.hero-motif{opacity:.12;top:-2%;right:-22%;width:min(620px,92%)}}
 .hero-overlay{position:absolute;inset:0;background:radial-gradient(70% 50% at 16% 18%,rgba(39,180,153,.15),transparent 56%),radial-gradient(54% 54% at 88% 26%,rgba(247,207,180,.06),transparent 55%),linear-gradient(101deg,rgba(9,24,18,.975) 0%,rgba(9,24,18,.85) 40%,rgba(10,26,19,.58) 74%,rgba(10,26,19,.48) 100%),linear-gradient(0deg,rgba(8,20,15,.86) 0%,transparent 34%)}
 .hero-grain{position:absolute;inset:0;opacity:.05;mix-blend-mode:overlay;pointer-events:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -128,11 +137,20 @@ section{position:relative}
 .orow .ov{font-size:18px;font-weight:600;color:var(--forest);letter-spacing:-0.01em;line-height:1.35}
 @media(max-width:560px){.owner-card{padding:4px 22px}.orow{grid-template-columns:1fr;gap:5px;padding:17px 0}.orow .ov{font-size:17px}}
 
-.aud-grid{display:grid;gap:20px;margin-top:38px}
+.aud-grid{display:grid;gap:22px;margin-top:38px}
 @media(min-width:740px){.aud-grid{grid-template-columns:repeat(3,1fr)}}
-.aud{padding:28px;background:#fff;border:1px solid rgba(22,48,43,.07);border-radius:18px;box-shadow:var(--shadow-card)}
-.aud h3{font-size:18px;font-weight:600;color:var(--forest);letter-spacing:-0.01em;margin-bottom:11px}
-.aud p{color:var(--ink-soft);font-size:15px;line-height:1.55}
+.aud{position:relative;overflow:hidden;isolation:isolate;padding:30px 28px 28px;border:0;border-radius:22px;color:#fff;
+  box-shadow:0 34px 80px -40px rgba(0,30,18,.5);transition:transform .5s var(--ease),box-shadow .5s var(--ease)}
+.aud:hover{transform:translateY(-4px);box-shadow:0 44px 92px -38px rgba(0,30,18,.58)}
+.aud:nth-child(1){background:radial-gradient(120% 130% at 82% 8%,#1f7a59 0%,transparent 52%),linear-gradient(155deg,#16302B,#0c1f17)}
+.aud:nth-child(2){background:radial-gradient(120% 120% at 85% 12%,#27b499 0%,transparent 55%),linear-gradient(155deg,#1f9c84,#11574a)}
+.aud:nth-child(3){background:radial-gradient(120% 120% at 20% 12%,#dc7d52 0%,transparent 55%),linear-gradient(155deg,#c25e3e,#8c3a20)}
+.aud-ico{position:relative;z-index:2;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;
+  border-radius:12px;background:rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.2);margin-bottom:18px;color:#fff}
+.aud-ico svg{width:24px;height:24px;filter:drop-shadow(0 0 8px rgba(255,255,255,.55))}
+.aud h3{position:relative;z-index:2;font-size:18px;font-weight:600;color:#fff;letter-spacing:-0.01em;margin-bottom:11px}
+.aud p{position:relative;z-index:2;color:rgba(255,255,255,.84);font-size:15px;line-height:1.55}
+@media(prefers-reduced-motion:reduce){.aud:hover{transform:none}}
 
 .feat-grid{margin-top:40px;column-gap:26px}
 @media(min-width:680px){.feat-grid{column-count:2}}
@@ -205,6 +223,28 @@ footer{color:#fff;padding:66px 0 38px;
 .ft-copy{color:rgba(247,231,214,.42);font-size:13.5px}
 .ft-home{color:rgba(247,231,214,.72);font-size:14px;display:inline-flex;align-items:center;gap:8px}
 .ft-home:hover{color:#fff;text-decoration:none}
+
+/* ===== motion: scroll reveal (same recipe as main site) ===== */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.reveal.in{opacity:1;transform:none}
+@media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* ===== hero: entrance choreography ===== */
+.hero .eyebrow,.hero .badge,.hero h1,.hero .latin,.hero .sub,.hero-cta,.hero .spec{opacity:0;transform:translateY(20px);animation:heroUp .9s var(--ease) forwards}
+.hero .eyebrow{animation-delay:.05s}
+.hero .badge{animation-delay:.15s}
+.hero h1{animation-delay:.25s}
+.hero .latin{animation-delay:.34s}
+.hero .sub{animation-delay:.42s}
+.hero-cta{animation-delay:.5s}
+.hero .spec{animation-delay:.4s}
+@keyframes heroUp{to{opacity:1;transform:none}}
+.spec-hd .dot{animation:dotPulse 2.4s var(--ease) infinite}
+@keyframes dotPulse{0%,100%{box-shadow:0 0 0 4px rgba(39,180,153,.18)}50%{box-shadow:0 0 0 8px rgba(39,180,153,.06)}}
+@media(prefers-reduced-motion:reduce){
+  .hero .eyebrow,.hero .badge,.hero h1,.hero .latin,.hero .sub,.hero-cta,.hero .spec{opacity:1;transform:none;animation:none}
+  .spec-hd .dot{animation:none}
+}
 </style>
 </head>
 <body>
@@ -242,6 +282,23 @@ footer{color:#fff;padding:66px 0 38px;
 
   <section class="hero" id="about" aria-labelledby="h-about">
     <div class="hero-photo"></div>
+    <div class="hero-motif" aria-hidden="true">
+      <svg viewBox="0 0 600 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="120" y="60" width="260" height="120" rx="24" stroke="#ffffff" stroke-width="1.4" opacity=".85"/>
+        <circle cx="205" cy="118" r="6" fill="#ffffff"/>
+        <circle cx="240" cy="118" r="6" fill="#ffffff"/>
+        <circle cx="275" cy="118" r="6" fill="#ffffff"/>
+        <path d="M182 180l24 32 24-32" stroke="#ffffff" stroke-width="1.4"/>
+        <rect x="300" y="228" width="220" height="104" rx="22" stroke="#27B499" stroke-width="1.4" opacity=".9"/>
+        <line x1="330" y1="266" x2="480" y2="266" stroke="#27B499" stroke-width="1.4"/>
+        <line x1="330" y1="290" x2="440" y2="290" stroke="#27B499" stroke-width="1.4"/>
+        <path d="M348 332l-22 28" stroke="#27B499" stroke-width="1.4"/>
+        <circle cx="88" cy="318" r="4" fill="#F7CFB4"/>
+        <circle cx="472" cy="86" r="4" fill="#F7CFB4"/>
+        <path d="M88 318C158 278 218 218 248 188" stroke="#F7CFB4" stroke-width="1" stroke-dasharray="2 7" opacity=".7"/>
+        <path d="M472 86C420 138 380 170 358 188" stroke="#F7CFB4" stroke-width="1" stroke-dasharray="2 7" opacity=".7"/>
+      </svg>
+    </div>
     <div class="hero-overlay"></div>
     <div class="hero-grain"></div>
     <div class="hero-in">
@@ -249,6 +306,7 @@ footer{color:#fff;padding:66px 0 38px;
         <span class="eyebrow d">ИТ-продукт · ООО «Хайперпартнер»</span>
         <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/></svg>Аккредитованная ИТ-компания · реестр Минцифры России</div>
         <h1 id="h-about">Хайперплатформ</h1>
+        <span class="latin">HyperPlatform</span>
         <p class="sub"><b>Платформа</b> для создания, управления и взаимодействия с&nbsp;чат-ботами в&nbsp;рамках корпоративных и&nbsp;бизнес-коммуникаций.</p>
         <div class="hero-cta"><a class="pill-metal" href="#features"><span>Возможности ПО</span></a></div>
       </div>
@@ -268,9 +326,9 @@ footer{color:#fff;padding:66px 0 38px;
   <section class="sec sec-paper2" id="owner" aria-labelledby="h-owner">
     <div class="wrap">
       <span class="eyebrow">Правообладатель</span>
-      <h2 class="h2" id="h-owner">Сведения о&nbsp;правообладателе</h2>
+      <h2 class="h2 reveal" id="h-owner">Сведения о&nbsp;правообладателе</h2>
       <p class="lead">Исключительные права на программное обеспечение «Хайперплатформ» принадлежат российскому юридическому лицу.</p>
-      <div class="owner-card">
+      <div class="owner-card reveal">
         <div class="orow"><div class="ok">Правообладатель</div><div class="ov">ООО «Хайперпартнер»</div></div>
         <div class="orow"><div class="ok">ИНН</div><div class="ov">9714079940</div></div>
         <div class="orow"><div class="ok">ОГРН</div><div class="ov">1257700373314</div></div>
@@ -282,11 +340,20 @@ footer{color:#fff;padding:66px 0 38px;
   <section class="sec" id="audience" aria-labelledby="h-aud">
     <div class="wrap">
       <span class="eyebrow">Целевая аудитория</span>
-      <h2 class="h2" id="h-aud">Кому предназначено ПО</h2>
+      <h2 class="h2 reveal" id="h-aud">Кому предназначено ПО</h2>
       <div class="aud-grid">
-        <div class="aud"><h3>Администраторы</h3><p>Управление компаниями, ботами, пользователями.</p></div>
-        <div class="aud"><h3>Разработчики</h3><p>Создание и настройка ботов; программирование логики взаимодействия; настройка команд и сценариев.</p></div>
-        <div class="aud"><h3>Пользователи</h3><p>Взаимодействие с ботами через текстовые сообщения; отправка и получение файлов; работа с интерактивными формами и кнопками.</p></div>
+        <div class="aud reveal">
+          <span class="aud-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l8 4v6c0 5-3.4 8.4-8 10-4.6-1.6-8-5-8-10V6z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></span>
+          <h3>Администраторы</h3><p>Управление компаниями, ботами, пользователями.</p>
+        </div>
+        <div class="aud reveal">
+          <span class="aud-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 9l-4 4 4 4"/><path d="M16 9l4 4-4 4"/><path d="M13.5 5.5l-3 13"/></svg></span>
+          <h3>Разработчики</h3><p>Создание и настройка ботов; программирование логики взаимодействия; настройка команд и сценариев.</p>
+        </div>
+        <div class="aud reveal">
+          <span class="aud-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16v10H8l-4 4z"/><circle cx="9" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="12.5" cy="10" r="1" fill="currentColor" stroke="none"/><circle cx="16" cy="10" r="1" fill="currentColor" stroke="none"/></svg></span>
+          <h3>Пользователи</h3><p>Взаимодействие с ботами через текстовые сообщения; отправка и получение файлов; работа с интерактивными формами и кнопками.</p>
+        </div>
       </div>
     </div>
   </section>
@@ -294,18 +361,18 @@ footer{color:#fff;padding:66px 0 38px;
   <section class="sec sec-paper2" id="features" aria-labelledby="h-features">
     <div class="wrap">
       <span class="eyebrow">Функциональные характеристики</span>
-      <h2 class="h2" id="h-features">Что умеет <em>«Хайперплатформ»</em></h2>
+      <h2 class="h2 reveal" id="h-features">Что умеет <em>«Хайперплатформ»</em></h2>
       <p class="lead">Полный перечень функциональных возможностей программного обеспечения. Подробное описание — в документе «Функциональные характеристики ПО» (раздел «Документация»).</p>
       <div class="feat-grid">
 
-        <div class="feat"><h3>Управление пользователями</h3><ul>
+        <div class="feat reveal"><h3>Управление пользователями</h3><ul>
           <li><b>Создание пользователя</b> — добавление с указанием email, привязка к компании.</li>
           <li><b>Просмотр списка</b> — список пользователей компании, пагинация, фильтрация по статусу активности.</li>
           <li><b>Деавторизация</b> — отзыв всех активных сессий, принудительный выход из системы.</li>
           <li><b>Удаление</b> — полное удаление из БД с каскадным удалением чатов и сообщений.</li>
         </ul></div>
 
-        <div class="feat"><h3>Управление ботами</h3><ul>
+        <div class="feat reveal"><h3>Управление ботами</h3><ul>
           <li><b>Создание бота</b> — наименование и описание, привязка к компании, авто-генерация токена, настройка команд (/start, /help), загрузка аватара и фона.</li>
           <li><b>Редактирование</b> — изменение наименования, описания, аватара, фона, статуса активности и команд.</li>
           <li><b>Просмотр списка</b> — список ботов компании, пагинация и фильтрация.</li>
@@ -313,13 +380,13 @@ footer{color:#fff;padding:66px 0 38px;
           <li><b>Удаление</b> — деактивация бота с сохранением истории чатов.</li>
         </ul></div>
 
-        <div class="feat"><h3>Управление чатами</h3><ul>
+        <div class="feat reveal"><h3>Управление чатами</h3><ul>
           <li><b>Создание чата</b> — между ботом и пользователем, автоматическая проверка существования.</li>
           <li><b>Просмотр списка</b> — пагинация, фильтрация по боту и пользователю, отображение email.</li>
           <li><b>Удаление чата</b> — удаление чата и всех связанных сообщений.</li>
         </ul></div>
 
-        <div class="feat"><h3>Обмен сообщениями</h3><ul>
+        <div class="feat reveal"><h3>Обмен сообщениями</h3><ul>
           <li><b>Текстовые сообщения</b> — отправка и получение, HTML-форматирование, авто-замена переносов строк.</li>
           <li><b>Медиафайлы</b> — изображения (JPEG, PNG, GIF, WebP, HEIC), видео (MP4, AVI, MOV, MKV, WebM), аудио (MP3, WAV, OGG, M4A), документы (PDF, DOC, XLS, TXT).</li>
           <li><b>Генерация превью</b> — для изображений и первого кадра видео, отдельное хранение.</li>
@@ -329,13 +396,13 @@ footer{color:#fff;padding:66px 0 38px;
           <li><b>Очистка чата</b> — удаление всех сообщений в чате.</li>
         </ul></div>
 
-        <div class="feat"><h3>Интерактивные элементы</h3><ul>
+        <div class="feat reveal"><h3>Интерактивные элементы</h3><ul>
           <li><b>Inline-клавиатуры</b> — кнопки под сообщением, callback-данные, многоуровневая структура (ряды кнопок).</li>
           <li><b>TextButton</b> — кастомные текстовые кнопки, настройка цвета фона и текста, анимация мигания.</li>
           <li><b>Формы</b> — текстовые поля, выпадающие списки, радио-кнопки, чекбоксы, дата и время; обязательность и предзаполнение полей.</li>
         </ul></div>
 
-        <div class="feat"><h3>Аутентификация и безопасность</h3><ul>
+        <div class="feat reveal"><h3>Аутентификация и безопасность</h3><ul>
           <li><b>Аутентификация пользователей</b> — вход по PIN-коду на email, ограничение попыток и времени действия.</li>
           <li><b>Управление сессиями</b> — JWT-токены, хранение в БД, авто-истечение срока, отзыв при деавторизации.</li>
           <li><b>Авторизация компаний</b> — Bearer-токены для доступа к административным функциям, проверка прав при каждом запросе.</li>
@@ -343,29 +410,29 @@ footer{color:#fff;padding:66px 0 38px;
           <li><b>Безопасность cookies</b> — HTTP-only, Secure (HTTPS), SameSite-политика (защита от CSRF).</li>
         </ul></div>
 
-        <div class="feat"><h3>Real-time уведомления</h3><ul>
+        <div class="feat reveal"><h3>Real-time уведомления</h3><ul>
           <li><b>WebSocket-соединение</b> — постоянное соединение с сервером, аутентификация через session cookie.</li>
           <li><b>Типы уведомлений</b> — новое сообщение, редактирование, удаление, очистка чата.</li>
         </ul></div>
 
-        <div class="feat"><h3>Получение обновлений</h3><ul>
+        <div class="feat reveal"><h3>Получение обновлений</h3><ul>
           <li>Long polling с таймаутом до 30 секунд.</li>
           <li>Ограничение количества возвращаемых обновлений.</li>
           <li>Возможность сброса очереди.</li>
         </ul></div>
 
-        <div class="feat"><h3>Очередь обновлений</h3><ul>
+        <div class="feat reveal"><h3>Очередь обновлений</h3><ul>
           <li>Хранение непрочитанных обновлений в кэше.</li>
           <li>Автоматическая маркировка прочитанных.</li>
           <li>Блокировка одновременных запросов от одного бота.</li>
         </ul></div>
 
-        <div class="feat"><h3>Работа с файлами</h3><ul>
+        <div class="feat reveal"><h3>Работа с файлами</h3><ul>
           <li><b>Хранение файлов</b> — раздельное хранение оригиналов и превью, уникальные имена файлов на основе ID сообщения, поддержка вложенных папок по chat_id.</li>
           <li><b>Мониторинг дискового пространства</b> — автоматическое удаление старых удалённых сообщений (старше 24 часов), аварийная очистка при превышении лимита, приоритетное удаление сообщений с файлами.</li>
         </ul></div>
 
-        <div class="feat"><h3>Очистка базы данных</h3><ul>
+        <div class="feat reveal"><h3>Очистка базы данных</h3><ul>
           <li>Удаление записей о сообщениях после удаления файлов.</li>
           <li>Логирование результатов очистки.</li>
         </ul></div>
@@ -377,9 +444,9 @@ footer{color:#fff;padding:66px 0 38px;
   <section class="sec cost" id="cost" aria-labelledby="h-cost">
     <div class="wrap">
       <span class="eyebrow d">Стоимость</span>
-      <h2 class="h2" id="h-cost">Стоимость программного обеспечения</h2>
+      <h2 class="h2 reveal" id="h-cost">Стоимость программного обеспечения</h2>
       <p class="lead">Стоимость ПО «Хайперплатформ» <b>рассчитывается индивидуально</b> в зависимости от задач и запросов заказчика. Точную стоимость можно узнать по телефону <a class="accent" href="tel:+79858239815">+7 (985) 823-98-15</a> или отправив запрос на <a class="accent" href="mailto:info@hyperpartner.ru">info@hyperpartner.ru</a>.</p>
-      <div class="cost-actions">
+      <div class="cost-actions reveal">
         <a class="btn btn-primary" href="tel:+79858239815"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>Заказать звонок</a>
         <a class="btn btn-ghost" href="mailto:info@hyperpartner.ru"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M22 6l-10 7L2 6"/></svg>Написать на почту</a>
       </div>
@@ -389,22 +456,22 @@ footer{color:#fff;padding:66px 0 38px;
   <section class="sec sec-paper2" id="docs" aria-labelledby="h-docs">
     <div class="wrap">
       <span class="eyebrow">Документация</span>
-      <h2 class="h2" id="h-docs">Документация и&nbsp;инструкции</h2>
+      <h2 class="h2 reveal" id="h-docs">Документация и&nbsp;инструкции</h2>
       <p class="lead">Эксплуатационная документация на программное обеспечение «Хайперплатформ».</p>
       <div class="doc-grid">
-        <a class="doc" href="user-guide.html">
+        <a class="doc reveal" href="user-guide.html">
           <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
           <h3>Руководство пользователя</h3>
           <p>Инструкция по эксплуатации ПО: интерфейс, работа по ролям, установка, запуск, типовые проблемы.</p>
           <span class="go">Открыть руководство <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
         </a>
-        <a class="doc" href="docs/hyperplatform-features.pdf" target="_blank" rel="noopener">
+        <a class="doc reveal" href="docs/hyperplatform-features.pdf" target="_blank" rel="noopener">
           <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 13h6M9 17h6"/></svg></span>
           <h3>Функциональные характеристики ПО</h3>
           <p>Полное описание функциональных возможностей программного обеспечения (PDF).</p>
           <span class="go">Скачать PDF <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg></span>
         </a>
-        <div class="doc soon" aria-disabled="true">
+        <div class="doc soon reveal" aria-disabled="true">
           <span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg></span>
           <h3>Инструкция по установке</h3>
           <p>Инструкция по установке ПО для пользователя.</p>
@@ -417,12 +484,12 @@ footer{color:#fff;padding:66px 0 38px;
   <section class="sec" id="support" aria-labelledby="h-support">
     <div class="wrap">
       <span class="eyebrow">Техническая поддержка</span>
-      <h2 class="h2" id="h-support">Связь со&nbsp;службой поддержки</h2>
+      <h2 class="h2 reveal" id="h-support">Связь со&nbsp;службой поддержки</h2>
       <p class="lead">По вопросам работы, установки и эксплуатации программного обеспечения «Хайперплатформ».</p>
       <div class="sup-grid">
-        <div class="sup"><div class="k">Телефон</div><div class="v"><a href="tel:+79858239815">+7 (985) 823-98-15</a></div></div>
-        <div class="sup"><div class="k">Электронная почта</div><div class="v"><a href="mailto:info@hyperpartner.ru">info@hyperpartner.ru</a></div></div>
-        <div class="sup"><div class="k">График работы</div><div class="v sm">Пн–Пт, 9:00–18:00 (МСК)</div></div>
+        <div class="sup reveal"><div class="k">Телефон</div><div class="v"><a href="tel:+79858239815">+7 (985) 823-98-15</a></div></div>
+        <div class="sup reveal"><div class="k">Электронная почта</div><div class="v"><a href="mailto:info@hyperpartner.ru">info@hyperpartner.ru</a></div></div>
+        <div class="sup reveal"><div class="k">График работы</div><div class="v sm">Пн–Пт, 9:00–18:00 (МСК)</div></div>
       </div>
     </div>
   </section>
@@ -431,7 +498,7 @@ footer{color:#fff;padding:66px 0 38px;
 
 <footer aria-label="Подвал">
   <div class="wrap">
-    <div class="ft-grid">
+    <div class="ft-grid reveal">
       <div class="ft-col">
         <h4>Правообладатель</h4>
         <p class="ft-req"><span class="name">ООО «Хайперпартнер»</span>123290, г. Москва,<br>2-я Магистральная ул., 18, стр. 22<br><br>ИНН <b>9714079940</b><br>ОГРН <b>1257700373314</b><br>ОКВЭД 62.01</p>
@@ -472,6 +539,15 @@ footer{color:#fff;padding:66px 0 38px;
     if(y>last&&y>240&&!body.classList.contains('menu'))hd.classList.add('hide');else hd.classList.remove('hide');
     last=y;
   },{passive:true});
+})();
+</script>
+<script>
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var revs=[].slice.call(document.querySelectorAll('.reveal'));
+  if(reduce||!window.gsap||!window.ScrollTrigger){revs.forEach(function(e){e.classList.add('in');});return;}
+  gsap.registerPlugin(ScrollTrigger);
+  revs.forEach(function(el){ScrollTrigger.create({trigger:el,start:'top 88%',once:true,onEnter:function(){el.classList.add('in');}});});
 })();
 </script>
 </body>
