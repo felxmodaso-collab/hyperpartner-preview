@@ -524,7 +524,7 @@
   @media(prefers-reduced-motion:reduce){.fte-pulse{animation:none;opacity:0}}
   /* Наш кейс — client credit (БорисХоф logo) anchored to the bottom of the FTE card, under the case sentence */
   .fte-foot{display:flex;flex-direction:column}
-  .fte-client{margin-top:clamp(14px,1.8vw,20px);display:flex;flex-direction:column;gap:8px}
+  .fte-client{margin-top:clamp(16px,2vw,22px);padding-top:clamp(14px,1.8vw,18px);border-top:1px solid rgba(233,255,246,.16);display:flex;flex-direction:column;gap:8px}
   .fte-client-lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--mint-bright);opacity:.92}
   .fte-client-logo{display:block;width:clamp(210px,20vw,290px);height:auto;filter:drop-shadow(0 2px 12px rgba(0,0,0,.35))}
   @media(max-width:760px){.fte-client-logo{width:min(240px,66%)}}
@@ -553,14 +553,14 @@
   }
   /* dept chips: Anton's floating % layout works on the wide desktop card; below 960px the
      fixed-size chips collide/overflow, so reflow into a clean static row (desktop layout untouched) */
-  .exp-big .depts-row{display:none;flex-wrap:wrap;gap:7px;margin-top:16px}
-  .exp-big .depts-row .dr{display:inline-flex;align-items:center;gap:.5em;padding:.42em .82em;border-radius:999px;
+  .exp-big .depts-row{display:none;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}
+  .exp-big .depts-row .dr{display:flex;width:100%;justify-content:center;align-items:center;gap:.5em;padding:.5em .82em;border-radius:999px;
     border:1px solid rgba(180,255,220,.38);background:rgba(10,30,22,.5);font-size:13px;font-weight:500;color:#eafff6;white-space:nowrap}
   .exp-big .depts-row .dr::before{content:"";width:.38em;height:.38em;border-radius:50%;background:#bdf5dd;box-shadow:0 0 7px rgba(150,255,220,.9);flex:none}
   @media(max-width:960px){
     .exp-big{aspect-ratio:auto;min-height:clamp(440px,62vw,560px)}
     .exp-big .depts{display:none}
-    .exp-big .depts-row{display:flex}
+    .exp-big .depts-row{display:grid}
   }
   /* phones: the screen-blended bg video reads broken on iOS (black corners) + loads slowly + clutters the text.
      Drop it, let the card gradient carry the look, and size cards to their content (no tall empty boxes). */
@@ -573,6 +573,8 @@
     .exp-txt h3{margin:8px 0 0}
     .exp-txt p{margin-top:0;padding-top:0}
     .exp-big .depts-row{margin-top:6px}
+    .fte-foot{display:contents}
+    .fte-client{order:1;margin-top:clamp(14px,4vw,20px)}
   }
   @media(prefers-reduced-motion:reduce){.exp-card{opacity:1;transform:none;transition:none}}
 </style>
@@ -597,8 +599,7 @@
         <div class="fte-foot">
           <p>1,2 млн часов ручного труда перевели на агентов в рамках одного холдинга.</p>
           <div class="fte-client">
-            <span class="fte-client-lbl">Наш клиент</span>
-            <img src="team/borishof-cream.png" alt="БорисХоф — группа компаний" class="fte-client-logo" loading="lazy">
+            <img src="team/borishof-cream.png" alt="БорисХоф — клиент" class="fte-client-logo" loading="lazy">
           </div>
         </div>
         <div class="depts-row"><span class="dr">Бухгалтерия</span><span class="dr">HR</span><span class="dr">Поддержка</span><span class="dr">Продажи</span><span class="dr">Логистика</span><span class="dr">Закупки</span></div>
