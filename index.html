@@ -27,6 +27,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="icon" type="image/png" href="brand/favicon.png" />
+<link rel="apple-touch-icon" href="brand/favicon-180.png" />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
@@ -88,7 +90,7 @@
   .brand{display:flex;align-items:center;text-decoration:none}
   .brand .hp-logo{height:22px;width:274px;display:block;filter:drop-shadow(0 1px 8px rgba(0,0,0,.35))}
   .links{display:none;gap:26px;margin-left:22px}
-  @media(min-width:920px){.links{display:flex}}
+  @media(min-width:1180px){.links{display:flex}}
   .links a{color:rgba(255,255,255,.82);text-decoration:none;font-size:15px;font-weight:400;white-space:nowrap;transition:color .25s var(--ease)}
   .links a:hover{color:#fff}
   .right{margin-left:auto;display:flex;align-items:center;gap:22px}
@@ -140,7 +142,7 @@
     transition:transform .4s var(--ease),opacity .3s var(--ease)}
   body.nav-open .nav-burger span:nth-child(1){transform:translateY(4px) rotate(45deg)}
   body.nav-open .nav-burger span:nth-child(2){transform:translateY(-4px) rotate(-45deg)}
-  @media(max-width:919px){
+  @media(max-width:1179px){
     .nav-burger{display:inline-flex}
     .right .pill-metal{display:none}            /* CTA moves into the overlay menu */
   }
@@ -154,7 +156,7 @@
     transition:opacity .5s var(--ease),transform .5s var(--ease),visibility 0s linear .5s}
   body.nav-open .nav-menu{opacity:1;visibility:visible;transform:none;
     transition:opacity .5s var(--ease),transform .5s var(--ease)}
-  @media(min-width:920px){.nav-menu{display:none}}
+  @media(min-width:1180px){.nav-menu{display:none}}
   .nav-menu-links{display:flex;flex-direction:column;gap:clamp(4px,1.6vh,14px)}
   .nav-menu-links a{display:flex;align-items:baseline;gap:16px;text-decoration:none;color:#fff;
     font-size:clamp(1.9rem,8.4vw,2.7rem);font-weight:500;letter-spacing:-.02em;line-height:1.12;
@@ -520,6 +522,12 @@
   .fte-pulse.b{animation-delay:1.9s}
   @keyframes fteSweep{0%{--fteX:42%}100%{--fteX:114%}}
   @media(prefers-reduced-motion:reduce){.fte-pulse{animation:none;opacity:0}}
+  /* Наш кейс — client credit (БорисХоф logo) anchored to the bottom of the FTE card, under the case sentence */
+  .fte-foot{display:flex;flex-direction:column}
+  .fte-client{margin-top:clamp(14px,1.8vw,20px);display:flex;flex-direction:column;gap:8px}
+  .fte-client-lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--mint-bright);opacity:.92}
+  .fte-client-logo{display:block;width:clamp(210px,20vw,290px);height:auto;filter:drop-shadow(0 2px 12px rgba(0,0,0,.35))}
+  @media(max-width:760px){.fte-client-logo{width:min(240px,66%)}}
   /* card colours — colour comes from the card, white tonal UI from the blended video */
   .c-fte {background:radial-gradient(120% 130% at 82% 8%,#1f7a59 0%,transparent 52%),linear-gradient(155deg,#16302B,#0c3327)}
   .c-roi {background:radial-gradient(120% 120% at 85% 12%,#27b499 0%,transparent 55%),linear-gradient(155deg,#1f9c84,#11574a)}
@@ -586,7 +594,13 @@
       </div>
       <div class="exp-txt">
         <div><span class="label">Наш кейс</span><h3>Роботизируем рутину в отделах</h3></div>
-        <p>1,2 млн часов ручного труда перевели на агентов в рамках одного холдинга.</p>
+        <div class="fte-foot">
+          <p>1,2 млн часов ручного труда перевели на агентов в рамках одного холдинга.</p>
+          <div class="fte-client">
+            <span class="fte-client-lbl">Наш клиент</span>
+            <img src="team/borishof-cream.png" alt="БорисХоф — группа компаний" class="fte-client-logo" loading="lazy">
+          </div>
+        </div>
         <div class="depts-row"><span class="dr">Бухгалтерия</span><span class="dr">HR</span><span class="dr">Поддержка</span><span class="dr">Продажи</span><span class="dr">Логистика</span><span class="dr">Закупки</span></div>
       </div>
     </article>
@@ -1062,10 +1076,10 @@
     border:1px solid rgba(255,255,255,.16);color:rgba(255,255,255,.92);font-size:12.5px;font-weight:500;letter-spacing:-.005em}
   .tm-unit-badge b{font-size:19px;font-weight:700;color:var(--mint-bright);letter-spacing:-.02em}
   @media(max-width:680px){
-    .team-grid{display:flex;grid-template-columns:none;gap:14px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
-      margin-left:-24px;margin-right:-24px;padding:6px 24px 12px;scroll-padding:0 24px;scrollbar-width:none;-ms-overflow-style:none}
+    .team-grid{display:flex;grid-template-columns:none;gap:14px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+      margin-left:-24px;margin-right:-24px;padding:6px 24px 12px;scrollbar-width:none;-ms-overflow-style:none}
     .team-grid::-webkit-scrollbar{display:none}
-    .tm-card{flex:0 0 70%;max-width:280px;scroll-snap-align:start}
+    .tm-card{flex:0 0 70%;max-width:280px}
   }
   .tm-card{position:relative}
   .tm-photo{position:relative;aspect-ratio:4/5;border-radius:16px;overflow:hidden;background:#e7e6e0;
@@ -1613,6 +1627,7 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   } else {
     steps.forEach(function(s){ s.classList.add('shown','lit'); var v=s.querySelector('video'),p=s.querySelector('.poster'); if(p)p.style.opacity='0'; if(v){v.style.opacity='1';} });
   }
+  var _procRz; window.addEventListener("resize",function(){ clearTimeout(_procRz); _procRz=setTimeout(function(){ if(window.ScrollTrigger) ScrollTrigger.refresh(); },260); },{passive:true});
 })();
 </script>
 
@@ -1969,8 +1984,11 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
     var io=new IntersectionObserver(function(e){onScreen=e[0].isIntersecting;},{rootMargin:"200px"});io.observe(vp);
     function tick(){if(document.hidden||!onScreen||hover||sticky)return;pos+=DRIFT*(G.ticker.deltaRatio()/60);loop.totalTime(pos);}
     G.ticker.add(tick);
-    vp.addEventListener("pointerenter",function(){hover=true;});
-    vp.addEventListener("pointerleave",function(){hover=false;});
+    if(matchMedia("(hover:hover) and (pointer:fine)").matches){
+      vp.addEventListener("pointerenter",function(){hover=true;});
+      vp.addEventListener("pointerleave",function(){hover=false;});
+    }
+    ["pointerup","pointercancel","touchend"].forEach(function(ev){vp.addEventListener(ev,function(){hover=false;},{passive:true});});
     var pb=document.getElementById("revPause");
     if(pb)pb.addEventListener("click",function(){sticky=!sticky;pb.setAttribute("aria-pressed",sticky);
       pb.querySelector("span").textContent=sticky?"Продолжить":"Пауза";
