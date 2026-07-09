@@ -335,6 +335,17 @@
     .bub .tx{min-width:fit-content}
     .below-in{font-size:12.5px;gap:12px 18px}
   }
+  /* phone landscape is wide (>760px) but short — the max-width:760 mobile rules don't fire,
+     so the desktop chat (72vh, bottom:0) overlaps the headline. Instead of hiding it, keep the
+     chat visible but shrink the headline into the LEFT column and pin the chat to a narrow RIGHT
+     column so they no longer overlap. Tablets/desktop (height >560) are untouched. */
+  @media(orientation:landscape) and (max-height:560px){
+    .copy{margin-top:clamp(60px,13vh,88px);max-width:50%}
+    h1{font-size:clamp(1.3rem,3.2vw,1.95rem)}
+    .hero-roi{margin-top:14px;font-size:clamp(12px,2.1vw,15px)}
+    /* chat pinned to a narrow right column; box-sizing+max-height keep its TOP clear of the header */
+    .chat{width:min(320px,38%);right:16px;bottom:12px;box-sizing:border-box;padding-bottom:16px;max-height:calc(100vh - 112px)}
+  }
   @media(prefers-reduced-motion:reduce){
     *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
     .cta{opacity:1;transform:none}
@@ -524,7 +535,7 @@
   @media(prefers-reduced-motion:reduce){.fte-pulse{animation:none;opacity:0}}
   /* Наш кейс — client credit (БорисХоф logo) anchored to the bottom of the FTE card, under the case sentence */
   .fte-foot{display:flex;flex-direction:column}
-  .fte-client{margin-top:clamp(16px,2vw,22px);padding-top:clamp(14px,1.8vw,18px);border-top:1px solid rgba(233,255,246,.16);display:flex;flex-direction:column;gap:8px}
+  .fte-client{margin-top:clamp(16px,2vw,22px);padding-top:clamp(14px,1.8vw,18px);display:flex;flex-direction:column;gap:8px}
   .fte-client-lbl{font-size:11px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;color:var(--mint-bright);opacity:.92}
   .fte-client-logo{display:block;width:clamp(210px,20vw,290px);height:auto;filter:drop-shadow(0 2px 12px rgba(0,0,0,.35))}
   @media(max-width:760px){.fte-client-logo{width:min(240px,66%)}}
@@ -1081,6 +1092,12 @@
       margin-left:-24px;margin-right:-24px;padding:6px 24px 12px;scrollbar-width:none;-ms-overflow-style:none}
     .team-grid::-webkit-scrollbar{display:none}
     .tm-card{flex:0 0 70%;max-width:280px}
+  }
+  /* short/wide screens (landscape phones, resized windows): same horizontal photo scroll as mobile */
+  @media(orientation:landscape) and (max-height:560px){
+    .team-grid{display:flex;grid-template-columns:none;gap:14px;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;margin-left:-24px;margin-right:-24px;padding:6px 24px 12px;scrollbar-width:none;-ms-overflow-style:none}
+    .team-grid::-webkit-scrollbar{display:none}
+    .tm-card{flex:0 0 clamp(190px,30%,240px);max-width:none}
   }
   .tm-card{position:relative}
   .tm-photo{position:relative;aspect-ratio:4/5;border-radius:16px;overflow:hidden;background:#e7e6e0;
@@ -1824,6 +1841,7 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
         <a href="docs/privacy-policy.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Политика обработки персональных данных</a>
         <a href="docs/mincifry-requirements.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Требования Минцифры к ИТ-сайтам</a>
         <a href="docs/it-accreditation.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Выписка из реестра аккредитованных ИТ-компаний</a>
+        <a href="https://felxmodaso-collab.github.io/hyperplatform/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v10H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg>ПО «Хайперплатформ» — сведения для Минцифры</a>
       </div>
       <div class="ft-copy">© 2026 HYPERPARTNER. Все права защищены.</div>
     </div>
@@ -1980,10 +1998,10 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
 
     if(reduce||!G)return;
     var loop=G.to(track,{xPercent:-50,duration:42,ease:"none",repeat:-1,paused:true});
-    var pos=0,DRIFT=1,onScreen=false,hover=false,sticky=false;
+    var pos=0,DRIFT=1,onScreen=false,hover=false,sticky=false,dragging=false;
     var vp=document.getElementById("revVp");
     var io=new IntersectionObserver(function(e){onScreen=e[0].isIntersecting;},{rootMargin:"200px"});io.observe(vp);
-    function tick(){if(document.hidden||!onScreen||hover||sticky)return;pos+=DRIFT*(G.ticker.deltaRatio()/60);loop.totalTime(pos);}
+    function tick(){if(document.hidden||!onScreen||hover||sticky||dragging)return;pos+=DRIFT*(G.ticker.deltaRatio()/60);loop.totalTime(((pos%42)+42)%42);}
     G.ticker.add(tick);
     if(matchMedia("(hover:hover) and (pointer:fine)").matches){
       vp.addEventListener("pointerenter",function(){hover=true;});
@@ -1994,6 +2012,17 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
     if(pb)pb.addEventListener("click",function(){sticky=!sticky;pb.setAttribute("aria-pressed",sticky);
       pb.querySelector("span").textContent=sticky?"Продолжить":"Пауза";
       pb.querySelector("path").setAttribute("d",sticky?"M8 5v14l11-7L8 5z":"M6 5h4v14H6V5zm8 0h4v14h-4V5z");});
+    // manual swipe/drag — fling the marquee left/right (finger 1:1); auto-drift pauses while
+    // dragging and resumes from the new position on release, so the carousel is preserved.
+    var sx=0,spos=0,moved=0,W=1;
+    function setPos(p){pos=p;loop.totalTime(((p%42)+42)%42);}
+    track.style.touchAction="pan-y"; track.style.cursor="grab";
+    track.addEventListener("pointerdown",function(e){dragging=true;moved=0;sx=e.clientX;spos=pos;W=track.offsetWidth||1;try{track.setPointerCapture(e.pointerId);}catch(_){}track.style.cursor="grabbing";});
+    track.addEventListener("pointermove",function(e){if(!dragging)return;var dx=e.clientX-sx;if(Math.abs(dx)>moved)moved=Math.abs(dx);setPos(spos-dx*84/W);});
+    function endDrag(e){if(!dragging)return;dragging=false;track.style.cursor="grab";try{track.releasePointerCapture(e.pointerId);}catch(_){}}
+    track.addEventListener("pointerup",endDrag);
+    track.addEventListener("pointercancel",endDrag);
+    track.addEventListener("dragstart",function(e){e.preventDefault();});
   })();
 
   /* ---- FOOTER form ---- */
@@ -2283,11 +2312,12 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   if(!el||!window.maplibregl)return;
   var LAT=55.762771, LON=37.527024;                 // geocoded: «18 с22, 2-я Магистральная улица»
   var coarse=window.matchMedia("(pointer:coarse)").matches;
+  var mapEdit=/[?&]mapedit=1/.test(location.search);
   var map=new maplibregl.Map({
     container:el,
     style:"https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
     center:[LON,LAT], zoom:15.4, attributionControl:false,
-    cooperativeGestures:true, dragRotate:false, pitchWithRotate:false, keyboard:false,
+    cooperativeGestures:!mapEdit, dragRotate:false, pitchWithRotate:false, keyboard:false,
     locale:{
       "CooperativeGesturesHandler.WindowsHelpText":"Ctrl + прокрутка, чтобы приблизить карту",
       "CooperativeGesturesHandler.MacHelpText":"⌘ + прокрутка, чтобы приблизить карту",
@@ -2305,17 +2335,30 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   var cityEl=document.createElement("div"); cityEl.className="hp-city";
   cityEl.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V10l4-2v13M9 21V5l5-2v18M16 21V11l5 2v8M2 21h20"/></svg>Москва-Сити<b>· 15 мин</b>';
   new maplibregl.Marker({element:cityEl,anchor:"center"}).setLngLat(CITY).addTo(map);
+  function initMapPicker(map,el){
+    var box=document.createElement("div");
+    box.style.cssText="position:fixed;left:0;right:0;bottom:0;z-index:99999;display:flex;gap:8px;align-items:center;padding:10px 12px;background:rgba(8,18,15,.94);border-top:1px solid rgba(150,255,215,.42);font:13px/1.3 'IBM Plex Sans',system-ui,sans-serif";
+    box.innerHTML='<div id="mpread" style="flex:1;color:#eafff6;font-size:12px"></div>'+
+      '<button id="mpsave" style="background:#1f9c84;color:#fff;border:0;border-radius:10px;padding:11px 15px;font:inherit;font-weight:600;cursor:pointer">Зафиксировать</button>'+
+      '<button id="mpreset" style="background:#3a1d18;color:#ffd9cc;border:1px solid #6a3328;border-radius:10px;padding:11px 12px;font:inherit;cursor:pointer">Сброс</button>';
+    document.body.appendChild(box);
+    function read(){var c=map.getCenter();document.getElementById("mpread").textContent="положение: center ["+c.lng.toFixed(6)+", "+c.lat.toFixed(6)+"]  zoom "+map.getZoom().toFixed(2);}
+    map.on("move",read); map.on("idle",read); read();
+    document.getElementById("mpsave").onclick=function(){var c=map.getCenter();var v={center:[+c.lng.toFixed(6),+c.lat.toFixed(6)],zoom:+map.getZoom().toFixed(3)};localStorage.setItem("hp-map-mobile-pos",JSON.stringify(v));console.log("HP_MAP_MOBILE_POS="+JSON.stringify(v));alert("Зафиксировано для мобильной версии:\ncenter "+v.center[0]+", "+v.center[1]+"\nzoom "+v.zoom+"\n\nОткрой сайт без ?mapedit на мобильном — карта встанет в это положение.\nПришли мне эти center/zoom — вобью в код навсегда для всех.");};
+    document.getElementById("mpreset").onclick=function(){localStorage.removeItem("hp-map-mobile-pos");alert("Сброшено. Перезагрузи страницу — вернётся авто-кадрирование.");};
+  }
   map.on("load",function(){
     // closer framing — office centred, central Moscow + river in view (not the far ring)
     var VB=[[37.498,55.736],[37.602,55.792]];
+    var saved=null; try{saved=JSON.parse(localStorage.getItem("hp-map-mobile-pos"));}catch(e){}
     if(coarse){
-      // mobile: push framing up-and-right so the Moscow-City chip clears the bottom-left office card
-      var mr=el.getBoundingClientRect();
-      map.fitBounds(VB,{padding:{top:Math.round(mr.height*0.06),right:Math.round(mr.width*0.06),bottom:Math.round(mr.height*0.40),left:Math.round(mr.width*0.34)},duration:0});
+      var pos=(saved&&saved.center)?saved:{center:[37.520910,55.759159],zoom:11.11};   // client-fixed mobile framing
+      map.jumpTo({center:pos.center,zoom:pos.zoom});
     } else {
       map.fitBounds(VB,{padding:18,duration:0});
     }
     map.resize();
+    if(mapEdit) initMapPicker(map,el);
   });
   if("IntersectionObserver" in window){
     var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){map.resize();io.disconnect();}},{rootMargin:"120px"});
