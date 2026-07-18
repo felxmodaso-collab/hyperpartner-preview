@@ -2034,8 +2034,13 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
       [name,mail].forEach(function(f){if(!f.value.trim()){f.style.borderColor="#C56A4F";ok=false;}else{f.style.borderColor="";}});
       if(!cons.checked){cons.parentNode.style.color="#e0a48c";ok=false;}else{cons.parentNode.style.color="";}
       if(!ok)return;
-      document.getElementById("ftForm").classList.add("sent");
-      document.getElementById("ftSuccess").classList.add("on");
+      btn.disabled=true;
+      var body=new URLSearchParams({name:name.value.trim(),email:mail.value.trim(),consent:"1"}).toString();
+      fetch("/submit",{method:"POST",headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},body:body})
+        .then(function(r){return r.json();}).then(function(res){
+          if(res&&res.ok){document.getElementById("ftForm").classList.add("sent");document.getElementById("ftSuccess").classList.add("on");}
+          else{btn.disabled=false;alert("Не удалось отправить. Напишите на info@hyperpartner.ru");}
+        }).catch(function(){btn.disabled=false;alert("Ошибка сети, попробуйте позже.");});
     });
   })();
 })();
