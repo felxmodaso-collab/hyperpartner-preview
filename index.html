@@ -29,11 +29,12 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="icon" type="image/png" href="brand/favicon.png" />
 <link rel="apple-touch-icon" href="brand/favicon-180.png" />
+<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" />
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<!-- MapLibre GL (~800KB) is loaded lazily when the footer map nears the viewport — see the #mapCanvas init below. -->
+
 <style>
   :root{
     --paper:#F5F4F0;--ink:#1E1D1A;--forest:#16302B;
@@ -189,8 +190,11 @@
   .copy{max-width:min(720px,90%);margin-top:clamp(120px,23vh,230px)}
   h1{margin:0;color:#fff;font-weight:400;letter-spacing:-0.03em;line-height:1.06;
     font-size:clamp(2.1rem,4.6vw,3.85rem);text-shadow:0 2px 34px rgba(0,0,0,.22);white-space:nowrap}
-  h1 .ln{display:block;overflow:hidden}
-  h1 .ln>span{display:block;transform:translateY(108%);animation:lineUp 1.05s var(--ease) forwards}
+  /* The mask has to be taller than the 1.06 line box or it slices the descenders off «у р ц д»
+     and «g y p»: IBM Plex Sans descends ~0.20em below the baseline, the line box leaves ~0.155em.
+     padding-bottom + an equal negative margin grows the clip area without moving any layout. */
+  h1 .ln{display:block;overflow:hidden;padding-bottom:.14em;margin-bottom:-.14em}
+  h1 .ln>span{display:block;transform:translateY(112%);animation:lineUp 1.05s var(--ease) forwards}
   h1 .ln:nth-child(1)>span{animation-delay:.4s}
   h1 .ln:nth-child(2)>span{animation-delay:.52s}
   @keyframes lineUp{to{transform:none}}
@@ -596,7 +600,7 @@
   </div>
   <div class="exp-wrap">
     <article class="exp-card exp-big c-fte">
-      <video class="exp-bg" src="gen3/fte-h4b-A.mp4" muted loop playsinline preload="auto" autoplay></video>
+      <video class="exp-bg" src="gen3/fte-h4b-A.mp4" muted loop playsinline preload="none" autoplay></video>
       <div class="depts">
         <span class="dept" style="left:4.83%;top:58.44%;font-size:19.5px">Бухгалтерия</span>
         <span class="dept" style="left:83.56%;top:14.53%;font-size:17.5px">HR</span>
@@ -618,15 +622,15 @@
     </article>
     <div class="exp-row">
       <article class="exp-card exp-sm c-roi">
-        <video class="exp-bg" src="gen3/roi-anim2.mp4" muted loop playsinline preload="auto"></video>
+        <video class="exp-bg" src="gen3/roi-anim2.mp4" muted loop playsinline preload="none"></video>
         <div class="exp-txt"><div><span class="label">Экономика</span><h3>Окупаемость 1–6 мес.</h3></div><p>Сокращение ФОТ на 20–50%.</p></div>
       </article>
       <article class="exp-card exp-sm c-sec">
-        <video class="exp-bg" src="gen3/sec-anim.mp4" muted loop playsinline preload="auto"></video>
+        <video class="exp-bg" src="gen3/sec-anim.mp4" muted loop playsinline preload="none"></video>
         <div class="exp-txt"><div><span class="label">Безопасность</span><h3>On-Premise и шифрование</h3></div><p>Опция закрытого контура. Полная изоляция чувствительных данных.</p></div>
       </article>
       <article class="exp-card exp-sm c-pers">
-        <video class="exp-bg" src="gen3/pers-anim.mp4" muted loop playsinline preload="auto"></video>
+        <video class="exp-bg" src="gen3/pers-anim.mp4" muted loop playsinline preload="none"></video>
         <div class="exp-txt"><div><span class="label">Продажи</span><h3>Клиентский сервис 2.0</h3></div><p>AI-аналитика звонков и генерация персональных лендингов.</p></div>
       </article>
     </div>
@@ -1551,7 +1555,7 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   var STEPS=[["01","Аудит и стратегия","5 дней"],["02","Бесплатный пилот","10–14 дней"],["03","Договор и оплата","3 дня"],["04","Разработка","1–4 недели"],["05","Тестирование","2 недели"],["06","Запуск и поддержка","∞"]];
   STEPS.forEach(function(a,i){ var n=a[0],t=a[1],d=a[2];
     var el=document.createElement('div'); el.className='step'; el.dataset.i=i;
-    var vid=useVideo?'<video src="process/a-anim-'+n+'.webm" muted playsinline preload="auto"></video>':'';
+    var vid=useVideo?'<video src="process/a-anim-'+n+'.webm" muted playsinline preload="none"></video>':'';
     el.innerHTML='<div class="glow"></div><div class="block"><img class="poster" src="process/a-pad-'+n+'.webp" alt="">'+vid+'</div><div class="label"><div class="head"><span class="n">'+n+'</span>'+(d?'<span class="d">'+d+'</span>':'')+'</div><span class="t">'+t+'</span></div>';
     iso.appendChild(el);
   });
@@ -2055,6 +2059,9 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
   var items  = [].slice.call(document.querySelectorAll(".roles .rv-item"));
   function fitMocks(){items.forEach(function(it){var m=it.querySelector(".mk");if(m){var c=it.querySelector(".rv-card");if(c)m.style.transform="scale("+(c.clientWidth/1000)+")";}});}
   fitMocks();window.addEventListener("resize",fitMocks);window.addEventListener("load",fitMocks);
+  // The card nearest the middle of the viewport decides which heading the narrow column shows.
+  // Shared by the GSAP path and by the no-animation fallback below.
+  function nearestCard(){ var vc=window.innerHeight/2,best=0,bd=Infinity; items.forEach(function(it,i){ var r=it.querySelector('.rv-card').getBoundingClientRect(); var d=Math.abs((r.top+r.height/2)-vc); if(d<bd){bd=d;best=i;} }); return best; }
   var cur = -1;
   function setActive(i){
     if(i===cur) return; cur=i;
@@ -2071,7 +2078,6 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
     // instant a different card becomes dominant (the old per-card "center center" triggers only
     // switched once a card was dead-centre, leaving the text a full card behind the visual).
     var stage=document.querySelector('.roles-stage');
-    function nearestCard(){ var vc=window.innerHeight/2,best=0,bd=Infinity; items.forEach(function(it,i){ var r=it.querySelector('.rv-card').getBoundingClientRect(); var d=Math.abs((r.top+r.height/2)-vc); if(d<bd){bd=d;best=i;} }); return best; }
     ScrollTrigger.create({ trigger:stage, start:"top bottom", end:"bottom top",
       onUpdate:function(){ setActive(nearestCard()); } });
     // peak-at-centre liveliness, scrub-smoothed (0.6s lag) so it feels weighted, never clicky
@@ -2092,8 +2098,22 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
     });
   }
   if(reduce || !G || !window.ScrollTrigger){
-    panels.forEach(function(p){p.style.opacity=1;p.classList.add("rv-in","is-active");});
-    items.forEach(function(it){it.classList.add("rv-in");});
+    // No GSAP (blocked or slow CDN), or the visitor asked the OS for reduced motion.
+    // On desktop the panels sit on top of each other (position:absolute), so revealing them all
+    // at once printed all five headings in the same spot. Keep the one-at-a-time switch and drive
+    // it from a plain scroll listener instead — no animation, just the right panel.
+    items.forEach(function(it){ it.classList.add("rv-in"); });
+    var wide=matchMedia("(min-width:1024px)"), queued=false;
+    function syncPanels(){
+      queued=false;
+      if(wide.matches){ setActive(nearestCard()); }
+      else { cur=-1; panels.forEach(function(p){ p.style.opacity=1; p.style.transform="none"; p.classList.add("rv-in","is-active"); }); }
+    }
+    function queueSync(){ if(!queued){ queued=true; requestAnimationFrame(syncPanels); } }
+    addEventListener("scroll",queueSync,{passive:true});
+    addEventListener("resize",queueSync);
+    addEventListener("load",queueSync);
+    syncPanels();
   } else {
     var mm = G.matchMedia();
     mm.add("(min-width:1024px)", function(){ buildDesktop(); return function(){}; });
@@ -2314,7 +2334,13 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
 /* footer map — dark MapLibre GL + CARTO basemap, pinned EXACTLY at 2-я Магистральная, 18, стр. 22 */
 (function(){
   var el=document.getElementById("mapCanvas");
-  if(!el||!window.maplibregl)return;
+  if(!el)return;
+  // Lazy-load MapLibre GL (~800KB) only when the footer map nears the viewport, then build the map.
+  function loadML(cb){ if(window.maplibregl){cb();return;}
+    var c=document.createElement("link"); c.rel="stylesheet"; c.href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"; document.head.appendChild(c);
+    var s=document.createElement("script"); s.src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"; s.onload=cb; document.head.appendChild(s); }
+  function boot(){
+  if(!window.maplibregl)return;
   var LAT=55.762771, LON=37.527024;                 // geocoded: «18 с22, 2-я Магистральная улица»
   var coarse=window.matchMedia("(pointer:coarse)").matches;
   var mapEdit=/[?&]mapedit=1/.test(location.search);
@@ -2369,6 +2395,12 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
     var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){map.resize();io.disconnect();}},{rootMargin:"120px"});
     io.observe(el);
   }
+  }
+  // Fire the lazy load ~400px before the map scrolls in so it is ready in time.
+  if("IntersectionObserver" in window){
+    var mio=new IntersectionObserver(function(es){ if(es[0].isIntersecting){ mio.disconnect(); loadML(boot); } },{rootMargin:"400px"});
+    mio.observe(el);
+  } else { loadML(boot); }
 })();
 </script>
 <script>
