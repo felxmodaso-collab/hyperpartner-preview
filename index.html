@@ -29,12 +29,12 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
 <link rel="icon" type="image/png" href="brand/favicon.png" />
 <link rel="apple-touch-icon" href="brand/favicon-180.png" />
-<link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/MotionPathPlugin.min.js"></script>
+<!-- GSAP 3.12.5, served from this domain. It used to come from cdnjs: when that CDN was slow
+     or blocked, the page lost its animation engine and sections that depend on it degraded. -->
+<script src="vendor/gsap/gsap.min.js"></script>
+<script src="vendor/gsap/ScrollTrigger.min.js"></script>
+<script src="vendor/gsap/MotionPathPlugin.min.js"></script>
 <!-- MapLibre GL (~800KB) is loaded lazily when the footer map nears the viewport — see the #mapCanvas init below. -->
-
 <style>
   :root{
     --paper:#F5F4F0;--ink:#1E1D1A;--forest:#16302B;
@@ -1807,7 +1807,7 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
           <img src="gen3/office.webp" alt="Бизнес-центр, где расположен офис HyperPartner — Москва-Сити" loading="lazy">
           <figcaption><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-5h6v5"/></svg>Офис · 2-я Магистральная, 18</figcaption>
         </figure>
-        <a class="ft-map-route" href="https://yandex.ru/maps/?rtext=~55.762771%2C37.527024&rtt=auto" target="_blank" rel="noopener" aria-label="Построить маршрут до офиса в Яндекс.Картах">Проложить маршрут <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
+        <a class="ft-map-route" href="https://yandex.ru/maps/-/CTFgBN0F" target="_blank" rel="noopener" aria-label="Открыть офис на Яндекс.Картах">Показать на карте <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
       </div>
     </div>
 
@@ -1845,7 +1845,7 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
         <a href="docs/privacy-policy.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Политика обработки персональных данных</a>
         <a href="docs/mincifry-requirements.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Требования Минцифры к ИТ-сайтам</a>
         <a href="docs/it-accreditation.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>Выписка из реестра аккредитованных ИТ-компаний</a>
-        <a href="https://felxmodaso-collab.github.io/hyperplatform/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v10H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg>Программное обеспечение «Хайперплатформ»</a>
+        <a href="platform/" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 5h16v10H8l-4 4z"/><path d="M8 9h8M8 12h5"/></svg>Программное обеспечение «Хайперплатформ»</a>
       </div>
       <div class="ft-copy">© 2026 HYPERPARTNER. Все права защищены.</div>
     </div>
@@ -2103,11 +2103,15 @@ video::-webkit-media-controls-overlay-play-button{display:none!important}
     // at once printed all five headings in the same spot. Keep the one-at-a-time switch and drive
     // it from a plain scroll listener instead — no animation, just the right panel.
     items.forEach(function(it){ it.classList.add("rv-in"); });
-    var wide=matchMedia("(min-width:1024px)"), queued=false;
+    var wide=matchMedia("(min-width:1024px)"), queued=false, stacked=false;
     function syncPanels(){
       queued=false;
-      if(wide.matches){ setActive(nearestCard()); }
-      else { cur=-1; panels.forEach(function(p){ p.style.opacity=1; p.style.transform="none"; p.classList.add("rv-in","is-active"); }); }
+      if(wide.matches){ stacked=false; setActive(nearestCard()); return; }
+      // Below 1024 the panels flow one under another — they all belong on screen, so write
+      // the styles once per breakpoint change instead of on every scroll frame.
+      if(stacked) return;
+      stacked=true; cur=-1;
+      panels.forEach(function(p){ p.style.opacity=1; p.style.transform="none"; p.classList.add("rv-in","is-active"); });
     }
     function queueSync(){ if(!queued){ queued=true; requestAnimationFrame(syncPanels); } }
     addEventListener("scroll",queueSync,{passive:true});

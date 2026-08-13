@@ -1,0 +1,2 @@
+# third-party bundles must stay byte-identical to upstream
+vendor/** -text
